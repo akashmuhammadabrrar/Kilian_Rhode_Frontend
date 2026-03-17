@@ -325,7 +325,7 @@ const Pagination: React.FC<PaginationProps> = React.memo(
         <div className="w-16 border-t border-[#DFA637] mb-8"></div>
 
         <button
-          className={`${jostFont.className} mb-4 px-12 py-3 border border-gray-900 text-gray-900 font-medium tracking-widest flex items-center transition 
+          className={`${jostFont.className} mb-4 px-12 py-3 border border-gray-900 text-gray-900 font-medium tracking-widest flex items-center transition cursor-pointer
             ${canLoadMore ? 'hover:bg-gray-50' : 'opacity-50 cursor-not-allowed'}`}
           onClick={onLoadMore}
           disabled={!canLoadMore}
@@ -374,7 +374,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
   const subCategoryParam = searchParams.get("subcategory");
   const ageRangeParam = searchParams.get("age_range");
 
-  const [currentPage, setCurrentPage] = useState(1);
+  const [currentLimit, setCurrentLimit] = useState(10);
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<number | "ALL">("ALL"); // Store ID
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number | null>(subCategoryParam ? parseInt(subCategoryParam) : null);
   const [selectedPriceRange, setSelectedPriceRange] = useState<typeof priceRanges[number] | null>(null);
@@ -401,7 +401,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
 
   // API Query
   const { data: productsData, isLoading } = useGetProductsQuery({
-    page: currentPage,
+    limit: currentLimit,
     category: categoryParam ? parseInt(categoryParam) : undefined,
     subcategory: selectedSubCategoryId || (subCategoryParam ? parseInt(subCategoryParam) : undefined),
     age_range: selectedAgeGroupId !== "ALL" ? selectedAgeGroupId : (ageRangeParam ? parseInt(ageRangeParam) : undefined),
@@ -440,7 +440,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
 
   // Handlers
   const handleFilterChange = useCallback(() => {
-    setCurrentPage(1);
+    setCurrentLimit(10);
   }, []);
 
   // ... (Action handlers same)
@@ -480,11 +480,11 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
     router.push(`/pages/customise?id=${id}`);
   }, [router]);
 
-  const totalFilteredProducts = Array.isArray(productsData?.results?.categories) ? productsData.results.categories.length : 0;
-  const canLoadMore = false;
+  const totalFilteredProducts = productsData?.count || 0;
+  const canLoadMore = currentLimit < totalFilteredProducts;
 
   const handleLoadMore = useCallback(() => {
-    setCurrentPage(prevPage => prevPage + 1);
+    setCurrentLimit(prevLimit => prevLimit + 8);
   }, []);
 
   const handleAgeGroupSelect = useCallback((id: number | "ALL") => {

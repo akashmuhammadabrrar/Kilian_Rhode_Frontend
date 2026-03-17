@@ -29,7 +29,6 @@ import {
   useGetOrderDetailsQuery,
   IAddressBookItem
 } from "@/app/store/slices/services/order/orderApi";
-import { useCheckDiscountApplicabilityMutation, IDiscountCheckResponse } from "@/app/store/slices/services/order/discountApi";
 import AddressBook from "./addressBook";
 
 // Fonts
@@ -209,11 +208,6 @@ const ShippingPage: React.FC = () => {
   const { data: orderDetails, isLoading: orderLoading } = useGetOrderDetailsQuery(orderId as number, {
     skip: !orderId,
   });
-  const [checkDiscount, { isLoading: isCheckingDiscount }] = useCheckDiscountApplicabilityMutation();
-
-  const [orderCoupon, setOrderCoupon] = useState("");
-  const [productCoupons, setProductCoupons] = useState<Record<string, string>>({});
-  const [discountResults, setDiscountResults] = useState<IDiscountCheckResponse | null>(null);
 
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [isNewAddress, setIsNewAddress] = useState(true);
@@ -292,72 +286,16 @@ const ShippingPage: React.FC = () => {
     }
   };
 
-  const handleApplyDiscounts = async () => {
-    if (!orderDetails) return;
-
-    try {
-      const res = await checkDiscount({
-        order_code: orderCoupon || "",
-        product_codes: productCoupons,
-      }).unwrap();
-      setDiscountResults(res);
-      toast.success("Discount codes checked successfully");
-    } catch (err: any) {
-      console.error("Failed to check discount", err);
-      toast.error(err?.data?.message || "Failed to check discount applicability");
-    }
-  };
-
-  // --- Calculation Logic ---
+  // --- Calculation Logic from API Response ---
   const cartTotal = orderDetails?.product_total_amount || 0;
   const shippingCost = orderDetails?.shipping_cost || 0;
-
-  // Calculate product discounts
-  let totalProductDiscount = 0;
-  const itemDiscounts: Record<string, number> = {};
-
-  if (discountResults?.success && orderDetails?.items) {
-    orderDetails.items.forEach(item => {
-      const res = discountResults.data?.product?.[item.order_product_id.toString()];
-      if (res?.is_valid) {
-        let amount = 0;
-        const itemPrice = parseFloat(item.order_product_price);
-        if (res.data.discount_type === "percentage") {
-          amount = (itemPrice * res.data.discount_amount) / 100;
-          if (res.data.max_discount_amount) {
-            amount = Math.min(amount, res.data.max_discount_amount);
-          }
-        } else {
-          amount = res.data.discount_amount;
-        }
-        itemDiscounts[item.id] = amount;
-        totalProductDiscount += amount * item.quantity;
-      }
-    });
-  }
-
-  const subtotalAfterProductDiscount = cartTotal - totalProductDiscount;
-
-  // Calculate order discount
-  let orderDiscountAmount = 0;
-  if (discountResults?.success && discountResults.data.order?.is_valid) {
-    const res = discountResults.data.order;
-    if (subtotalAfterProductDiscount >= res.data.min_purchase_amount) {
-      if (res.data.discount_type === "percentage") {
-        orderDiscountAmount = (subtotalAfterProductDiscount * res.data.discount_amount) / 100;
-        if (res.data.max_discount_amount) {
-          orderDiscountAmount = Math.min(orderDiscountAmount, res.data.max_discount_amount);
-        }
-      } else {
-        orderDiscountAmount = res.data.discount_amount;
-      }
-    }
-  }
-
-  const totalDiscount = totalProductDiscount + orderDiscountAmount;
-  const total = (cartTotal + shippingCost) - totalDiscount;
-
-  const subtotal = cartTotal; // For consistent naming with checkout step
+  const originalTotal = orderDetails?.original_total || cartTotal + shippingCost;
+  const totalDiscount = orderDetails?.total_savings || 0;
+  const total = orderDetails?.total_cost || cartTotal + shippingCost;
+  
+  // Product-level discount information is not explicitly provided item-by-item in the new response easily except via `applied_promo_codes`, 
+  // but we can just use the provided totals.
+  const subtotal = cartTotal;
 
   const ACTIVE_STEP_INDEX = 1;
 
@@ -572,41 +510,9 @@ const ShippingPage: React.FC = () => {
                     </div>
                     <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
                     <div className="flex items-center space-x-2 mt-1">
-                      {itemDiscounts[item.id] > 0 ? (
-                        <>
-                          <p className="text-xs font-medium text-gray-400 line-through">
-                            €{parseFloat(item.order_product_price).toFixed(2)}
-                          </p>
-                          <p className="text-xs font-semibold text-[#a07d48]">
-                            €{(parseFloat(item.order_product_price) - itemDiscounts[item.id]).toFixed(2)}
-                          </p>
-                          <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded leading-none">
-                            -€{itemDiscounts[item.id].toFixed(2)}
-                          </span>
-                        </>
-                      ) : (
-                        <p className="text-xs font-semibold text-[#a07d48]">
-                          €{parseFloat(item.order_product_price).toFixed(2)}
-                        </p>
-                      )}
-                    </div>
-
-                    {/* Product Coupon Input */}
-                    <div className="mt-2">
-                      <input
-                        type="text"
-                        placeholder="Product Coupon"
-                        value={productCoupons[item.order_product_id] || ""}
-                        onChange={(e) => setProductCoupons(prev => ({ ...prev, [item.order_product_id]: e.target.value }))}
-                        className="w-full px-2 py-1 text-[10px] border border-gray-200 rounded focus:outline-none focus:ring-1 focus:ring-[#a07d48]"
-                      />
-                      {discountResults?.data?.product?.[item.order_product_id.toString()] && (
-                        <p className={`text-[10px] mt-1 ${discountResults.data.product[item.order_product_id.toString()].is_valid ? 'text-green-600' : 'text-red-500'}`}>
-                          {discountResults.data.product[item.order_product_id.toString()].is_valid
-                            ? "Applicable"
-                            : discountResults.data.product[item.order_product_id.toString()].data.message || "Invalid coupon"}
-                        </p>
-                      )}
+                      <p className="text-xs font-semibold text-[#a07d48]">
+                        €{(parseFloat(item.subtotal) / item.quantity).toFixed(2)}
+                      </p>
                     </div>
                   </div>
                 </div>
@@ -629,51 +535,6 @@ const ShippingPage: React.FC = () => {
           </div>
 
           <div className="border-t border-gray-200 my-4"></div>
-
-          {/* Global Order Discount Section */}
-          <div className="space-y-3 mb-6">
-            <div className="flex flex-col space-y-2">
-              <label className="text-xs font-medium text-gray-700">Order Discount Code</label>
-              <input
-                type="text"
-                placeholder="Enter Code"
-                value={orderCoupon}
-                onChange={(e) => setOrderCoupon(e.target.value)}
-                className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a07d48]"
-              />
-              {discountResults?.data?.order && (
-                <p className={`text-[10px] ${discountResults.data.order.is_valid ? 'text-green-600' : 'text-red-500'}`}>
-                  {discountResults.data.order.is_valid
-                    ? "Applicable"
-                    : "Invalid coupon"}
-                </p>
-              )}
-            </div>
-
-            {totalProductDiscount > 0 && (
-              <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
-                <span className="font-medium">Product Discount</span>
-                <span className="font-bold">-€{totalProductDiscount.toFixed(2)}</span>
-              </div>
-            )}
-
-            {orderDiscountAmount > 0 && (
-              <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
-                <span className="font-medium">Order Discount</span>
-                <span className="font-bold">-€{orderDiscountAmount.toFixed(2)}</span>
-              </div>
-            )}
-
-            <button
-              type="button"
-              onClick={handleApplyDiscounts}
-              disabled={isCheckingDiscount || (!orderCoupon && Object.values(productCoupons).every(v => !v))}
-              className={`w-full py-2 bg-[#a07d48] text-white text-sm font-medium rounded-lg transition duration-200 ${isCheckingDiscount ? 'opacity-70 cursor-wait' : 'hover:bg-[#8a6a3f]'
-                }`}
-            >
-              {isCheckingDiscount ? "Checking..." : "Apply Discount"}
-            </button>
-          </div>
 
           <div className="border-t border-gray-200 my-4"></div>
 
@@ -703,7 +564,7 @@ const ShippingPage: React.FC = () => {
             <div className="flex flex-col items-end">
               {totalDiscount > 0 && (
                 <span className="text-sm text-gray-400 line-through font-normal">
-                  €{(cartTotal + shippingCost).toFixed(2)}
+                  €{originalTotal.toFixed(2)}
                 </span>
               )}
               <span style={{ color: ACCENT_COLOR }}>€{total.toFixed(2)}</span>

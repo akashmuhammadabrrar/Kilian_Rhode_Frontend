@@ -88,102 +88,6 @@ const ToastMessage = ({ message, type = 'success', onClose }: ToastMessageProps)
     </motion.div>
   );
 }
-// -----------------------
-
-// Card Data Array (Unchanged)
-// const products = [
-//   {
-//     name: "Women's Fitted Tee",
-//     price: "€32.99",
-//     image: tshirtsImage,
-//     alt: "Women's Fitted Tee",
-//     delay: 0.2,
-//   },
-//   {
-//     name: "Kids Fun T-Shirt",
-//     price: "€19.99",
-//     image: girlTshitImage,
-//     alt: "Kids Fun T-Shirt",
-//     delay: 0.4,
-//   },
-//   {
-//     name: "Oversized Hoodie",
-//     price: "€49.99",
-//     image: hoodyImage,
-//     alt: "Oversized Hoodie",
-//     delay: 0.6,
-//   },
-//   {
-//     name: "Classic Coffee Mug",
-//     price: "€14.50",
-//     image: mugImage,
-//     alt: "Classic Coffee Mug",
-//     delay: 0.1,
-//   },
-//   {
-//     name: "Travel Tumbler (Steel)",
-//     price: "€28.99",
-//     image: cupImage,
-//     alt: "Travel Tumbler",
-//     delay: 0.2,
-//   },
-//   {
-//     name: "Vintage Crewneck Tee",
-//     price: "€35.00",
-//     image: tshirtsImage,
-//     alt: "Vintage Crewneck Tee",
-//     delay: 0.3,
-//   },
-//   {
-//     name: "Unisex Heavy Hoodie",
-//     price: "€55.99",
-//     image: hoodyImage,
-//     alt: "Unisex Heavy Hoodie",
-//     delay: 0.4,
-//   },
-//   {
-//     name: "Toddler Graphic Tee",
-//     price: "€15.99",
-//     image: girlTshitImage,
-//     alt: "Toddler Graphic Tee",
-//     delay: 0.5,
-//   },
-//   {
-//     name: "Large Custom Mug",
-//     price: "€18.00",
-//     image: mugImage,
-//     alt: "Large Custom Mug",
-//     delay: 0.6,
-//   },
-//   {
-//     name: "Insulated Sports Cup",
-//     price: "€25.00",
-//     image: cupImage,
-//     alt: "Insulated Sports Cup",
-//     delay: 0.7,
-//   },
-//   {
-//     name: "Premium V-Neck T-shirt",
-//     price: "€39.99",
-//     image: tshirtsImage,
-//     alt: "Premium V-Neck T-shirt",
-//     delay: 0.8,
-//   },
-//   {
-//     name: "Zip-Up Fleece Hoodie",
-//     price: "€62.00",
-//     image: hoodyImage,
-//     alt: "Zip-Up Fleece Hoodie",
-//     delay: 0.9,
-//   },
-//   {
-//     name: "Infant Onesie",
-//     price: "€12.99",
-//     image: girlTshitImage,
-//     alt: "Infant Onesie",
-//     delay: 1.0,
-//   },
-// ];
 
 import { IProduct, useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
@@ -285,6 +189,13 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
 
   if (isLoading) return <Loader />;
 
+  const formatPrice = (value: string | number) => {
+    return new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+    }).format(Number(value));
+  };
+
   return (
     <div className={`bg-[#FAFAFA] ${jostFont.className}`}>
       <AnimatePresence>
@@ -375,7 +286,13 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                 <p
                   className={`${jostFont.className} text-[16px] font-medium mb-2`}
                 >
-                  €{product.discounted_price}
+                  {/* €{product.discounted_price} */}
+                  {formatPrice(product.discounted_price)}
+                  {product.discount_percentage > 0 && (
+                    <span className="ml-2 text-sm text-gray-500 line-through">
+                      {formatPrice(product.price)}
+                    </span>
+                  )}
                 </p>
                 <div className="flex justify-center items-center space-x-1 mb-6">
                   {[...Array(5)].map((_, i) => (
