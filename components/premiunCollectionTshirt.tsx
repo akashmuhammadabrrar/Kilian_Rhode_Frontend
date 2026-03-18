@@ -643,7 +643,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
                 className={`${jostFont.className} tracking-[0.5px] text-[18px] text-lg ml-1 font-normal text-gray-900`}
               >
                 {" "}
-                ${(displayProduct.price * quantity).toFixed(2)}
+                €{(displayProduct.price * quantity).toFixed(2)}
               </span>
             </div>
 
@@ -710,7 +710,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
                 </span>{" "}
                 <br />
                 <span className="tracking-[0.5px] text-[12px] text-[#6a6a6a]">
-                  On orders over $50
+                  On orders over €100
                 </span>
               </span>
             </div>

@@ -180,7 +180,7 @@ const Footer = () => {
           </div>
 
           {/* Links Section */}
-          <div className="grid grid-cols-1 gap-8 md:grid-cols-1 md:col-span-1">
+          {/* <div className="grid grid-cols-1 gap-8 md:grid-cols-1 md:col-span-1">
             {footerLinks.map((section, index) => (
               <div key={index} className="space-y-4">
                 <h4
@@ -201,7 +201,7 @@ const Footer = () => {
                 </ul>
               </div>
             ))}
-          </div>
+          </div> */}
         </div>
 
         {/* === 2. MIDDLE SECTION === */}
@@ -249,10 +249,16 @@ const Footer = () => {
         {/* === 3. BOTTOM SECTION === */}
         <div className="border-t border-gray-800 pt-8 text-xs flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <div className="text-gray-500 space-y-2 w-full flex flex-col md:flex-row justify-between items-center text-center">
-            <p
+            {/* <p
               className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-[#99A1AF]`}
             >
               © 2025 Thundra. All rights reserved.
+            </p> */}
+
+            <p
+              className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-5 text-[#99A1AF]`}
+            >
+              © 2025–{new Date().getFullYear()} Thundra. All rights reserved.
             </p>
 
             <div
@@ -283,7 +289,7 @@ const Footer = () => {
         >
           <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0" />
 
-          <span className="whitespace-nowrap">Powered by Adobe Firefly AI</span>
+          <span className="whitespace-nowrap">Gemini NanoBanana Integration</span>
           <span className="hidden md:block text-[#d4af37]">&#9632;</span>
 
           <span className="whitespace-nowrap">Professional 300 DPI Quality</span>

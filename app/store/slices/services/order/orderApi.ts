@@ -62,7 +62,18 @@ export interface IOrder {
   product_total_amount: number;
   shipping_cost: number;
   tax: number;
+  promo_discount: number;
+  applied_promo_codes: Array<{ code: string; discount_amount: number; applied_to: string }>;
   total_cost: number;
+  total_savings: number;
+  is_free_delivery: boolean;
+  savings_breakdown: {
+    promo_codes_discount: number;
+    free_shipping_savings: number;
+    product_discounts: number;
+    total_saved: number;
+  };
+  original_total: number;
   created_at: string;
 }
 
@@ -147,7 +158,7 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       invalidatesTags: ["Cart"],
     }),
-    checkout: builder.mutation<any, { card_products: any[]; shipping_id: number }>({
+    checkout: builder.mutation<any, { card_products: any[]; shipping_id: number; promo_codes?: Record<string, string> }>({
       query: (body) => ({
         url: "/order/orders/checkout/",
         method: "POST",

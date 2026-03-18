@@ -5,7 +5,7 @@ import Image from "next/image";
 
 // Replace with your actual paths
 import storyImage from "../public/image/ourStoryImages/ourStoryImage1.jpg";
-import arrowIcon from "../public/image/cardIcon/Icon.svg";
+// import arrowIcon from "../public/image/cardIcon/Icon.svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
 
@@ -240,7 +240,7 @@ const OurStory = () => {
             </div>
 
             {/* OUR STORY Button */}
-            <button
+            {/* <button
               className={`${jostFont.className} text-[14px] tracking-[2.1px] bg-[#795548] hover:bg-[#72543B] transition duration-200 px-7 py-4 text-white text-sm font-medium flex items-center gap-2 shadow-md`}
             >
               OUR STORY
@@ -251,7 +251,7 @@ const OurStory = () => {
                 height={18}
                 className="transition-transform duration-300 group-hover:translate-x-1"
               />
-            </button>
+            </button> */}
           </div>
         </div>
       </div>
