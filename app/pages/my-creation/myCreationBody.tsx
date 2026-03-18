@@ -3,9 +3,10 @@ import React, { useState } from "react";
 import { Cormorant_Garamond } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useGetCustomProductsQuery, ICustomProductVersion, useDeleteCustomProductVersionMutation } from "@/app/store/slices/services/ai/aiApi";
-import { useGetOrdersQuery, IOrder } from "@/app/store/slices/services/order/orderApi";
+import { useGetOrdersQuery, IOrder, useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import { toast } from "sonner";
 
 // Placeholder image for standalone environment
 // const ICON_PLACEHOLDER_URL =
@@ -294,11 +295,13 @@ const ProductCard = ({ product, tabType, onDelete }: ProductCardProps) => {
 const CustomDesignCard = ({
   version,
   _productId,
-  onDelete
+  onDelete,
+  onAddToCart
 }: {
   version: ICustomProductVersion,
   _productId: number,
   onDelete?: (id: number, title: string, version: number) => void;
+  onAddToCart?: (version: ICustomProductVersion) => void;
 }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const images = version.image_urls || [];
@@ -400,17 +403,31 @@ const CustomDesignCard = ({
           {/* <p className="text-2xl text-indigo-600">€{parseFloat(version.design_cost).toFixed(2)}</p> */}
         </div>
 
-        {onDelete && (
-          <button
-            className="mt-4 w-full text-red-600 py-2 border border-red-300 hover:bg-red-50 transition"
-            onClick={(e) => {
-              e.preventDefault();
-              onDelete(version.id, version.product.name, version.version);
-            }}
-          >
-            Delete
-          </button>
-        )}
+        <div className="flex flex-col gap-3 mt-4">
+          {onAddToCart && (
+            <button
+              className="w-full bg-[#D4AF37] text-white py-2 font-bold hover:bg-[#c9a632] transition shadow-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToCart(version);
+              }}
+            >
+              Add to Cart
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              className="w-full text-red-600 py-2 border border-red-300 hover:bg-red-50 transition"
+              onClick={(e) => {
+                e.preventDefault();
+                onDelete(version.id, version.product.name, version.version);
+              }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
     </div>
   );
@@ -502,7 +519,20 @@ const OrderCard = ({ order }: { order: IOrder }) => {
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold text-gray-900 truncate">{item.order_product_name}</h4>
               <div className="flex justify-between items-center mt-2">
-                <p className="text-[11px] text-gray-500 mt-0.5">{item.order_product_classification} · {item.order_product_size.join(', ')}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  {item.order_product_classification} · {item.order_product_size.join(', ')}
+                  {item.ai_design_info && (
+                    <span className="ml-2 text-indigo-600 font-bold bg-indigo-50 px-1 rounded">
+                      V{item.ai_design_info.version_number}
+                    </span>
+                  )}
+                </p>
+
+                {item.ai_design_info && (
+                  <p className="text-[10px] text-gray-400 mt-0.5 italic">
+                    AI Design Cost: €{item.ai_design_info.design_cost.toFixed(2)}
+                  </p>
+                )}
 
                 {/* Color Display */}
                 {item.order_product_color_code && item.order_product_color_code.length > 0 && (
@@ -655,6 +685,22 @@ export default function App() {
   });
 
   const [deleteDesignVersion] = useDeleteCustomProductVersionMutation();
+  const [addToCart] = useAddToCartMutation();
+
+  const handleAddToCart = async (version: ICustomProductVersion) => {
+    try {
+      await addToCart({
+        product: version.product.id,
+        quantity: 1,
+        custom_ai_product_version: version.id,
+        selected_design_image: version.image_urls?.[1] || "",
+      }).unwrap();
+      toast.success(`${version.product.name} added to cart!`);
+    } catch (error) {
+      console.error("Failed to add to cart", error);
+      toast.error("Failed to add to cart. Please try again.");
+    }
+  };
 
   // Function now uses router.push for navigation
   const handleFindProduct = () => {
@@ -836,7 +882,8 @@ export default function App() {
                         key={version.id}
                         version={version}
                         _productId={product.product}
-                        onDelete={(id, title, version) => openDeleteModal(id, title, "my", version)}
+                        onDelete={(id, title, v) => openDeleteModal(id, title, "my", v)}
+                        onAddToCart={handleAddToCart}
                       />
                     ))
                   )}

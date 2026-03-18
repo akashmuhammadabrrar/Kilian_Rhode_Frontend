@@ -499,20 +499,39 @@ const ShippingPage: React.FC = () => {
                 <div key={item.id} className="flex items-start space-x-4 mb-4">
                   {/* Note: IOrderItem might not have images in the type, but let's check if they are there or use a placeholder */}
                   <div className="w-16 h-16 shrink-0 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
-                    <ShoppingBag className="text-gray-300" size={24} />
+                    {item.item_image && item.item_image.length > 0 ? (
+                      <Image
+                        src={item.item_image[0]}
+                        alt={item.order_product_name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <ShoppingBag className="text-gray-300" size={24} />
+                    )}
                   </div>
 
                   <div className="pt-1">
                     <div className="flex items-center space-x-2">
                       <p className="font-medium text-gray-800 text-sm">
                         {item.order_product_name}
+                        {item.ai_design_info && (
+                          <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded-sm align-middle">
+                            V{item.ai_design_info.version_number}
+                          </span>
+                        )}
                       </p>
                     </div>
                     <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                    <div className="flex items-center space-x-2 mt-1">
+                    <div className="flex flex-col mt-1">
                       <p className="text-xs font-semibold text-[#a07d48]">
                         €{(parseFloat(item.subtotal) / item.quantity).toFixed(2)}
                       </p>
+                      {item.ai_design_info && (
+                        <p className="text-[9px] text-gray-400 italic">
+                          Incl. AI Design (€{item.ai_design_info.design_cost.toFixed(2)})
+                        </p>
+                      )}
                     </div>
                   </div>
                 </div>
