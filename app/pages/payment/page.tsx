@@ -507,7 +507,7 @@ const PaymentPage: React.FC = () => {
             >
               <li className="flex items-center">
                 <Image src={track} width={16} height={16} alt="track" />
-                <span className="ml-2">Free shipping over €150</span>
+                <span className="ml-2">Free shipping over €100</span>
               </li>
 
               <li className="flex items-center">

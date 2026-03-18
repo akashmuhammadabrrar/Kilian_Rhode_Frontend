@@ -9,19 +9,19 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
   const [currentPage, setCurrentPage] = useState(1);
   const { data: productsData, isLoading } = useGetProductsQuery({
     ...filters,
+    limit: 10, // As per prompt
     page: currentPage
   });
 
   const products = Array.isArray(productsData?.results?.categories) ? productsData.results.categories : [];
-  // const totalCount = 0; // The API doesn't seem to return total count yet, or maybe it does in 'count'
-  // Let's check IProductResponse again. It had success, message, data, errors. 
-  // Wait, I noticed ICategoryResponse had results and count, but IProductResponse only has data.
-  // I should check if I should update the API response interface.
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
   };
   console.log("rightsideeement :", productsData)
+
+  const totalCount = productsData?.count || 0;
+  const hasMore = currentPage * 10 < totalCount;
 
   if (!isLoading && products.length === 0) {
     return (
@@ -36,16 +36,20 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
     <div className="px-4 lg:px-0 md:px-0">
       <HeaderElement />
       <PropularWeek
-        products={products?.slice(0, 2)}
-        isLoading={isLoading}
-      />
-      <BottomCard
-        products={products?.slice(2)}
+        products={products}
         isLoading={isLoading}
         currentPage={currentPage}
         onPageChange={handlePageChange}
-        hasMore={products?.length >= 8} // Simple check for now
+        hasMore={hasMore}
       />
+
+      {/* <BottomCard 
+        products={products.slice(2)}
+          isLoading={isLoading}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+          hasMore={hasMore}
+        /> */}
     </div>
   );
 };
