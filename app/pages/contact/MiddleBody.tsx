@@ -1,8 +1,10 @@
 // File: components/ContactSection.js
+"use client"
 
 import React from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
-import { Mail, MapPin } from "lucide-react"; // Recommended icon library
+import { Mail, MapPin, Phone, MessageCircle } from "lucide-react"; // Recommended icon library
+import { useGetContactInfoQuery } from "@/app/store/slices/services/contentContactApi";
 
 // --- Font Definitions ---
 // Define fonts in this file or pass them as props if preferred
@@ -71,6 +73,9 @@ const FormTextarea: React.FC<FormTextareaProps> = ({ label, placeholder }) => (
 const ContactSection = () => {
   const yellowColor = "text-yellow-700"; // Define custom gold color class if needed
 
+  const { data: contactData } = useGetContactInfoQuery();
+  const contactInfo = contactData?.data?.[0];
+
   return (
     <div className={`bg-white py-6 md:py-6 ${jostFont.className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid md:grid-cols-2 gap-12">
@@ -91,45 +96,99 @@ const ContactSection = () => {
           {/* Contact Details */}
           <div className="space-y-8">
             {/* Email */}
-            <div className="flex items-start">
-              <div
-                className={`p-3 border-2 border-[#D4AF37] ${yellowColor} mr-4`}
-              >
-                <Mail className="w-5 h-5 text-[#D4AF37]" />
-              </div>
-              <div>
-                <p
-                  className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+            {contactInfo?.email && (
+              <div className="flex items-start">
+                <div
+                  className={`p-3 border-2 border-[#D4AF37] mr-4`}
                 >
-                  EMAIL
-                </p>
-                <a
-                  href="mailto:support.tundra.de"
-                  className="text-gray-900 font-medium hover:text-yellow-700 transition"
-                >
-                  support.tundra.de
-                </a>
+                  <Mail className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+                <div>
+                  <p
+                    className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+                  >
+                    EMAIL
+                  </p>
+                  <a
+                    href={`mailto:${contactInfo.email}`}
+                    className="text-gray-900 font-medium hover:text-yellow-700 transition"
+                  >
+                    {contactInfo.email}
+                  </a>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Phone */}
+            {contactInfo?.phone_number && (
+              <div className="flex items-start">
+                <div
+                  className={`p-3 border-2 border-[#D4AF37] mr-4`}
+                >
+                  <Phone className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+                <div>
+                  <p
+                    className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+                  >
+                    PHONE
+                  </p>
+                  <a
+                    href={`tel:${contactInfo.phone_number}`}
+                    className="text-gray-900 font-medium hover:text-yellow-700 transition"
+                  >
+                    {contactInfo.phone_number}
+                  </a>
+                </div>
+              </div>
+            )}
+
+            {/* WhatsApp */}
+            {contactInfo?.whatsappNumber && (
+              <div className="flex items-start">
+                <div
+                  className={`p-3 border-2 border-[#D4AF37] mr-4`}
+                >
+                  <MessageCircle className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+                <div>
+                  <p
+                    className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+                  >
+                    WHATSAPP
+                  </p>
+                  <a
+                    href={`https://wa.me/${contactInfo.whatsappNumber}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-gray-900 font-medium hover:text-yellow-700 transition"
+                  >
+                    {contactInfo.whatsappNumber}
+                  </a>
+                </div>
+              </div>
+            )}
 
             {/* Address */}
-            <div className="flex items-start">
-              <div
-                className={`p-3 border-2 border-[#D4AF37] ${yellowColor} mr-4`}
-              >
-                <MapPin className="w-5 h-5 text-[#D4AF37]" />
-              </div>
-              <div>
-                <p
-                  className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+            {contactInfo?.businessAddress && (
+              <div className="flex items-start">
+                <div
+                  className={`p-3 border-2 border-[#D4AF37] mr-4`}
                 >
-                  ADDRESS
-                </p>
-                <p className="text-gray-900 font-medium">
-                  Leopoldstr. 2-8 DE-32051 Herford
-                </p>
+                  <MapPin className="w-5 h-5 text-[#D4AF37]" />
+                </div>
+                <div>
+                  <p
+                    className={`text-xs uppercase tracking-widest text-gray-900 mb-1 ${cormorantNormal.className}`}
+                  >
+                    ADDRESS
+                  </p>
+                  <p className="text-gray-900 font-medium whitespace-pre-line">
+                    {contactInfo.businessAddress}
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
           </div>
         </div>
 
