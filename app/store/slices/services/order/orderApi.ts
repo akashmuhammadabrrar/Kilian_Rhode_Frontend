@@ -1,5 +1,13 @@
 import { baseBackendApi } from "../baseBackendApi";
 
+export interface IAIDesignInfo {
+  version_id: number;
+  version_number: number;
+  design_cost: number;
+  available_images: string[];
+  selected_image: string;
+}
+
 export interface ICartItemProduct {
   id: number;
   name: string;
@@ -18,6 +26,7 @@ export interface ICartItem {
   product: ICartItemProduct;
   quantity: number;
   subtotal: number; // or total_price
+  ai_design_info?: IAIDesignInfo;
 }
 
 export interface ICartResponse {
@@ -52,6 +61,7 @@ export interface IOrderItem {
   quantity: number;
   subtotal: string;
   item_image: string[];
+  ai_design_info?: IAIDesignInfo;
 }
 
 export interface IOrder {
@@ -135,7 +145,7 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       providesTags: ["Cart"],
     }),
-    addToCart: builder.mutation<ICartResponse, { product: number; quantity: number }>({
+    addToCart: builder.mutation<ICartResponse, { product: number; quantity: number; custom_ai_product_version?: number; selected_design_image?: string }>({
       query: (body) => ({
         url: "/order/cart/",
         method: "POST",
@@ -158,7 +168,18 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       invalidatesTags: ["Cart"],
     }),
-    checkout: builder.mutation<any, { card_products: any[]; shipping_id: number; promo_codes?: Record<string, string> }>({
+    checkout: builder.mutation<any, {
+      card_products: Array<{
+        checkout_card_id: number;
+        quantity: number;
+        checkout_product_color: string[];
+        checkout_product_size: string[];
+        custom_ai_design_version?: number;
+        selected_design_image?: string;
+      }>;
+      shipping_id: number;
+      promo_codes?: Record<string, string>;
+    }>({
       query: (body) => ({
         url: "/order/orders/checkout/",
         method: "POST",

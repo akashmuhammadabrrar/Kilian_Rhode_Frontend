@@ -5,14 +5,17 @@ import Link from "next/link";
 import Image from "next/image";
 
 // Local SVG Image Imports
-import emailIcon from "../public/image/footerIcon/mail.svg";
-import locationIcon from "../public/image/footerIcon/location.svg";
 import fbIcon from "../public/image/footerIcon/fb.svg";
 import youTubeIcon from "../public/image/footerIcon/Icon (6).svg";
 import xIcon from "../public/image/footerIcon/xIcon.svg";
 import instagramIcon from "../public/image/footerIcon/Icon (4).svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
+import {
+  useGetContactInfoQuery,
+  useGetSocialMediaQuery,
+} from "@/app/store/slices/services/contentContactApi";
+import { Phone, MessageCircle, Mail, MapPin } from "lucide-react";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -69,6 +72,13 @@ const footerLinks = [
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
+
+  // Fetch dynamic data
+  const { data: contactData } = useGetContactInfoQuery();
+  const { data: socialData } = useGetSocialMediaQuery();
+
+  const contactInfo = contactData?.data?.[0];
+  const socialLinks = socialData?.data || [];
 
   useEffect(() => {
     const currentRef = footerRef.current;
@@ -143,39 +153,71 @@ const Footer = () => {
 
             {/* Social Icons */}
             <div className="flex space-x-4 pt-2">
-              <Link
-                href="https://www.facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
-              >
-                <Image src={fbIcon} alt="Facebook" width={20} height={20} />
-              </Link>
+              {socialLinks.length > 0 ? (
+                socialLinks.map((social) => (
+                  <Link
+                    key={social.id}
+                    href={social.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors cursor-pointer"
+                  >
+                    <Image
+                      src={social.icon} // Using the URL from API
+                      alt={social.name || "Social Media"}
+                      width={20}
+                      height={20}
+                      className="object-contain"
+                    />
+                  </Link>
+                ))
+              ) : (
+                <>
+                  <Link
+                    href="https://www.facebook.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
+                  >
+                    <Image src={fbIcon} alt="Facebook" width={20} height={20} />
+                  </Link>
 
-              <Link
-                href="https://www.instagram.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
-              >
-                <Image src={instagramIcon} alt="Instagram" width={20} height={20} />
-              </Link>
+                  <Link
+                    href="https://www.instagram.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
+                  >
+                    <Image
+                      src={instagramIcon}
+                      alt="Instagram"
+                      width={20}
+                      height={20}
+                    />
+                  </Link>
 
-              <Link
-                href="#"
-                className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
-              >
-                <Image src={xIcon} alt="Twitter" width={20} height={20} />
-              </Link>
+                  <Link
+                    href="#"
+                    className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
+                  >
+                    <Image src={xIcon} alt="Twitter" width={20} height={20} />
+                  </Link>
 
-              <Link
-                href="https://www.youtube.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
-              >
-                <Image src={youTubeIcon} alt="YouTube" width={20} height={20} />
-              </Link>
+                  <Link
+                    href="https://www.youtube.com"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-2 border border-gray-700 rounded-sm hover:border-yellow-600 transition-colors"
+                  >
+                    <Image
+                      src={youTubeIcon}
+                      alt="YouTube"
+                      width={20}
+                      height={20}
+                    />
+                  </Link>
+                </>
+              )}
             </div>
           </div>
 
@@ -207,43 +249,93 @@ const Footer = () => {
         {/* === 2. MIDDLE SECTION === */}
         <div className="py-12 flex flex-col md:flex-row gap-8 justify-start">
           {/* Email */}
-          <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-center space-x-4 max-w-full md:max-w-md">
-            <div className="p-3 bg-[#d4af37]">
-              <Image src={emailIcon} alt="Email" width={20} height={20} />
+          {contactInfo?.email && (
+            <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-center space-x-4 max-w-full md:max-w-md">
+              <div className="p-3 bg-[#d4af37]">
+                <Mail className="w-5 h-5 text-black" />
+              </div>
+              <div>
+                <p
+                  className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
+                >
+                  Email Us
+                </p>
+                <a
+                  href={`mailto:${contactInfo.email}`}
+                  className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white hover:text-[#d4af37] transition-colors`}
+                >
+                  {contactInfo.email}
+                </a>
+              </div>
             </div>
-            <div>
-              <p
-                className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
-              >
-                Email Us
-              </p>
-              <p
-                className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white`}
-              >
-                support@thundra.de
-              </p>
+          )}
+
+          {/* Phone */}
+          {contactInfo?.phone_number && (
+            <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-center space-x-4 max-w-full md:max-w-md">
+              <div className="p-3 bg-[#d4af37]">
+                <Phone className="w-5 h-5 text-black" />
+              </div>
+              <div>
+                <p
+                  className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
+                >
+                  Phone
+                </p>
+                <a
+                  href={`tel:${contactInfo.phone_number}`}
+                  className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white hover:text-[#d4af37] transition-colors`}
+                >
+                  {contactInfo.phone_number}
+                </a>
+              </div>
             </div>
-          </div>
+          )}
+
+          {/* WhatsApp */}
+          {contactInfo?.whatsappNumber && (
+            <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-center space-x-4 max-w-full md:max-w-md">
+              <div className="p-3 bg-[#d4af37]">
+                <MessageCircle className="w-5 h-5 text-black" />
+              </div>
+              <div>
+                <p
+                  className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
+                >
+                  WhatsApp
+                </p>
+                <a
+                  href={`https://wa.me/${contactInfo.whatsappNumber}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white hover:text-[#d4af37] transition-colors`}
+                >
+                  {contactInfo.whatsappNumber}
+                </a>
+              </div>
+            </div>
+          )}
 
           {/* Address */}
-          <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-start space-x-4 max-w-full md:max-w-md">
-            <div className="p-3 bg-[#d4af37]">
-              <Image src={locationIcon} alt="Location" width={20} height={20} />
+          {contactInfo?.businessAddress && (
+            <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-start space-x-4 max-w-full md:max-w-md">
+              <div className="p-3 bg-[#d4af37]">
+                <MapPin className="w-5 h-5 text-black" />
+              </div>
+              <div>
+                <p
+                  className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
+                >
+                  Business Address
+                </p>
+                <address
+                  className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white not-italic`}
+                >
+                  {contactInfo.businessAddress}
+                </address>
+              </div>
             </div>
-            <div>
-              <p
-                className={`${jostFont.className} text-[12px] mb-2 tracking-[2.4px] text-[#6a7282] leading-[16px] uppercase`}
-              >
-                Business Address
-              </p>
-              <address
-                className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-white`}
-              >
-                Kilian Rohde <br />
-                Leopoldstraße 2-8 DE-32051 Herford
-              </address>
-            </div>
-          </div>
+          )}
         </div>
 
         {/* === 3. BOTTOM SECTION === */}
@@ -264,7 +356,10 @@ const Footer = () => {
             <div
               className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-[#99A1AF] flex flex-wrap justify-center md:justify-end space-x-4`}
             >
-              <Link href="/privacy" className="hover:text-white transition-colors">
+              <Link
+                href="/privacy"
+                className="hover:text-white transition-colors"
+              >
                 Privacy Policy
               </Link>
               <p>|</p>
@@ -272,7 +367,10 @@ const Footer = () => {
                 Terms of Service
               </Link>
               <p>|</p>
-              <Link href="/cookie" className="hover:text-white transition-colors">
+              <Link
+                href="/cookie"
+                className="hover:text-white transition-colors"
+              >
                 Cookie Policy
               </Link>
               <p>|</p>
@@ -289,7 +387,9 @@ const Footer = () => {
         >
           <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0" />
 
-          <span className="whitespace-nowrap">Gemini NanoBanana Integration</span>
+          <span className="whitespace-nowrap">
+            Gemini NanoBanana Integration
+          </span>
           <span className="hidden md:block text-[#d4af37]">&#9632;</span>
 
           <span className="whitespace-nowrap">Professional 300 DPI Quality</span>
@@ -305,3 +405,4 @@ const Footer = () => {
 };
 
 export default Footer;
+

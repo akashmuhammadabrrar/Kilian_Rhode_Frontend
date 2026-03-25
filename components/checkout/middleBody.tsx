@@ -281,8 +281,10 @@ const CheckoutReview: React.FC = () => {
         return {
           checkout_card_id: item.id,
           quantity: item.quantity,
-          checkout_product_color: itemOverrides[item.id]?.color ? [itemOverrides[item.id].color] : (colors[0] ? [colors[0]] : []),
-          checkout_product_size: itemOverrides[item.id]?.size ? [itemOverrides[item.id].size] : (sizes[0] ? [sizes[0]] : [])
+          checkout_product_color: (itemOverrides[item.id]?.color ? [itemOverrides[item.id].color!] : (colors[0] ? [colors[0]] : [])),
+          checkout_product_size: (itemOverrides[item.id]?.size ? [itemOverrides[item.id].size!] : (sizes[0] ? [sizes[0]] : [])),
+          custom_ai_design_version: item.ai_design_info?.version_id,
+          selected_design_image: item.ai_design_info?.selected_image
         };
       });
 
@@ -390,7 +392,14 @@ const CheckoutReview: React.FC = () => {
 
                       {/* Image */}
                       <div className="w-32 h-40 relative bg-gray-100 rounded-lg overflow-hidden shrink-0 mx-auto sm:mx-0">
-                        {item.product.images?.[0]?.image ? (
+                        {item.ai_design_info?.selected_image || (item.ai_design_info?.available_images && item.ai_design_info.available_images.length > 0) ? (
+                          <Image
+                            src={item.ai_design_info.selected_image || item.ai_design_info.available_images[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : item.product.images?.[0]?.image ? (
                           <Image
                             src={item.product.images[0].image}
                             alt={item.product.name}
@@ -407,6 +416,11 @@ const CheckoutReview: React.FC = () => {
                         <div className="flex justify-between items-start mb-2">
                           <h3 className={`${cormorantItalic.className} text-2xl font-medium text-gray-900 leading-tight`}>
                             {item.product.name}
+                            {item.ai_design_info && (
+                              <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-sm align-middle">
+                                V{item.ai_design_info.version_number}
+                              </span>
+                            )}
                           </h3>
                           <button
                             onClick={() => handleRemove(item.id)}
@@ -415,6 +429,17 @@ const CheckoutReview: React.FC = () => {
                             <Trash2 size={20} />
                           </button>
                         </div>
+
+                        {item.ai_design_info && (
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                              AI Designed
+                            </span>
+                            <span className="text-[10px] text-gray-500">
+                              Design Cost: €{item.ai_design_info.design_cost.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                           {/* Size Selection */}
