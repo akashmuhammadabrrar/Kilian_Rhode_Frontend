@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
 import Image, { StaticImageData } from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -24,6 +24,22 @@ import EmptyState from "../../../components/EmptyState";
 
 import shop from "@/public/image/collections/shop.svg";
 import heart from "@/public/image/collections/heartIcon.svg";
+import { Heart } from "lucide-react";
+
+// Inline Heart SVG button — fills when product is saved
+const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
+  <button
+    className="bg-[#DFA637] text-black hover:bg-[#c99532] p-2 shadow-sm transition"
+    onClick={onClick}
+    aria-label="Toggle save product"
+  >
+    {isSaved ? (
+      <Heart fill="red" stroke="red"/>
+    ) : (
+      <Heart fill="none" stroke="#1A1A1A"/>
+    )}
+  </button>
+);
 
 // ----------------------------------------------------------------------
 // Fonts (Unchanged)
@@ -64,6 +80,7 @@ export type Product = {
   priceValue: number;
   colors: string[];
   suitableAge: AgeGroupKey[] | string[];
+  is_user_saved?: boolean;
 };
 
 // Helper to extract numerical price
@@ -136,7 +153,7 @@ const ToastMessage = ({ message, type, onClose }: { message: string; type: 'succ
 
   return (
     <motion.div
-      className={`${jostFont.className} fixed top-24 right-4 ${bgColor} text-white px-6 py-4 rounded shadow-2xl z-[100] text-center font-medium flex items-center gap-3`}
+      className={`${jostFont.className} fixed top-24 right-4 ${bgColor} text-white px-6 py-4 rounded shadow-2xl z-100 text-center font-medium flex items-center gap-3`}
       initial={{ x: 100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: 100, opacity: 0 }}
@@ -180,6 +197,13 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
 
   const [saveProduct] = useSaveProductMutation();
 
+  // Optimistic local saved state
+  const [isSaved, setIsSaved] = useState(product.is_user_saved ?? false);
+
+  useEffect(() => {
+    setIsSaved(product.is_user_saved ?? false);
+  }, [product.is_user_saved]);
+
   const handleAction = async (action: string) => {
     console.log(`${action} for Product ID: ${product.id}`);
 
@@ -190,12 +214,19 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
     } else if (action === "Customize") {
       handleCustomizeRoute(product.id);
     } else if (action === "Wishlist") {
+      // Optimistic flip
+      const wasSaved = isSaved;
+      setIsSaved(!wasSaved);
+
       try {
         const response = await saveProduct({ product: product.id }).unwrap();
         onSaveProduct(response.message || "Product saved successfully!", 'success');
       } catch (err: unknown) {
+        // Revert on failure
+        setIsSaved(wasSaved);
         const errorData = (err as { data?: { message?: string } })?.data;
         if (errorData?.message === "Product already saved") {
+          setIsSaved(true); // It's actually saved
           onSaveProduct("Product is already saved!", 'info');
         } else {
           onSaveProduct("Unauthorized: Please login to save products.", 'error');
@@ -210,7 +241,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
     <div className="flex flex-col border-none">
       <div className="relative overflow-hidden">
         <div
-          className="w-full h-[400px] bg-cover bg-center flex items-center justify-center relative"
+          className="w-full h-100 bg-cover bg-center flex items-center justify-center relative"
           style={{
             backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
             backgroundColor: imageUrl ? (isDarkImage ? "#000" : "#FFF") : "#F3F4F6",
@@ -228,12 +259,10 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
           )}
 
           <div className="absolute top-3 right-3 flex space-x-2">
-            <button
-              className={`${iconButtonColor} p-2 shadow-sm transition`}
+            <HeartButton
+              isSaved={isSaved}
               onClick={() => handleAction("Wishlist")}
-            >
-              <Image src={heart} alt="Add to Wishlist" className="h-4 w-4" />
-            </button>
+            />
             <button
               className={`${iconButtonColor} p-2 shadow-sm transition`}
               onClick={() => handleAction("Quick Shop")}
@@ -426,6 +455,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
       priceValue: p.discounted_price || parseFloat(p.price),
       colors: [p.color_code],
       suitableAge: p.age_range ? [`${p.age_range.start}-${p.age_range.end}`] : [],
+      is_user_saved: p.is_user_saved ?? false,
     }));
 
     // Client-side Sorting

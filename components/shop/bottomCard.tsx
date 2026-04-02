@@ -2,24 +2,18 @@
 "use client";
 import Image, { StaticImageData } from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 
 import { Jost, Roboto_Flex } from "next/font/google";
 import { useRouter } from "next/navigation";
 
 // --- Imported Assets ---
-// import mugImage from "@/public/image/shopIcon/mugImage.jpg";
-// import cupImage from "@/public/image/shopIcon/cup.jpg";
-import loveIcon from "@/public/image/shopIcon/loveIcon.svg";
 import shopIcon from "@/public/image/shopIcon/shopIcon.svg";
 import arrowIcon from "@/public/image/shopIcon/arrowIcon.svg";
 import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 
-// import tshirtsImage from "@/public/image/shopIcon/tshirts.jpg";
-// import girlTshitImage from "@/public/image/shopIcon/girlTshirt.jpg";
-// import hoodyImage from "@/public/image/shopIcon/hoody.jpg";
 import nextButtonImage from "@/public/image/shopIcon/nextArrow.svg";
 // -----------------------
 
@@ -48,6 +42,23 @@ const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
     aria-label={alt}
   >
     <Image src={src} alt={alt} width={20} height={20} className="w-5 h-5" />
+  </motion.button>
+);
+
+// Heart icon — filled when saved, outline when not
+const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
+  <motion.button
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity z-10"
+    whileHover={{ scale: 1.1, rotate: 5 }}
+    whileTap={{ scale: 0.9, rotate: -5 }}
+    onClick={onClick}
+    aria-label="Save product"
+  >
+    {isSaved ? (
+      <Heart fill="red" stroke="red" />
+    ) : (
+      <Heart fill="none" stroke="#1A1A1A" />
+    )}
   </motion.button>
 );
 
@@ -91,6 +102,7 @@ const ToastMessage = ({ message, type = 'success', onClose }: ToastMessageProps)
 
 import { IProduct, useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
+import { Heart } from "lucide-react";
 
 interface BottomCardProps {
   products: IProduct[];
@@ -115,6 +127,9 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   // State for Toast Message
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+
+  // Robust optimistic state: only stores overrides for products interacted with
+  const [localOverrides, setLocalOverrides] = useState<Record<number, boolean>>({});
 
   const handleOrderNow = async (productId: number) => {
     if (!isAuthenticated) {
@@ -160,17 +175,31 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
       setToast({ message: "Please login to save products.", type: 'error' });
       return;
     }
+
+    // Current actual state (local override or original server value)
+    const isSaved = localOverrides[productId] ?? products.find(p => p.id === productId)?.is_user_saved ?? false;
+
+    // Optimistic update
+    setLocalOverrides(prev => ({ ...prev, [productId]: !isSaved }));
+
     try {
       await saveProduct({ product: productId }).unwrap();
       setToast({ message: `${productName} saved to your favorites!`, type: 'success' });
     } catch (err: unknown) {
+      // Revert on failure
+      setLocalOverrides(prev => {
+        const next = { ...prev };
+        delete next[productId]; // Revert to whatever was provided by server
+        return next;
+      });
       if ((err as { data?: { message?: string } })?.data?.message === "Product already saved") {
-        setToast({ message: `${productName} is already in favorites.`, type: 'success' }); // Info could be better but sticking to plan
+        setLocalOverrides(prev => ({ ...prev, [productId]: true })); // It's actually saved
+        setToast({ message: `${productName} is already in favorites.`, type: 'success' });
       } else {
         setToast({ message: "Failed to save product.", type: 'error' });
       }
     }
-  }, [saveProduct, isAuthenticated]);
+  }, [saveProduct, isAuthenticated, products, localOverrides]);
 
   const handleCloseToast = () => {
     setToast(null);
@@ -205,11 +234,11 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
       </AnimatePresence>
 
       <main className="max-w-8xl mx-auto px-4 py-8">
-        <div className="flex flex-wrap justify-center md:justify-start gap-x-7.5 gap-y-10">
+        <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-10">
           {products.map((product, index) => (
             <motion.div
               key={product.id}
-              className="group flex flex-col items-center w-full sm:w-[calc(50%-15px)] lg:w-[calc(33.333%-20px)] mb-10 overflow-hidden"
+              className="group flex flex-col items-center w-full sm:w-[calc(50%-10px)] lg:w-[calc(25%-12px)] mb-10 overflow-hidden"
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: index * 0.1 }}
@@ -240,9 +269,8 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                 </motion.div>
 
                 <div className="absolute top-4 right-4 flex space-x-2">
-                  <IconToggleButton
-                    src={loveIcon}
-                    alt="Save to Favorites Icon"
+                  <HeartButton
+                    isSaved={localOverrides[product.id] ?? product.is_user_saved ?? false}
                     onClick={() => handleSaveToFavorites(product.id, product.name)}
                   />
                   <IconToggleButton

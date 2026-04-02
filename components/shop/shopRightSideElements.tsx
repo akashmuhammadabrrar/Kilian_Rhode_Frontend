@@ -9,7 +9,7 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
   const [currentPage, setCurrentPage] = useState(1);
   const { data: productsData, isLoading } = useGetProductsQuery({
     ...filters,
-    limit: 10, // As per prompt
+    limit: 10,
     page: currentPage
   });
 
@@ -32,24 +32,32 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
     );
   }
 
+  // 2 products in PopularWeek, up to 8 in BottomCard
+  const topProducts = products.slice(0, 2);
+  const bottomProducts = products.slice(2);
+
   return (
     <div className="px-4 lg:px-0 md:px-0">
       <HeaderElement />
-      <PropularWeek
-        products={products}
-        isLoading={isLoading}
-        currentPage={currentPage}
-        onPageChange={handlePageChange}
-        hasMore={hasMore}
-      />
 
-      {/* <BottomCard 
-        products={products.slice(2)}
+      {/* Render Popular Week only if we have products on the first page or always but without pagination footer */}
+      {topProducts.length > 0 && (
+        <PropularWeek
+          products={topProducts}
+          isLoading={isLoading}
+          /* Removed pagination props from PropularWeek since it only shows top 2 items */
+        />
+      )}
+
+      {bottomProducts.length > 0 && (
+        <BottomCard 
+          products={bottomProducts}
           isLoading={isLoading}
           currentPage={currentPage}
           onPageChange={handlePageChange}
           hasMore={hasMore}
-        /> */}
+        />
+      )}
     </div>
   );
 };
