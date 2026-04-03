@@ -100,9 +100,10 @@ const ToastMessage = ({ message, type = 'success', onClose }: ToastMessageProps)
   );
 }
 
-import { IProduct, useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
+import { IProduct, useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { Heart } from "lucide-react";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 interface BottomCardProps {
   products: IProduct[];
@@ -151,6 +152,7 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
 
   // Handler for the Love Icon
   const [saveProduct] = useSaveProductMutation();
+  const [deleteSavedProduct] = useDeleteSavedProductMutation();
 
   // Handler for Shop Icon (Add to Cart)
   const [addToCart] = useAddToCartMutation();
@@ -183,8 +185,13 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
     setLocalOverrides(prev => ({ ...prev, [productId]: !isSaved }));
 
     try {
-      await saveProduct({ product: productId }).unwrap();
-      setToast({ message: `${productName} saved to your favorites!`, type: 'success' });
+      if (isSaved) {
+        await deleteSavedProduct(productId).unwrap();
+        setToast({ message: `${productName} removed from favorites!`, type: 'success' });
+      } else {
+        await saveProduct({ product: productId }).unwrap();
+        setToast({ message: `${productName} saved to your favorites!`, type: 'success' });
+      }
     } catch (err: unknown) {
       // Revert on failure
       setLocalOverrides(prev => {
@@ -192,14 +199,14 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
         delete next[productId]; // Revert to whatever was provided by server
         return next;
       });
-      if ((err as { data?: { message?: string } })?.data?.message === "Product already saved") {
+      if (!isSaved && (err as { data?: { message?: string } })?.data?.message === "Product already saved") {
         setLocalOverrides(prev => ({ ...prev, [productId]: true })); // It's actually saved
         setToast({ message: `${productName} is already in favorites.`, type: 'success' });
       } else {
-        setToast({ message: "Failed to save product.", type: 'error' });
+        setToast({ message: "An error occurred while saving.", type: 'error' });
       }
     }
-  }, [saveProduct, isAuthenticated, products, localOverrides]);
+  }, [saveProduct, deleteSavedProduct, isAuthenticated, products, localOverrides]);
 
   const handleCloseToast = () => {
     setToast(null);
@@ -218,12 +225,12 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
 
   if (isLoading) return <Loader />;
 
-  const formatPrice = (value: string | number) => {
-    return new Intl.NumberFormat("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }).format(Number(value));
-  };
+  // const formatPrice = (value: string | number) => {
+  //   return new Intl.NumberFormat("de-DE", {
+  //     style: "currency",
+  //     currency: "EUR",
+  //   }).format(Number(value));
+  // };
 
   return (
     <div className={`bg-[#FAFAFA] ${jostFont.className}`}>

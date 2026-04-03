@@ -18,6 +18,7 @@ import {
 } from "@/app/store/slices/services/order/orderApi";
 import { useCheckDiscountApplicabilityMutation, IDiscountCheckResponse } from "@/app/store/slices/services/order/discountApi";
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // Assets (Reusing from shipping)
 import whiteRightIcon from "@/public/image/shipping/Icon.svg";
@@ -532,14 +533,14 @@ const CheckoutReview: React.FC = () => {
                           <div className="text-right">
                             {itemDiscounts[item.id] > 0 ? (
                               <>
-                                <p className="text-gray-400 text-xs line-through mb-1">€{(itemPrice * item.quantity).toFixed(2)}</p>
-                                <p className="text-xl font-semibold text-gray-900">€{((itemPrice * item.quantity) - (itemDiscounts[item.id] * item.quantity)).toFixed(2)}</p>
+                                <p className="text-gray-400 text-xs line-through mb-1">{formatPrice(itemPrice * item.quantity)}</p>
+                                <p className="text-xl font-semibold text-gray-900">{formatPrice(((itemPrice * item.quantity) - (itemDiscounts[item.id] * item.quantity)))}</p>
                                 <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded leading-none">
-                                  -€{(itemDiscounts[item.id] * item.quantity).toFixed(2)}
+                                  -{formatPrice((itemDiscounts[item.id] * item.quantity))}
                                 </span>
                               </>
                             ) : (
-                              <p className="text-xl font-semibold text-gray-900">€{(itemPrice * item.quantity).toFixed(2)}</p>
+                              <p className="text-xl font-semibold text-gray-900">{formatPrice(itemPrice * item.quantity)}</p>
                             )}
                           </div>
                         </div>
@@ -600,7 +601,7 @@ const CheckoutReview: React.FC = () => {
                         <p className="text-xs text-gray-500">{option.description}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-gray-900 text-sm">€{option.cost.toFixed(2)}</p>
+                    <p className="font-bold text-gray-900 text-sm">{formatPrice(option.cost)}</p>
                   </div>
                 ))
               )}
@@ -616,16 +617,16 @@ const CheckoutReview: React.FC = () => {
             <div className="space-y-4 text-sm text-gray-600">
               <div className="flex justify-between">
                 <span>Total Items ({totalQuantity})</span>
-                <span className="text-gray-900 font-medium">€{subtotal.toFixed(2)}</span>
+                <span className="text-gray-900 font-medium">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span className="text-gray-900 font-medium">{shippingCost > 0 ? `€${shippingCost.toFixed(2)}` : 'Free'}</span>
+                <span className="text-gray-900 font-medium">{shippingCost > 0 ? formatPrice(shippingCost) : 'Free'}</span>
               </div>
               {totalDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
                   <span>Total Discount</span>
-                  <span className="font-medium">-€{totalDiscount.toFixed(2)}</span>
+                  <span className="font-medium">-{formatPrice(totalDiscount)}</span>
                 </div>
               )}
             </div>
@@ -655,14 +656,14 @@ const CheckoutReview: React.FC = () => {
               {totalProductDiscount > 0 && (
                 <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
                   <span className="font-medium">Product Discount</span>
-                  <span className="font-bold">-€{totalProductDiscount.toFixed(2)}</span>
+                  <span className="font-bold">-{formatPrice(totalProductDiscount)}</span>
                 </div>
               )}
 
               {orderDiscountAmount > 0 && (
                 <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
                   <span className="font-medium">Order Discount</span>
-                  <span className="font-bold">-€{orderDiscountAmount.toFixed(2)}</span>
+                  <span className="font-bold">-{formatPrice(orderDiscountAmount)}</span>
                 </div>
               )}
 
@@ -681,7 +682,7 @@ const CheckoutReview: React.FC = () => {
 
             <div className="flex justify-between items-center font-bold text-2xl text-gray-900">
               <span className={cormorantItalic.className}>Total Due</span>
-              <span className="text-[#a07d48]">€{total.toFixed(2)}</span>
+              <span className="text-[#a07d48]">{formatPrice(total)}</span>
             </div>
 
             <button

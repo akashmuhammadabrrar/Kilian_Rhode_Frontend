@@ -4,7 +4,7 @@ import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
 import Image, { StaticImageData } from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetProductsQuery, ICategory, useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
+import { useGetProductsQuery, ICategory, useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
@@ -25,6 +25,7 @@ import EmptyState from "../../../components/EmptyState";
 import shop from "@/public/image/collections/shop.svg";
 import heart from "@/public/image/collections/heartIcon.svg";
 import { Heart } from "lucide-react";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // Inline Heart SVG button — fills when product is saved
 const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
@@ -196,6 +197,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
   const iconButtonColor = "bg-[#DFA637] text-black hover:bg-[#c99532]";
 
   const [saveProduct] = useSaveProductMutation();
+  const [deleteSavedProduct] = useDeleteSavedProductMutation();
 
   // Optimistic local saved state
   const [isSaved, setIsSaved] = useState(product.is_user_saved ?? false);
@@ -219,17 +221,22 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
       setIsSaved(!wasSaved);
 
       try {
-        const response = await saveProduct({ product: product.id }).unwrap();
-        onSaveProduct(response.message || "Product saved successfully!", 'success');
+        if (wasSaved) {
+          const response = await deleteSavedProduct(product.id).unwrap();
+          onSaveProduct(response.message || "Product removed from saved!", 'info');
+        } else {
+          const response = await saveProduct({ product: product.id }).unwrap();
+          onSaveProduct(response.message || "Product saved successfully!", 'success');
+        }
       } catch (err: unknown) {
         // Revert on failure
         setIsSaved(wasSaved);
         const errorData = (err as { data?: { message?: string } })?.data;
-        if (errorData?.message === "Product already saved") {
+        if (!wasSaved && errorData?.message === "Product already saved") {
           setIsSaved(true); // It's actually saved
           onSaveProduct("Product is already saved!", 'info');
         } else {
-          onSaveProduct("Unauthorized: Please login to save products.", 'error');
+          onSaveProduct("An error occurred while saving.", 'error');
         }
       }
     } else {
@@ -302,7 +309,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
         </p>
 
         <p className={`${cormorantNormal.className} text-lg font-bold mb-4`}>
-          {price}
+          {formatPrice(price)}
         </p>
 
         <div className="flex justify-center mb-6">
@@ -419,15 +426,6 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
     }));
   }, [currentCategory]);
 
-  // Sync selected age group with URL param only on mount/change? 
-  // User says "when click specific age group fetch with that agegroup id".
-  // Note: searchParams for age_range might be present from URL.
-  // Ideally, valid selectedAgeGroupId should be from params if present.
-
-  // Update state from params if needed, or simply use params in query and use state for UI selection.
-  // Actually, keeping them in sync is best.
-  // For now, let's prioritize local interaction updating the query.
-
   // API Query
   const { data: productsData, isLoading } = useGetProductsQuery({
     limit: currentLimit,
@@ -451,7 +449,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
       title: p.category?.title || "Product",
       subtitle: p.name,
       description: p.description,
-      price: `$${p.discounted_price || p.price}`,
+      price: (p.discounted_price || p.price).toString(),
       priceValue: p.discounted_price || parseFloat(p.price),
       colors: [p.color_code],
       suitableAge: p.age_range ? [`${p.age_range.start}-${p.age_range.end}`] : [],

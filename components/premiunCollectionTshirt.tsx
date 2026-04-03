@@ -53,6 +53,7 @@ import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // --- Interface Definitions ---
 interface Thumbnail {
@@ -406,12 +407,12 @@ export default function ProductPage({ productId }: { productId?: number }) {
             <p
               className={`${jostFont.className} tracking-[0.5px] text-2xl sm:text-3xl text-[#1a1a1a]`}
             >
-              €{displayProduct.price.toFixed(2)}
+              {formatPrice(displayProduct.price)}
             </p>
             <p
               className={`${jostFont.className} tracking-[0.5px] ml-3 text-[14px] sm:text-lg line-through text-[#6a6a6a]`}
             >
-              €{displayProduct.originalPrice.toFixed(2)}
+              {formatPrice(displayProduct.originalPrice)}
             </p>
             <div
               className={`${jostFont.className} tracking-[0.5px] bg-[#d4af37] ml-4 text-black text-[12px] font-medium px-2 py-0.5`}
@@ -643,7 +644,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
                 className={`${jostFont.className} tracking-[0.5px] text-[18px] text-lg ml-1 font-normal text-gray-900`}
               >
                 {" "}
-                €{(displayProduct.price * quantity).toFixed(2)}
+                {formatPrice(displayProduct.price * quantity)}
               </span>
             </div>
 

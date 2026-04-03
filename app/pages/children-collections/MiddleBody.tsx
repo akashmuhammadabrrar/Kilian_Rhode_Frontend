@@ -4,6 +4,7 @@ import React, { useState, useMemo, useCallback } from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
 import Image, { StaticImageData } from "next/image";
 import { useRouter } from "next/navigation";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // ----------------------------------------------------------------------
 // Shared Assets (Unchanged)
@@ -138,7 +139,7 @@ for (let i = 0; i < TOTAL_CHILDRENS_PRODUCTS; i++) {
     ...base,
     id: i + 1,
     priceValue: parseFloat(priceValue.toFixed(2)),
-    price: `€${priceValue.toFixed(2)}`,
+    price: formatPrice(priceValue),
     subtitle: `${base.subtitle} - Style ${i + 1}`,
     isNew: i < 4 && base.isNew,
     isBestSeller: i % 7 === 0 && base.isBestSeller,
@@ -242,7 +243,7 @@ const ProductCard: React.FC<{ product: Product }> = React.memo(({ product }) => 
     <div className="flex flex-col border-none">
       <div className="relative overflow-hidden">
         <div
-          className="w-full h-[400px] bg-cover bg-center flex items-center justify-center relative"
+          className="w-full h-100 bg-cover bg-center flex items-center justify-center relative"
           style={{
             backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
             backgroundColor: imageUrl ? (isLighterBgNeeded ? "#FFF" : "#F8F8F8") : "#F3F4F6",

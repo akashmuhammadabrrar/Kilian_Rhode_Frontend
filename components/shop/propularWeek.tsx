@@ -8,7 +8,7 @@ import arrowIcon from "@/public/image/shopIcon/arrowIcon.svg";
 import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 
 import { useRouter } from "next/navigation";
-import { useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
+import { useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import ToastMessage from "../ToastMessage";
 import { useAppSelector } from "@/app/store/hooks";
@@ -74,6 +74,7 @@ const Loader = () => (
 
 import { IProduct } from "@/app/store/slices/services/product/productApi";
 import { Heart } from "lucide-react";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 export default function PopularWeek({ products, isLoading }: { products: IProduct[], isLoading: boolean }) {
   const router = useRouter();
@@ -116,6 +117,7 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
   };
 
   const [saveProduct] = useSaveProductMutation();
+  const [deleteSavedProduct] = useDeleteSavedProductMutation();
   const [addToCart] = useAddToCartMutation();
   const [toastMessage, setToastMessage] = useState<{ message: string, type: 'success' | 'info' | 'error' } | null>(null);
 
@@ -133,8 +135,13 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
     setLocalOverrides(prev => ({ ...prev, [productId]: !isSaved }));
 
     try {
-      await saveProduct({ product: productId }).unwrap();
-      setToastMessage({ message: `${productName} saved successfully!`, type: 'success' });
+      if (isSaved) {
+        await deleteSavedProduct(productId).unwrap();
+        setToastMessage({ message: `${productName} removed from saved products!`, type: 'info' });
+      } else {
+        await saveProduct({ product: productId }).unwrap();
+        setToastMessage({ message: `${productName} saved successfully!`, type: 'success' });
+      }
     } catch (err: unknown) {
       // Revert on failure
       setLocalOverrides(prev => {
@@ -142,11 +149,11 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
         delete next[productId]; // Revert to whatever was provided by server
         return next;
       });
-      if ((err as { data?: { message?: string } })?.data?.message === "Product already saved") {
+      if (!isSaved && (err as { data?: { message?: string } })?.data?.message === "Product already saved") {
         setLocalOverrides(prev => ({ ...prev, [productId]: true })); // It's actually saved
         setToastMessage({ message: `${productName} is already saved!`, type: 'info' });
       } else {
-        setToastMessage({ message: "Please login to save products", type: 'error' });
+        setToastMessage({ message: "An error occurred", type: 'error' });
       }
     }
 
@@ -165,13 +172,6 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
   if (displayProducts.length === 0) {
     return null;
   }
-
-  const formatPrice = (value: string | number) => {
-    return new Intl.NumberFormat("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }).format(Number(value));
-  };
 
   return (
     <div className={` bg-[#FAFAFA] ${jostFont.className}`}>
