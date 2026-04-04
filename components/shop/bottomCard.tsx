@@ -13,6 +13,7 @@ import arrowIcon from "@/public/image/shopIcon/arrowIcon.svg";
 import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import CartActionModal from "@/components/CartActionModal";
 
 import nextButtonImage from "@/public/image/shopIcon/nextArrow.svg";
 // -----------------------
@@ -128,6 +129,8 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
   // State for Toast Message
   const [toast, setToast] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
+  // State for Action Modal
+  const [actionModalConfig, setActionModalConfig] = useState<{ isOpen: boolean; productId: number; productName: string } | null>(null);
 
   // Robust optimistic state: only stores overrides for products interacted with
   const [localOverrides, setLocalOverrides] = useState<Record<number, boolean>>({});
@@ -240,6 +243,21 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
         )}
       </AnimatePresence>
 
+      <CartActionModal
+        isOpen={!!actionModalConfig?.isOpen}
+        onClose={() => setActionModalConfig(null)}
+        onCustomize={() => {
+          if (actionModalConfig?.productId) {
+            router.push(`/pages/my-creation/create-your-design?id=${actionModalConfig.productId}`);
+          }
+        }}
+        onAddToCart={() => {
+          if (actionModalConfig?.productId && actionModalConfig?.productName) {
+            handleAddToCart(actionModalConfig.productId, actionModalConfig.productName);
+          }
+        }}
+      />
+
       <main className="max-w-8xl mx-auto px-4 py-8">
         <div className="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-10">
           {products.map((product, index) => (
@@ -283,7 +301,7 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                   <IconToggleButton
                     src={shopIcon}
                     alt="Shop Icon"
-                    onClick={() => handleAddToCart(product.id, product.name)}
+                    onClick={() => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name })}
                   />
                 </div>
 

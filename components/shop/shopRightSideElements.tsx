@@ -23,6 +23,7 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
   const totalCount = productsData?.count || 0;
   const hasMore = currentPage * 10 < totalCount;
 
+  console.log("check", products, isLoading)
   if (!isLoading && products.length === 0) {
     return (
       <div className="px-4 lg:px-0 md:px-0">

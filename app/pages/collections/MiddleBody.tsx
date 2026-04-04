@@ -11,6 +11,7 @@ import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../../../components/Loader";
 import EmptyState from "../../../components/EmptyState";
+import CartActionModal from "@/components/CartActionModal";
 
 // Images (Ensure you have a checkmark icon or use an SVG/Unicode character)
 // import hoodi from "@/public/image/collections/imag1.jpg";
@@ -176,9 +177,10 @@ type ProductCardProps = {
   handleAddToCart: (product: Product) => void;
   handleCustomizeRoute: (id: number) => void;
   onSaveProduct: (message: string, type: 'success' | 'info' | 'error') => void;
+  onOpenCartModal: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrderNow, handleAddToCart, handleCustomizeRoute, onSaveProduct }) => {
+const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrderNow, handleAddToCart, handleCustomizeRoute, onSaveProduct, onOpenCartModal }) => {
   const {
     title,
     subtitle,
@@ -272,7 +274,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
             />
             <button
               className={`${iconButtonColor} p-2 shadow-sm transition`}
-              onClick={() => handleAction("Quick Shop")}
+              onClick={() => onOpenCartModal(product)}
             >
               <Image src={shop} alt="Quick Shop" className="h-4 w-4" />
             </button>
@@ -409,6 +411,8 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
   const categoryParam = searchParams.get("category");
   const subCategoryParam = searchParams.get("subcategory");
   const ageRangeParam = searchParams.get("age_range");
+
+  const [actionModalConfig, setActionModalConfig] = useState<{ isOpen: boolean; productId: number; productName: string } | null>(null);
 
   const [currentLimit, setCurrentLimit] = useState(10);
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<number | "ALL">("ALL"); // Store ID
@@ -557,6 +561,21 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
 
   return (
     <div className={`bg-white ${jostFont.className}`}>
+      <CartActionModal
+        isOpen={!!actionModalConfig?.isOpen}
+        onClose={() => setActionModalConfig(null)}
+        onCustomize={() => {
+          if (actionModalConfig?.productId) {
+            router.push(`/pages/my-creation/create-your-design?id=${actionModalConfig.productId}`);
+          }
+        }}
+        onAddToCart={() => {
+          if (actionModalConfig?.productId) {
+            const prod = productsToDisplay.find(p => p.id === actionModalConfig.productId);
+            if (prod) handleAddToCart(prod);
+          }
+        }}
+      />
       <AnimatePresence>
         {toast && (
           <ToastMessage message={toast.message} type={toast.type} onClose={handleCloseToast} />
@@ -718,6 +737,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
                 handleAddToCart={handleAddToCart}
                 handleCustomizeRoute={handleCustomizeRoute}
                 onSaveProduct={(msg, type) => setToast({ message: msg, type })}
+                onOpenCartModal={(product) => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.title })}
               />
             ))}
           </div>

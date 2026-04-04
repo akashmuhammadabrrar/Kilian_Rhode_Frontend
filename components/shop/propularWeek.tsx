@@ -13,6 +13,7 @@ import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi
 import ToastMessage from "../ToastMessage";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import CartActionModal from "@/components/CartActionModal";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -80,6 +81,9 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
   const router = useRouter();
 
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  // State for Action Modal
+  const [actionModalConfig, setActionModalConfig] = useState<{ isOpen: boolean; productId: number; productName: string } | null>(null);
 
   // Robust optimistic state: only stores overrides for products interacted with
   const [localOverrides, setLocalOverrides] = useState<Record<number, boolean>>({});
@@ -175,6 +179,21 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
 
   return (
     <div className={` bg-[#FAFAFA] ${jostFont.className}`}>
+      <CartActionModal
+        isOpen={!!actionModalConfig?.isOpen}
+        onClose={() => setActionModalConfig(null)}
+        onCustomize={() => {
+          if (actionModalConfig?.productId) {
+            router.push(`/pages/my-creation/create-your-design?id=${actionModalConfig.productId}`);
+          }
+        }}
+        onAddToCart={() => {
+          if (actionModalConfig?.productId) {
+            handleAddToCart(actionModalConfig.productId);
+          }
+        }}
+      />
+      
       <main className=" max-w-8xl">
         {/* ... Title Section (unchanged) ... */}
         <motion.h1
@@ -222,7 +241,7 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
                   <IconToggleButton
                     src={shopIcon}
                     alt="Shop Icon"
-                    onClick={() => handleAddToCart(product.id)}
+                    onClick={() => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name })}
                   />
                 </div>
 
