@@ -48,7 +48,7 @@ const cormorantNormal = Cormorant_Garamond({
   style: ["normal"],
 });
 
-import { useGetProductDetailsQuery, useGetProductReviewsQuery } from "@/app/store/slices/services/product/productApi";
+import { useGetProductReviewsQuery, IProduct } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
 import { useAppSelector } from "@/app/store/hooks";
@@ -101,16 +101,10 @@ const Loader = () => (
 );
 
 // --- Main Component ---
-export default function ProductPage({ productId }: { productId?: number }) {
-  const { data: detailsData, isLoading } = useGetProductDetailsQuery(productId ?? 0, {
-    skip: !productId,
-  });
-
+export default function ProductPage({ productId, apiProduct }: { productId?: number, apiProduct?: IProduct }) {
   const { data: reviewsData } = useGetProductReviewsQuery({ product_id: productId }, {
     skip: !productId
   });
-
-  const apiProduct = detailsData?.data;
 
   // Helper to calculate average rating
   const averageRating = React.useMemo(() => {
@@ -129,29 +123,6 @@ export default function ProductPage({ productId }: { productId?: number }) {
 
   const totalReviewCount = reviewsData?.total_review || 0;
 
-  // Fallback / Static product for when no ID is provided or API fails
-  // const staticProduct: ProductData = {
-  //   title: "Premium Cotton T-Shirt",
-  //   price: 29.99,
-  //   originalPrice: 38.99,
-  //   reviews: 127,
-  //   averageRating: 4.8,
-  //   description: "Luxurious 100% premium cotton with superior comfort",
-  //   sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  //   colors: [
-  //     { name: "White", hex: "#FFFFFF", selected: true },
-  //     { name: "Black", hex: "#000000" },
-  //     { name: "Dark Blue", hex: "#1F4E79" },
-  //     { name: "Grey", hex: "#A9A9A9" },
-  //   ],
-  //   mainImageSrc: mainTshirt,
-  //   thumbnails: [
-  //     { src: tshirt1, alt: "White T-Shirt Front" },
-  //     { src: tshirt2, alt: "Black T-Shirt View" },
-  //     { src: tshirt3, alt: "Red T-Shirt Style" },
-  //     { src: tshirt4, alt: "Outdoor T-Shirt Shot" },
-  //   ],
-  // };
 
   // Map API data if available
   // Map API data if available - with robust null checks
@@ -289,7 +260,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
     }
   }, [apiProduct]);
 
-  if (isLoading) return <Loader />;
+  // No internal loading state needed as it's handled by parent
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white">
