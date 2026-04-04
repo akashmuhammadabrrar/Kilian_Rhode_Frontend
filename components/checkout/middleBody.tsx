@@ -16,6 +16,7 @@ import {
   useGetShipmentsTypeQuery,
   ICartItem,
 } from "@/app/store/slices/services/order/orderApi";
+import { useCheckDiscountApplicabilityMutation, IDiscountCheckResponse } from "@/app/store/slices/services/order/discountApi";
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
 
 // Assets (Reusing from shipping)
@@ -55,7 +56,7 @@ const Step: React.FC<StepProps> = ({ index, label, currentStepIndex = 0 }) => {
   const isCurrent = index === currentStepIndex;
 
   let circleClasses =
-    "w-10 h-10 flex items-center justify-center rounded-full text-lg flex-shrink-0 transition-all duration-300";
+    "w-10 h-10 flex items-center justify-center rounded-full text-lg shrink-0 transition-all duration-300";
 
   if (isCompleted || isCurrent) {
     circleClasses +=
@@ -110,9 +111,14 @@ const CheckoutReview: React.FC = () => {
   const [deleteCartItem] = useDeleteCartItemMutation();
   const [checkout, { isLoading: isCheckingOut }] = useCheckoutMutation();
   const { data: shipmentsData, isLoading: shipmentsLoading } = useGetShipmentsTypeQuery();
+  const [checkDiscount, { isLoading: isCheckingDiscount }] = useCheckDiscountApplicabilityMutation();
 
-  const cartItems: ICartItem[] = cartData?.cards || [];
-  const shippingOptions = shipmentsData?.data || [];
+  const [orderCoupon, setOrderCoupon] = useState("");
+  const [productCoupons, setProductCoupons] = useState<Record<string, string>>({});
+  const [discountResults, setDiscountResults] = useState<IDiscountCheckResponse | null>(null);
+
+  const cartItems: ICartItem[] = useMemo(() => cartData?.cards || [], [cartData]);
+  const shippingOptions = useMemo(() => shipmentsData?.data || [], [shipmentsData]);
 
   const [selectedItems, setSelectedItems] = useState<number[]>([]);
   const [selectedShipping, setSelectedShipping] = useState<number | null>(null);
@@ -133,7 +139,7 @@ const CheckoutReview: React.FC = () => {
     if (cartItems.length > 0 && selectedItems.length === 0) {
       setSelectedItems(cartItems.map(item => item.id));
     }
-  }, [cartItems]);
+  }, [cartItems, selectedItems.length]);
 
   // Set default shipping method once data is loaded
   React.useEffect(() => {
@@ -193,7 +199,66 @@ const CheckoutReview: React.FC = () => {
 
   const selectedShippingOption = shippingOptions.find(o => o.id === selectedShipping);
   const shippingCost = selectedShippingOption?.cost || 0;
-  const total = subtotal + shippingCost;
+
+  const handleApplyDiscounts = async () => {
+    try {
+      const res = await checkDiscount({
+        order_code: orderCoupon || "",
+        product_codes: productCoupons,
+      }).unwrap();
+      setDiscountResults(res);
+      toast.success("Discount codes checked successfully");
+    } catch (err: any) {
+      console.error("Failed to check discount", err);
+      toast.error(err?.data?.message || "Failed to check discount applicability");
+    }
+  };
+
+  // Calculate product discounts
+  let totalProductDiscount = 0;
+  const itemDiscounts: Record<string, number> = {};
+
+  if (discountResults?.success && cartItems) {
+    cartItems.forEach(item => {
+      if (!selectedItems.includes(item.id)) return;
+      const res = discountResults.data?.product?.[item.product.id.toString()];
+      if (res?.is_valid) {
+        let amount = 0;
+        const itemPrice = item.product.discounted_price ?? parseFloat(item.product.price);
+        if (res.data.discount_type === "percentage") {
+          amount = (itemPrice * res.data.discount_amount) / 100;
+          if (res.data.max_discount_amount) {
+            amount = Math.min(amount, res.data.max_discount_amount);
+          }
+        } else {
+          amount = res.data.discount_amount;
+        }
+        itemDiscounts[item.id] = amount;
+        totalProductDiscount += amount * item.quantity;
+      }
+    });
+  }
+
+  const subtotalAfterProductDiscount = subtotal - totalProductDiscount;
+
+  // Calculate order discount
+  let orderDiscountAmount = 0;
+  if (discountResults?.success && discountResults.data.order?.is_valid) {
+    const res = discountResults.data.order;
+    if (subtotalAfterProductDiscount >= res.data.min_purchase_amount) {
+      if (res.data.discount_type === "percentage") {
+        orderDiscountAmount = (subtotalAfterProductDiscount * res.data.discount_amount) / 100;
+        if (res.data.max_discount_amount) {
+          orderDiscountAmount = Math.min(orderDiscountAmount, res.data.max_discount_amount);
+        }
+      } else {
+        orderDiscountAmount = res.data.discount_amount;
+      }
+    }
+  }
+
+  const totalDiscount = totalProductDiscount + orderDiscountAmount;
+  const total = (subtotal + shippingCost) - totalDiscount;
 
   const handleCheckout = async () => {
     if (selectedItems.length === 0) {
@@ -216,15 +281,26 @@ const CheckoutReview: React.FC = () => {
         return {
           checkout_card_id: item.id,
           quantity: item.quantity,
-          checkout_product_color: itemOverrides[item.id]?.color ? [itemOverrides[item.id].color] : (colors[0] ? [colors[0]] : []),
-          checkout_product_size: itemOverrides[item.id]?.size ? [itemOverrides[item.id].size] : (sizes[0] ? [sizes[0]] : [])
+          checkout_product_color: (itemOverrides[item.id]?.color ? [itemOverrides[item.id].color!] : (colors[0] ? [colors[0]] : [])),
+          checkout_product_size: (itemOverrides[item.id]?.size ? [itemOverrides[item.id].size!] : (sizes[0] ? [sizes[0]] : [])),
+          custom_ai_design_version: item.ai_design_info?.version_id,
+          selected_design_image: item.ai_design_info?.selected_image
         };
       });
+
+    const promo_codes: Record<string, string> = {};
+    if (orderCoupon) {
+      promo_codes["global"] = orderCoupon;
+    }
+    Object.entries(productCoupons).forEach(([productId, code]) => {
+      if (code) promo_codes[productId] = code;
+    });
 
     try {
       const response = await checkout({
         card_products: checkoutProducts,
-        shipping_id: selectedShipping || 0
+        shipping_id: selectedShipping || 0,
+        ...(Object.keys(promo_codes).length > 0 && { promo_codes })
       }).unwrap();
 
       // Save order_id to localStorage for persistence in next steps
@@ -232,8 +308,8 @@ const CheckoutReview: React.FC = () => {
         localStorage.setItem("checkout_order_id", response.order.id.toString());
       }
 
-      // Navigate to the next step
-      router.push("/pages/shipping");
+      // Navigate to the next step with order_id in URL
+      router.push(`/pages/shipping?order_id=${response.order.id}`);
     } catch (err) {
       console.error("Checkout failed", err);
       toast.error("Failed to proceed to checkout. Please try again.");
@@ -316,7 +392,14 @@ const CheckoutReview: React.FC = () => {
 
                       {/* Image */}
                       <div className="w-32 h-40 relative bg-gray-100 rounded-lg overflow-hidden shrink-0 mx-auto sm:mx-0">
-                        {item.product.images?.[0]?.image ? (
+                        {item.ai_design_info?.selected_image || (item.ai_design_info?.available_images && item.ai_design_info.available_images.length > 0) ? (
+                          <Image
+                            src={item.ai_design_info.selected_image || item.ai_design_info.available_images[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        ) : item.product.images?.[0]?.image ? (
                           <Image
                             src={item.product.images[0].image}
                             alt={item.product.name}
@@ -333,6 +416,11 @@ const CheckoutReview: React.FC = () => {
                         <div className="flex justify-between items-start mb-2">
                           <h3 className={`${cormorantItalic.className} text-2xl font-medium text-gray-900 leading-tight`}>
                             {item.product.name}
+                            {item.ai_design_info && (
+                              <span className="ml-2 text-xs bg-indigo-100 text-indigo-700 font-bold px-2 py-0.5 rounded-sm align-middle">
+                                V{item.ai_design_info.version_number}
+                              </span>
+                            )}
                           </h3>
                           <button
                             onClick={() => handleRemove(item.id)}
@@ -341,6 +429,17 @@ const CheckoutReview: React.FC = () => {
                             <Trash2 size={20} />
                           </button>
                         </div>
+
+                        {item.ai_design_info && (
+                          <div className="mb-2 flex items-center gap-2">
+                            <span className="text-[10px] uppercase font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded">
+                              AI Designed
+                            </span>
+                            <span className="text-[10px] text-gray-500">
+                              Design Cost: €{item.ai_design_info.design_cost.toFixed(2)}
+                            </span>
+                          </div>
+                        )}
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
                           {/* Size Selection */}
@@ -431,9 +530,36 @@ const CheckoutReview: React.FC = () => {
                           </div>
 
                           <div className="text-right">
-                            <p className="text-gray-400 text-xs line-through mb-1">€{(itemPrice * 1.2).toFixed(2)}</p>
-                            <p className="text-xl font-semibold text-gray-900">€{(itemPrice * item.quantity).toFixed(2)}</p>
+                            {itemDiscounts[item.id] > 0 ? (
+                              <>
+                                <p className="text-gray-400 text-xs line-through mb-1">€{(itemPrice * item.quantity).toFixed(2)}</p>
+                                <p className="text-xl font-semibold text-gray-900">€{((itemPrice * item.quantity) - (itemDiscounts[item.id] * item.quantity)).toFixed(2)}</p>
+                                <span className="text-[10px] bg-green-50 text-green-600 px-1.5 py-0.5 rounded leading-none">
+                                  -€{(itemDiscounts[item.id] * item.quantity).toFixed(2)}
+                                </span>
+                              </>
+                            ) : (
+                              <p className="text-xl font-semibold text-gray-900">€{(itemPrice * item.quantity).toFixed(2)}</p>
+                            )}
                           </div>
+                        </div>
+
+                        {/* Product Coupon Input */}
+                        <div className="mt-4 border-t pt-4">
+                          <input
+                            type="text"
+                            placeholder="Product Coupon"
+                            value={productCoupons[item.product.id] || ""}
+                            onChange={(e) => setProductCoupons(prev => ({ ...prev, [item.product.id]: e.target.value }))}
+                            className="w-full sm:w-1/2 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a07d48]"
+                          />
+                          {discountResults?.data?.product?.[item.product.id.toString()] && (
+                            <p className={`text-xs mt-1 ${discountResults.data.product[item.product.id.toString()].is_valid ? 'text-green-600' : 'text-red-500'}`}>
+                              {discountResults.data.product[item.product.id.toString()].is_valid
+                                ? "Applicable"
+                                : discountResults.data.product[item.product.id.toString()].data.message || "Invalid coupon"}
+                            </p>
+                          )}
                         </div>
                       </div>
                     </motion.div>
@@ -496,17 +622,66 @@ const CheckoutReview: React.FC = () => {
                 <span>Shipping</span>
                 <span className="text-gray-900 font-medium">{shippingCost > 0 ? `€${shippingCost.toFixed(2)}` : 'Free'}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Estimated Tax (19%)</span>
-                <span className="text-gray-900 font-medium">€{(subtotal * 0.19).toFixed(2)}</span>
+              {totalDiscount > 0 && (
+                <div className="flex justify-between text-green-600">
+                  <span>Total Discount</span>
+                  <span className="font-medium">-€{totalDiscount.toFixed(2)}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-gray-100 my-6"></div>
+
+            {/* Global Order Discount Section */}
+            <div className="space-y-3 mb-6">
+              <div className="flex flex-col space-y-2">
+                <label className="text-xs font-medium text-gray-700">Order Discount Code</label>
+                <input
+                  type="text"
+                  placeholder="Enter Code"
+                  value={orderCoupon}
+                  onChange={(e) => setOrderCoupon(e.target.value)}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#a07d48]"
+                />
+                {discountResults?.data?.order && (
+                  <p className={`text-[10px] ${discountResults.data.order.is_valid ? 'text-green-600' : 'text-red-500'}`}>
+                    {discountResults.data.order.is_valid
+                      ? "Applicable"
+                      : "Invalid coupon"}
+                  </p>
+                )}
               </div>
+
+              {totalProductDiscount > 0 && (
+                <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
+                  <span className="font-medium">Product Discount</span>
+                  <span className="font-bold">-€{totalProductDiscount.toFixed(2)}</span>
+                </div>
+              )}
+
+              {orderDiscountAmount > 0 && (
+                <div className="flex justify-between items-center text-[11px] text-green-600 bg-green-50/50 px-2 py-1 rounded">
+                  <span className="font-medium">Order Discount</span>
+                  <span className="font-bold">-€{orderDiscountAmount.toFixed(2)}</span>
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleApplyDiscounts}
+                disabled={isCheckingDiscount || (!orderCoupon && Object.values(productCoupons).every(v => !v))}
+                className={`w-full py-2 bg-[#a07d48] text-white text-sm font-medium rounded-lg transition duration-200 ${isCheckingDiscount ? 'opacity-70 cursor-wait' : 'hover:bg-[#8a6a3f]'
+                  }`}
+              >
+                {isCheckingDiscount ? "Checking..." : "Apply Discount"}
+              </button>
             </div>
 
             <div className="border-t border-gray-100 my-6"></div>
 
             <div className="flex justify-between items-center font-bold text-2xl text-gray-900">
               <span className={cormorantItalic.className}>Total Due</span>
-              <span className="text-[#a07d48]">€{(total + (subtotal * 0.19)).toFixed(2)}</span>
+              <span className="text-[#a07d48]">€{total.toFixed(2)}</span>
             </div>
 
             <button
@@ -527,7 +702,7 @@ const CheckoutReview: React.FC = () => {
             {/* Benefits */}
             <ul className="mt-8 space-y-4 pt-6 border-t border-gray-50">
               {[
-                { icon: track, text: "Free shipping over €150" },
+                { icon: track, text: "Free shipping over €100" },
                 { icon: base, text: "GDPR compliant & secure" },
                 { icon: rightIcon, text: "300 DPI quality guaranteed" },
                 { icon: clock, text: "5–7 business days delivery" },

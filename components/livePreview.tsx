@@ -9,15 +9,19 @@ import { useDeductBalanceMutation } from "@/app/store/slices/services/wallet/wal
 // ✅ Framer Motion import: Variants TargetAndTransition
 import { motion, type Variants, type TargetAndTransition } from "framer-motion";
 import { toast } from "sonner";
+import { useAppSelector } from "@/app/store/hooks";
+import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import { useGetWalletQuery } from "@/app/store/slices/services/wallet/walletApi";
 
 // --- Imported Components (Assumed to exist in your project structure) ---
 import LivePreviewModal from "@/components/previewModel";
 import WalletManager from "./wallet/WalletManager";
+import TopUpModal from "./wallet/TopUpModal"; // Assuming TopUpModal is in the same directory as WalletManager
 // import CustomTextDesign from "@/components/customTextDesign";
 import AiDesignGenerate from "./aiDesignGenerate";
 
 // --- Image Imports (Assumed to exist in the specified paths) ---
-import aiDesignIcon from "../public/image/livePreview/aidesignIcon.svg";
+// import aiDesignIcon from "../public/image/livePreview/aidesignIcon.svg";
 import alineIcon from "../public/image/livePreview/alineIcon.svg";
 import colorIcon from "../public/image/livePreview/colorIcon.svg";
 import imageIcon from "../public/image/livePreview/imageIcon.svg";
@@ -55,7 +59,7 @@ const CombinedDesignPageFixed = () => {
     });
 
     // If no productId in URL, pick the first product from all products
-    const effectiveProductId = productId || allProductsData?.data?.categories?.[0]?.id?.toString();
+    const effectiveProductId = productId || allProductsData?.results?.categories?.[0]?.id?.toString();
 
     const { data: detailsData } = useGetProductDetailsQuery(effectiveProductId ? parseInt(effectiveProductId) : 0, {
         skip: !effectiveProductId,
@@ -66,7 +70,7 @@ const CombinedDesignPageFixed = () => {
     // State to manage the active design mode: always 'ai' now
     const [designMode] = useState("ai");
     const [selectedAiImage, setSelectedAiImage] = useState<string | null>(null);
-    const [selectedAiFile, setSelectedAiFile] = useState<File | Blob | null>(null);
+    const [_selectedAiFile, setSelectedAiFile] = useState<File | Blob | null>(null);
     const [aiGeneratedImages, setAiGeneratedImages] = useState<{
         generated_design_url: string;
         mockup_url: string;
@@ -97,14 +101,22 @@ const CombinedDesignPageFixed = () => {
     const [saveCustomProductVersion, { isLoading: isSaving }] = useSaveCustomProductVersionMutation();
     const [deductBalance] = useDeductBalanceMutation();
 
+    const isAuthenticated = useAppSelector(selectIsAuthenticated);
+    const { data: walletData } = useGetWalletQuery();
+    const wallet = walletData?.results?.[0];
+
     // Logo Upload State
     const [logoImage, setLogoImage] = useState<string | null>(null);
     const [logoFile, setLogoFile] = useState<File | null>(null);
 
     // Lifted modal state so modal control is available at the top level
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const openPreviewModal = () => setIsModalOpen(true);
-    const closePreviewModal = () => setIsModalOpen(false);
+    const [isLivePreviewModalOpen, setIsLivePreviewModalOpen] = useState(false);
+    const openLivePreviewModal = () => setIsLivePreviewModalOpen(true);
+    const closeLivePreviewModal = () => setIsLivePreviewModalOpen(false);
+
+    const [isTopUpModalOpen, setIsTopUpModalOpen] = useState(false);
+    const openTopUpModal = () => setIsTopUpModalOpen(true);
+    const closeTopUpModal = () => setIsTopUpModalOpen(false);
 
     // Function to handle navigation to the shipping page
     const handleContinueShopping = () => {
@@ -149,6 +161,19 @@ const CombinedDesignPageFixed = () => {
     };
 
     const handleAiGenerate = async (payload: any) => {
+        if (!isAuthenticated) {
+            toast.error("Please login to generate AI designs.");
+            return;
+        }
+
+        const freeGens = wallet?.free_generations ?? 0;
+        const balance = Number(wallet?.generation_balance ?? 0);
+
+        if (freeGens <= 0 && balance <= 0) {
+            toast.error("Insufficient balance. Please top up to generate more designs.");
+            return;
+        }
+
         setIsGenerating(true);
         try {
             const formData = new FormData();
@@ -175,7 +200,8 @@ const CombinedDesignPageFixed = () => {
                 formData.append('logo_image', logoFile);
             }
 
-            const response = await fetch('http://23.20.201.40:8010/generate_merchandise', {
+            // const response = await fetch('http://23.20.201.40:8010/generate_merchandise', {
+            const response = await fetch('https://ai.thundra.de/generate_merchandise', {
                 method: 'POST',
                 headers: {
                     'accept': 'application/json',
@@ -212,6 +238,11 @@ const CombinedDesignPageFixed = () => {
     };
 
     const handleSaveDesign = async () => {
+        if (!isAuthenticated) {
+            toast.error("Please login to save your design.");
+            return;
+        }
+
         if (!aiGeneratedImages || !productId) {
             toast.error("No generated design to save.");
             return;
@@ -264,7 +295,7 @@ const CombinedDesignPageFixed = () => {
     };
 
 
-    const designTools = [
+    const _designTools = [
         { src: tIcon, label: "Text" },
         { src: colorIcon, label: "Colors" },
         { src: layerIcon, label: "Layers" },
@@ -280,20 +311,20 @@ const CombinedDesignPageFixed = () => {
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
     };
 
-    const toolsStagger: Variants = {
+    const _toolsStagger: Variants = {
         hidden: { opacity: 1 },
         visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
     };
 
-    const buttonHover: TargetAndTransition = {
+    const _buttonHover: TargetAndTransition = {
         scale: 1.05,
         transition: { type: "spring", stiffness: 400, damping: 10 },
     };
 
     // Define active and inactive button styles
-    const activeModeStyle =
+    const _activeModeStyle =
         "bg-gradient-to-r from-red-800 to-red-900 text-white shadow-md";
-    const inactiveModeStyle = "text-gray-600 hover:bg-gray-200";
+    const _inactiveModeStyle = "text-gray-600 hover:bg-gray-200";
 
     return (
         <div className=" bg-gray-50 font-sans text-gray-800 p-4 sm:p-8">
@@ -528,7 +559,7 @@ const CombinedDesignPageFixed = () => {
                                     crisp, stunning results. Your custom product will look amazing
                                     both on screen and in real life, guaranteed.
                                 </p>
-                                <hr className="h-[2px] w-full border-0 bg-gradient-to-r from-transparent via-[rgba(212,175,55,0.8)] to-transparent rounded-full mb-1.5" />
+                                <hr className="h-[2px] w-full border-0 bg-linear-to-r from-transparent via-[rgba(212,175,55,0.8)] to-transparent rounded-full mb-1.5" />
                                 <div className="flex flex-wrap gap-x-4 text-xs">
                                     <p
                                         className={`${jostFont.className} text-[12px] text-[#6B6B6B] tracking-[0.5px] flex items-center`}
@@ -593,7 +624,7 @@ const CombinedDesignPageFixed = () => {
                                     <Image
                                         src={tool.src}
                                         alt={`${tool.label} Icon`}
-                                        className="w-5 h-5 mx-auto"
+                                        className="w-4 h-4 mx-auto"
                                     />
                                 </div>
                                 <div>
@@ -662,24 +693,24 @@ const CombinedDesignPageFixed = () => {
                     {/* Dynamic Content: AI Generator always shown now */}
                     <div className="">
                         <AiDesignGenerate
-                            onPreviewClick={openPreviewModal}
+                            onPreviewClick={openLivePreviewModal}
                             onGenerate={handleAiGenerate}
                             isGenerating={isGenerating}
                         />
                     </div>
 
                     <div className="mt-8 mb-6">
-                        <WalletManager />
+                        <WalletManager productId={effectiveProductId} openTopUpModal={openTopUpModal} />
                     </div>
 
-                    <motion.div
+                    {/* <motion.div
                         variants={fadeInVariants}
                         initial="hidden"
                         animate="visible"
                         transition={{ delay: designMode === "ai" ? 1.5 : 0.8 }}
                     >
                         <div className="space-y-6 border border-[#E5E5E5] p-4 rounded-md">
-                            {/* Total Price */}
+                           
                             <div>
                                 <p
                                     className={`${jostFont.className} text-[14px] tracking-[0.5px] text-[#6B6B6B] text-lg font-normal `}
@@ -693,7 +724,7 @@ const CombinedDesignPageFixed = () => {
                                 </p>
                             </div>
 
-                            {/* Add to Cart Button */}
+                            // Add to Cart Button  
                             <button
                                 className={`${jostFont.className} 	w-full flex items-center opacity-[0.5] bg-[#795548] justify-center py-4 text-white transition duration-300 ease-in-out`}
                             >
@@ -716,7 +747,7 @@ const CombinedDesignPageFixed = () => {
                                 </span>
                             </button>
 
-                            {/* Continue Shopping Button with onClick handler */}
+                            // Continue Shopping Button with onClick handler 
                             <button
                                 onClick={handleContinueShopping}
                                 className={`${jostFont.className} w-full py-4 text-[#1a1a1a] border border-gray-300 bg-white text-[14px] uppercase font-medium tracking-[2.1px] transition duration-300 ease-in-out hover:bg-gray-50`}
@@ -724,7 +755,7 @@ const CombinedDesignPageFixed = () => {
                                 CONTINUE SHOPPING
                             </button>
 
-                            {/* Guarantees Section with Image Icons */}
+                            // Guarantees Section with Image Icons 
                             <div className="flex justify-center mt-6 gap-2 pt-4 border-t border-gray-100">
                                 <div
                                     className="flex flex-col items-center text-center p-3 bg-[#F5F5F5] text-[12px] px-2 w-1/2"
@@ -740,11 +771,16 @@ const CombinedDesignPageFixed = () => {
 
                             </div>
                         </div>
-                    </motion.div>
+                    </motion.div> */}
                 </motion.div>
             </div>
 
-            <LivePreviewModal isOpen={isModalOpen} onClose={closePreviewModal} />
+            <LivePreviewModal isOpen={isLivePreviewModalOpen} onClose={closeLivePreviewModal} />
+            <TopUpModal
+                isOpen={isTopUpModalOpen}
+                onClose={closeTopUpModal}
+                productId={productId}
+            />
         </div>
     );
 };

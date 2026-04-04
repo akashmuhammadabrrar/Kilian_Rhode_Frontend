@@ -69,9 +69,10 @@ export interface ISubCategory {
 }
 
 export interface IProductResponse {
+  count: number;
   success: boolean;
   message: string;
-  data: {
+  results: {
     sub_categories: ISubCategory[];
     categories: IProduct[];
   };
@@ -80,6 +81,7 @@ export interface IProductResponse {
 
 export interface IProductQueryParams {
   page?: number;
+  limit?: number;
   category?: number;
   subcategory?: number;
   min_price?: number;

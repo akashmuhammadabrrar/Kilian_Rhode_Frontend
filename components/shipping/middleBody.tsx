@@ -4,13 +4,14 @@
 
 import React, { useState } from "react";
 import Image, { StaticImageData } from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ShoppingBag } from "lucide-react";
 
 // Fonts
 import { Jost, Cormorant_Garamond } from "next/font/google";
 
 // Assets
-import mug from "@/public/image/shipping/mug.png";
+// import mug from "@/public/image/shipping/mug.png";
 import userIcon from "@/public/image/shipping/Icon (1).svg";
 import mailIcon from "@/public/image/shipping/Icon (2).svg";
 import phone from "@/public/image/shipping/Icon (3).svg";
@@ -25,6 +26,7 @@ import { toast } from "sonner";
 import {
   useAddOrderAddressMutation,
   useGetCartQuery,
+  useGetOrderDetailsQuery,
   IAddressBookItem
 } from "@/app/store/slices/services/order/orderApi";
 import AddressBook from "./addressBook";
@@ -72,7 +74,7 @@ interface InputFieldProps {
 
 // ---------------- Shipping Method Component ---------------- (No changes)
 
-const ShippingMethod: React.FC<ShippingMethodProps> = ({
+const _ShippingMethod: React.FC<ShippingMethodProps> = ({
   title,
   desc,
   price,
@@ -190,7 +192,7 @@ const InputField: React.FC<InputFieldProps> = ({
 const ShippingPage: React.FC = () => {
   const router = useRouter();
   const [addOrderAddress, { isLoading: isAddingAddress }] = useAddOrderAddressMutation();
-  const { data: cartData } = useGetCartQuery();
+  const { data: cartData, isLoading: cartLoading } = useGetCartQuery();
 
   const [formData, setFormData] = useState({
     firstName: "",
@@ -203,6 +205,10 @@ const ShippingPage: React.FC = () => {
   });
 
   const [orderId, setOrderId] = useState<number | null>(null);
+  const { data: orderDetails, isLoading: orderLoading } = useGetOrderDetailsQuery(orderId as number, {
+    skip: !orderId,
+  });
+
   const [selectedAddressId, setSelectedAddressId] = useState<number | null>(null);
   const [isNewAddress, setIsNewAddress] = useState(true);
 
@@ -220,15 +226,23 @@ const ShippingPage: React.FC = () => {
     });
   };
 
+  const searchParams = useSearchParams();
+
   React.useEffect(() => {
+    const urlOrderId = searchParams.get("order_id");
     const savedOrderId = localStorage.getItem("checkout_order_id");
-    if (savedOrderId) {
+
+    if (urlOrderId) {
+      setOrderId(parseInt(urlOrderId));
+      // Sync it back to localStorage just in case
+      localStorage.setItem("checkout_order_id", urlOrderId);
+    } else if (savedOrderId) {
       setOrderId(parseInt(savedOrderId));
     } else {
-      console.warn("No order_id found in localStorage");
+      console.warn("No order_id found in URL or localStorage");
       toast.error("Order session missing. Please start from the checkout page.");
     }
-  }, []);
+  }, [searchParams]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -247,29 +261,41 @@ const ShippingPage: React.FC = () => {
     }
 
     try {
-      await addOrderAddress({
+      const addressData: any = {
         order_id: orderId,
         is_new_address: isNewAddress,
-        address_name: formData.address_name,
-        address: formData.address,
-        firstName: formData.firstName,
-        lastName: formData.lastName,
-        email: formData.email,
-        phone_number: formData.phone_number,
-        postal_code: parseInt(formData.postal_code) || 0,
-      }).unwrap();
+      };
 
-      router.push("/pages/payment");
+      if (isNewAddress) {
+        addressData.address_name = formData.address_name;
+        addressData.address = formData.address;
+        addressData.firstName = formData.firstName;
+        addressData.lastName = formData.lastName;
+        addressData.email = formData.email;
+        addressData.phone_number = formData.phone_number;
+        addressData.postal_code = parseInt(formData.postal_code) || 0;
+      } else {
+        addressData.address_id = selectedAddressId;
+      }
+
+      await addOrderAddress(addressData).unwrap();
+      router.push(`/pages/payment?order_id=${orderId}`);
     } catch (err) {
       console.error("Failed to add address", err);
-      alert("Failed to save shipping information. Please try again.");
+      toast.error("Failed to save shipping information. Please try again.");
     }
   };
 
-  const cartTotal = cartData?.total_price || 0;
-  const shippingCost = 5.99; // Should ideally come from Step 1 or a shared state
-  const tax = cartTotal * 0.19;
-  const total = cartTotal + shippingCost + tax;
+  // --- Calculation Logic from API Response ---
+  const cartTotal = orderDetails?.product_total_amount || 0;
+  const shippingCost = orderDetails?.shipping_cost || 0;
+  const originalTotal = orderDetails?.original_total || cartTotal + shippingCost;
+  const totalDiscount = orderDetails?.total_savings || 0;
+  const total = orderDetails?.total_cost || cartTotal + shippingCost;
+  
+  // Product-level discount information is not explicitly provided item-by-item in the new response easily except via `applied_promo_codes`, 
+  // but we can just use the provided totals.
+  const subtotal = cartTotal;
 
   const ACTIVE_STEP_INDEX = 1;
 
@@ -461,57 +487,92 @@ const ShippingPage: React.FC = () => {
 
         {/* Right: Order Summary (No changes) */}
         <div
-          className={`${jostFont.className} w-full lg:w-[350px] bg-[#ffffff] rounded-xl p-6 border-2 border-[#E8E3DC] self-start`}
+          className={`${jostFont.className} w-full lg:w-87.5 bg-[#ffffff] rounded-xl p-6 border-2 border-[#E8E3DC] self-start`}
         >
           <h3 className="font-semibold text-gray-800 mb-6 text-lg">
             Order Summary
           </h3>
 
           <div className="space-y-4">
-            {cartData?.cards?.map((item) => (
-              <div key={item.id} className="flex items-start space-x-4 mb-4">
-                <div className="w-16 h-16 flex-shrink-0 relative rounded-lg overflow-hidden border border-gray-200">
-                  {item.product.images?.[0]?.image ? (
-                    <Image
-                      src={item.product.images[0].image}
-                      alt={item.product.name}
-                      className="object-cover w-full h-full"
-                      fill
-                      sizes="64px"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-gray-100 text-[10px] text-gray-400">No Image</div>
-                  )}
-                </div>
-
-                <div className="pt-1">
-                  <div className="flex items-center space-x-2">
-                    <p className="font-medium text-gray-800 text-sm">
-                      {item.product.name}
-                    </p>
+            {orderDetails ? (
+              orderDetails.items.map((item) => (
+                <div key={item.id} className="flex items-start space-x-4 mb-4">
+                  {/* Note: IOrderItem might not have images in the type, but let's check if they are there or use a placeholder */}
+                  <div className="w-16 h-16 shrink-0 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50 flex items-center justify-center">
+                    {item.item_image && item.item_image.length > 0 ? (
+                      <Image
+                        src={item.item_image[0]}
+                        alt={item.order_product_name}
+                        fill
+                        className="object-cover"
+                      />
+                    ) : (
+                      <ShoppingBag className="text-gray-300" size={24} />
+                    )}
                   </div>
-                  <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+
+                  <div className="pt-1">
+                    <div className="flex items-center space-x-2">
+                      <p className="font-medium text-gray-800 text-sm">
+                        {item.order_product_name}
+                        {item.ai_design_info && (
+                          <span className="ml-2 text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded-sm align-middle">
+                            V{item.ai_design_info.version_number}
+                          </span>
+                        )}
+                      </p>
+                    </div>
+                    <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
+                    <div className="flex flex-col mt-1">
+                      <p className="text-xs font-semibold text-[#a07d48]">
+                        €{(parseFloat(item.subtotal) / item.quantity).toFixed(2)}
+                      </p>
+                      {item.ai_design_info && (
+                        <p className="text-[9px] text-gray-400 italic">
+                          Incl. AI Design (€{item.ai_design_info.design_cost.toFixed(2)})
+                        </p>
+                      )}
+                    </div>
+                  </div>
                 </div>
+              ))
+            ) : cartLoading || orderLoading ? (
+              <div className="animate-pulse space-y-4">
+                {[1, 2].map(i => (
+                  <div key={i} className="flex space-x-4">
+                    <div className="w-16 h-16 bg-gray-100 rounded-lg"></div>
+                    <div className="flex-1 space-y-2">
+                      <div className="h-4 bg-gray-100 rounded w-3/4"></div>
+                      <div className="h-4 bg-gray-100 rounded w-1/2"></div>
+                    </div>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <p className="text-sm text-gray-500 italic">No items found.</p>
+            )}
           </div>
 
           <div className="border-t border-gray-200 my-4"></div>
 
-          <div className="space-y-2 text-sm text-gray-600">
+          <div className="border-t border-gray-200 my-4"></div>
+
+          <div className="space-y-4 text-sm text-gray-600">
             <div className="flex justify-between">
-              <span>Subtotal ({cartData?.cards?.length || 0} item{cartData?.cards?.length !== 1 ? 's' : ''})</span>
-              <span>€{cartTotal.toFixed(2)}</span>
+              <span>Subtotal ({orderDetails?.items?.length || 0} item{orderDetails?.items?.length !== 1 ? 's' : ''})</span>
+              <span className="text-gray-900 font-medium">€{subtotal.toFixed(2)}</span>
             </div>
+
+            {totalDiscount > 0 && (
+              <div className="flex justify-between text-green-600">
+                <span>Total Discount</span>
+                <span className="font-medium">-€{totalDiscount.toFixed(2)}</span>
+              </div>
+            )}
 
             <div className="flex justify-between">
               <span>Shipping</span>
-              <span>€{shippingCost.toFixed(2)}</span>
-            </div>
-
-            <div className="flex justify-between">
-              <span>Tax (19% VAT)</span>
-              <span>€{tax.toFixed(2)}</span>
+              <span className="text-gray-900 font-medium">{shippingCost > 0 ? `€${shippingCost.toFixed(2)}` : 'Free'}</span>
             </div>
           </div>
 
@@ -519,10 +580,17 @@ const ShippingPage: React.FC = () => {
 
           <div className="flex justify-between font-bold text-lg text-gray-800">
             <span>Total</span>
-            <span style={{ color: ACCENT_COLOR }}>€{total.toFixed(2)}</span>
+            <div className="flex flex-col items-end">
+              {totalDiscount > 0 && (
+                <span className="text-sm text-gray-400 line-through font-normal">
+                  €{originalTotal.toFixed(2)}
+                </span>
+              )}
+              <span style={{ color: ACCENT_COLOR }}>€{total.toFixed(2)}</span>
+            </div>
           </div>
 
-          <ul
+          {/* <ul
             className={`${jostFont.className} text-xs text-gray-500 mt-5 space-y-2`}
           >
             <li className="flex items-center">
@@ -552,7 +620,7 @@ const ShippingPage: React.FC = () => {
               </span>
               5–7 business days delivery
             </li>
-          </ul>
+          </ul> */}
         </div>
       </div>
     </div>

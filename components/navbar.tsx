@@ -7,7 +7,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import thanderIcon from "../public/image/logo.png";
-import searchIcon from "../public/image/Icon-2.svg";
+// import searchIcon from "../public/image/Icon-2.svg";
 import userIcon from "../public/image/Icon-1.svg";
 import cartIcon from "../public/image/Icon.svg";
 import EmptyCart from "./shoppingCard";
@@ -190,7 +190,7 @@ const Header: NextPage = () => {
 
           <div className="flex items-center space-x-2 md:space-x-3">
             <IconImage src={userIcon} alt="User Account" onClick={toggleUserMenu} />
-            <IconImage src={searchIcon} alt="Search" onClick={() => setIsSearchOpen(!isSearchOpen)} />
+            {/* <IconImage src={searchIcon} alt="Search" onClick={() => setIsSearchOpen(!isSearchOpen)} /> */}
             <IconImage src={cartIcon} alt="Shopping Cart" onClick={toggleCart} />
           </div>
         </div>
@@ -235,7 +235,7 @@ const Header: NextPage = () => {
       </div>
 
       {/* Search Input */}
-      {isSearchOpen && (
+      {/* {isSearchOpen && (
         <div ref={searchInputRef} className="absolute right-0 top-[115px] md:top-[115px] w-[300px] bg-white shadow-md rounded-md flex items-center">
           <input
             type="text"
@@ -248,7 +248,7 @@ const Header: NextPage = () => {
             <SearchIcon size={25} />
           </button>
         </div>
-      )}
+      )} */}
 
       {/* Shopping Cart */}
       {isCartOpen && <EmptyCart toggleCart={toggleCart} />}

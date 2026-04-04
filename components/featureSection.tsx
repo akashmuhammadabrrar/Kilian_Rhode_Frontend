@@ -54,7 +54,7 @@ const featuresData = [
     iconPath: starIcon,
     altText: "AI Design Icon",
     topText: "AI-POWERED DESIGN",
-    bottomText: "Adobe Firefly Integration",
+    bottomText: "Gemini NanoBanana Integration",
   },
   {
     iconPath: batchIcon,

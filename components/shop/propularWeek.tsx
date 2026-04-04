@@ -12,6 +12,8 @@ import { useRouter } from "next/navigation";
 import { useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import ToastMessage from "../ToastMessage";
+import { useAppSelector } from "@/app/store/hooks";
+import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -56,11 +58,18 @@ const Loader = () => (
 
 import { IProduct } from "@/app/store/slices/services/product/productApi";
 
-export default function PopularWeek({ products, isLoading }: { products: IProduct[], isLoading: boolean }) {
+export default function PopularWeek({ products, isLoading, currentPage, onPageChange, hasMore }: { products: IProduct[], isLoading: boolean, currentPage?: number, onPageChange?: (page: number) => void, hasMore?: boolean }) {
   const router = useRouter();
+  console.log("popular week", products)
   // const [likedProductId, setLikedProductId] = useState<number | null>(null);
 
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
   const handleOrderNow = async (productId: number) => {
+    if (!isAuthenticated) {
+      setToastMessage({ message: "Please login to order products", type: "error" });
+      return;
+    }
     try {
       await addToCart({ product: productId, quantity: 1 }).unwrap();
       router.push(`/pages/checkout`);
@@ -71,6 +80,10 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
   };
 
   const handleAddToCart = async (productId: number) => {
+    if (!isAuthenticated) {
+      setToastMessage({ message: "Please login to add to cart", type: "error" });
+      return;
+    }
     try {
       await addToCart({ product: productId, quantity: 1 }).unwrap();
       setToastMessage({ message: "Added to cart!", type: "success" });
@@ -113,6 +126,23 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
   if (products.length === 0) {
     return null;
   }
+
+  const formatPrice = (value: string | number) => {
+    return new Intl.NumberFormat("de-DE", {
+      style: "currency",
+      currency: "EUR",
+    }).format(Number(value));
+  };
+  
+  const handleNext = () => {
+    if (hasMore && onPageChange && currentPage) onPageChange(currentPage + 1);
+  };
+
+  const handlePrevious = () => {
+    if (currentPage && currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
+  };
+
+  const activeClasses = `${jostFont.className} sm:w-10 sm:h-10 flex items-center justify-center rounded-md border-[1.5] sm:text-[18px] transition-colors duration-150 border-[#D4AF37] bg-[#D4AF37] text-white`;
 
   return (
     <div className={` bg-[#FAFAFA] ${jostFont.className}`}>
@@ -190,10 +220,10 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
                   {product.name}
                 </h3>
                 <p className={`${jostFont.className} text-[16px] font-medium mb-2`}>
-                  €{product.discounted_price}
+                  {formatPrice(product.discounted_price)}
                   {product.discount_percentage > 0 && (
                     <span className="ml-2 text-sm text-gray-500 line-through">
-                      €{product.price}
+                      {formatPrice(product.price)}
                     </span>
                   )}
                 </p>
@@ -225,6 +255,47 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
           ))}
         </div>
       </main>
+
+      {/* Pagination Footer */}
+      {currentPage !== undefined && onPageChange !== undefined && (
+        <footer>
+          <div className="flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-0">
+            <div className="flex space-x-1 sm:space-x-2 order-1 sm:order-2">
+              <motion.button
+                className="w-16 h-8 text-xs sm:w-20 sm:h-10 sm:text-[18px] flex items-center justify-center rounded-md border-[1.5px] transition-colors duration-150 border-[#D4AF37] bg-white text-[#D4AF37] hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handlePrevious}
+                disabled={currentPage === 1}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Prev
+              </motion.button>
+
+              <div className="flex space-x-1 sm:space-x-2">
+                {[currentPage].map((page) => (
+                  <motion.button
+                    key={page}
+                    className={`${activeClasses} w-8 h-8 text-sm`}
+                    aria-current="page"
+                  >
+                    {page}
+                  </motion.button>
+                ))}
+              </div>
+
+              <motion.button
+                className="w-16 h-8 text-xs sm:w-20 sm:h-10 sm:text-[18px] flex items-center justify-center rounded-md border-[1.5px] transition-colors duration-150 border-[#D4AF37] bg-white text-[#D4AF37] hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                onClick={handleNext}
+                disabled={!hasMore}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                Next
+              </motion.button>
+            </div>
+          </div>
+        </footer>
+      )}
 
       <AnimatePresence>
         {toastMessage && (

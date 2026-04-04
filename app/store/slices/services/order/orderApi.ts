@@ -1,5 +1,13 @@
 import { baseBackendApi } from "../baseBackendApi";
 
+export interface IAIDesignInfo {
+  version_id: number;
+  version_number: number;
+  design_cost: number;
+  available_images: string[];
+  selected_image: string;
+}
+
 export interface ICartItemProduct {
   id: number;
   name: string;
@@ -18,6 +26,7 @@ export interface ICartItem {
   product: ICartItemProduct;
   quantity: number;
   subtotal: number; // or total_price
+  ai_design_info?: IAIDesignInfo;
 }
 
 export interface ICartResponse {
@@ -51,6 +60,8 @@ export interface IOrderItem {
   order_product_color_code: string[];
   quantity: number;
   subtotal: string;
+  item_image: string[];
+  ai_design_info?: IAIDesignInfo;
 }
 
 export interface IOrder {
@@ -61,7 +72,18 @@ export interface IOrder {
   product_total_amount: number;
   shipping_cost: number;
   tax: number;
+  promo_discount: number;
+  applied_promo_codes: Array<{ code: string; discount_amount: number; applied_to: string }>;
   total_cost: number;
+  total_savings: number;
+  is_free_delivery: boolean;
+  savings_breakdown: {
+    promo_codes_discount: number;
+    free_shipping_savings: number;
+    product_discounts: number;
+    total_saved: number;
+  };
+  original_total: number;
   created_at: string;
 }
 
@@ -82,6 +104,7 @@ export interface IAddAddressRequest {
   email: string;
   phone_number: string;
   postal_code: number;
+  address_id?: number | null;
 }
 
 export interface IPaymentSessionResponse {
@@ -122,7 +145,7 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       providesTags: ["Cart"],
     }),
-    addToCart: builder.mutation<ICartResponse, { product: number; quantity: number }>({
+    addToCart: builder.mutation<ICartResponse, { product: number; quantity: number; custom_ai_product_version?: number; selected_design_image?: string }>({
       query: (body) => ({
         url: "/order/cart/",
         method: "POST",
@@ -145,7 +168,18 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       invalidatesTags: ["Cart"],
     }),
-    checkout: builder.mutation<any, { card_products: any[]; shipping_id: number }>({
+    checkout: builder.mutation<any, {
+      card_products: Array<{
+        checkout_card_id: number;
+        quantity: number;
+        checkout_product_color: string[];
+        checkout_product_size: string[];
+        custom_ai_design_version?: number;
+        selected_design_image?: string;
+      }>;
+      shipping_id: number;
+      promo_codes?: Record<string, string>;
+    }>({
       query: (body) => ({
         url: "/order/orders/checkout/",
         method: "POST",
@@ -187,6 +221,20 @@ export const orderApi = baseBackendApi.injectEndpoints({
       }),
       providesTags: ["AddressBook"],
     }),
+    deleteAddress: builder.mutation<{ success: boolean; message: string }, number>({
+      query: (id) => ({
+        url: `/order/UseAddressBook/${id}/`,
+        method: "DELETE",
+      }),
+      invalidatesTags: ["AddressBook"],
+    }),
+    getOrderDetails: builder.query<IOrder, number>({
+      query: (id) => ({
+        url: `/order/orders/${id}/`,
+        method: "GET",
+      }),
+      providesTags: (result, error, id) => [{ type: "Orders", id }],
+    }),
   }),
 });
 
@@ -200,5 +248,7 @@ export const {
   useGetOrdersQuery,
   useAddOrderAddressMutation,
   useCreatePaymentSessionMutation,
-  useGetAddressBookQuery
+  useGetAddressBookQuery,
+  useDeleteAddressMutation,
+  useGetOrderDetailsQuery,
 } = orderApi;

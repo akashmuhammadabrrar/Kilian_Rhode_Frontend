@@ -3,7 +3,10 @@ import React, { useState } from "react";
 import { Cormorant_Garamond } from "next/font/google";
 import { useRouter } from "next/navigation";
 import { useGetCustomProductsQuery, ICustomProductVersion, useDeleteCustomProductVersionMutation } from "@/app/store/slices/services/ai/aiApi";
-import { useGetOrdersQuery, IOrder } from "@/app/store/slices/services/order/orderApi";
+import { useGetOrdersQuery, IOrder, useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
+import { useAppSelector } from "@/app/store/hooks";
+import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import { toast } from "sonner";
 
 // Placeholder image for standalone environment
 // const ICON_PLACEHOLDER_URL =
@@ -291,12 +294,14 @@ const ProductCard = ({ product, tabType, onDelete }: ProductCardProps) => {
 
 const CustomDesignCard = ({
   version,
-  productId,
-  onDelete
+  _productId,
+  onDelete,
+  onAddToCart
 }: {
   version: ICustomProductVersion,
-  productId: number,
+  _productId: number,
   onDelete?: (id: number, title: string, version: number) => void;
+  onAddToCart?: (version: ICustomProductVersion) => void;
 }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const images = version.image_urls || [];
@@ -398,18 +403,76 @@ const CustomDesignCard = ({
           {/* <p className="text-2xl text-indigo-600">€{parseFloat(version.design_cost).toFixed(2)}</p> */}
         </div>
 
-        {onDelete && (
-          <button
-            className="mt-4 w-full text-red-600 py-2 border border-red-300 hover:bg-red-50 transition"
-            onClick={(e) => {
-              e.preventDefault();
-              onDelete(version.id, version.product.name, version.version);
-            }}
-          >
-            Delete
-          </button>
-        )}
+        <div className="flex flex-col gap-3 mt-4">
+          {onAddToCart && (
+            <button
+              className="w-full bg-[#D4AF37] text-white py-2 font-bold hover:bg-[#c9a632] transition shadow-sm"
+              onClick={(e) => {
+                e.preventDefault();
+                onAddToCart(version);
+              }}
+            >
+              Add to Cart
+            </button>
+          )}
+
+          {onDelete && (
+            <button
+              className="w-full text-red-600 py-2 border border-red-300 hover:bg-red-50 transition"
+              onClick={(e) => {
+                e.preventDefault();
+                onDelete(version.id, version.product.name, version.version);
+              }}
+            >
+              Delete
+            </button>
+          )}
+        </div>
       </div>
+    </div>
+  );
+};
+
+// ----------------------------------------------------
+// 4.5.1 ITEM IMAGE SLIDER
+// ----------------------------------------------------
+
+const ItemImageSlider = ({ images }: { images: string[] }) => {
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  React.useEffect(() => {
+    if (images?.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIdx((prev) => (prev + 1) % images?.length);
+    }, 3000);
+    return () => clearInterval(interval);
+  }, [images?.length]);
+
+  if (!images || images?.length === 0) {
+    return (
+      <div className="w-16 h-20 bg-gray-100 rounded shrink-0 flex items-center justify-center text-[10px] text-gray-400">
+        No Img
+      </div>
+    );
+  }
+
+  return (
+    <div className="w-16 h-20 relative rounded overflow-hidden shrink-0 group">
+      <img
+        src={images[currentIdx]}
+        className="w-full h-full object-cover transition-opacity duration-500"
+        alt="Product"
+      />
+      {images?.length > 1 && (
+        <div className="absolute bottom-1 left-0 right-0 flex justify-center gap-0.5">
+          {images?.map((_, i) => (
+            <div
+              key={i}
+              className={`w-1 h-1 rounded-full ${i === currentIdx ? 'bg-white' : 'bg-white/40'}`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 };
@@ -420,6 +483,7 @@ const CustomDesignCard = ({
 
 const OrderCard = ({ order }: { order: IOrder }) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const router = useRouter();
 
   const formattedDate = new Date(order.created_at).toLocaleDateString('en-US', {
     month: 'short',
@@ -451,13 +515,24 @@ const OrderCard = ({ order }: { order: IOrder }) => {
       <div className="p-5 space-y-4">
         {order.items.slice(0, isExpanded ? undefined : 2).map((item) => (
           <div key={item.id} className="flex gap-4">
-            <div className="w-16 h-20 bg-gray-100 rounded shrink-0 flex items-center justify-center text-[10px] text-gray-400">
-              Img
-            </div>
+            <ItemImageSlider images={item.item_image} />
             <div className="flex-1 min-w-0">
               <h4 className="text-sm font-semibold text-gray-900 truncate">{item.order_product_name}</h4>
               <div className="flex justify-between items-center mt-2">
-                <p className="text-[11px] text-gray-500 mt-0.5">{item.order_product_classification} · {item.order_product_size.join(', ')}</p>
+                <p className="text-[11px] text-gray-500 mt-0.5">
+                  {item.order_product_classification} · {item.order_product_size.join(', ')}
+                  {item.ai_design_info && (
+                    <span className="ml-2 text-indigo-600 font-bold bg-indigo-50 px-1 rounded">
+                      V{item.ai_design_info.version_number}
+                    </span>
+                  )}
+                </p>
+
+                {item.ai_design_info && (
+                  <p className="text-[10px] text-gray-400 mt-0.5 italic">
+                    AI Design Cost: €{item.ai_design_info.design_cost.toFixed(2)}
+                  </p>
+                )}
 
                 {/* Color Display */}
                 {item.order_product_color_code && item.order_product_color_code.length > 0 && (
@@ -496,11 +571,19 @@ const OrderCard = ({ order }: { order: IOrder }) => {
       </div>
 
       <div className="p-5 bg-gray-50 border-t border-[#E8E3DC] flex justify-between items-center">
-        <div>
+        <div className="flex-1">
           <p className="text-[10px] text-gray-500">Shipping: €{order.shipping_cost.toFixed(2)}</p>
           <p className="text-xs font-bold text-gray-900 mt-1">Total Due</p>
+          <p className="text-2xl font-bold text-[#a07d48]">€{order.total_cost.toFixed(2)}</p>
         </div>
-        <p className="text-2xl font-bold text-[#a07d48]">€{order.total_cost.toFixed(2)}</p>
+        {order.status.toLowerCase() === 'pending' && (
+          <button
+            onClick={() => router.push(`/pages/shipping?order_id=${order.id}`)}
+            className="px-6 py-2 bg-[#a07d48] text-white text-sm font-bold rounded shadow-md hover:bg-[#8b6f47] transition"
+          >
+            PAY NOW
+          </button>
+        )}
       </div>
     </div>
   );
@@ -574,6 +657,7 @@ const EmptyCreationsState = ({
 export default function App() {
   // Initialize Next.js Router
   const router = useRouter();
+  const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
   const [activeTab, setActiveTab] =
     useState<"ordered" | "saved" | "my">("ordered");
@@ -582,8 +666,8 @@ export default function App() {
 
   const [savedProducts, setSavedProducts] =
     useState<Product[]>(DUMMY_SAVED_DESIGNS);
-  const [orderedProducts] = useState<Product[]>(DUMMY_ORDERED_PRODUCTS);
-  const [myDesigns, setMyDesigns] =
+  const [_orderedProducts] = useState<Product[]>(DUMMY_ORDERED_PRODUCTS);
+  const [_myDesigns] =
     useState<Product[]>(DUMMY_MY_DESIGNS);
 
   const [modalState, setModalState] = useState<{
@@ -601,6 +685,22 @@ export default function App() {
   });
 
   const [deleteDesignVersion] = useDeleteCustomProductVersionMutation();
+  const [addToCart] = useAddToCartMutation();
+
+  const handleAddToCart = async (version: ICustomProductVersion) => {
+    try {
+      await addToCart({
+        product: version.product.id,
+        quantity: 1,
+        custom_ai_product_version: version.id,
+        selected_design_image: version.image_urls?.[1] || "",
+      }).unwrap();
+      toast.success(`${version.product.name} added to cart!`);
+    } catch (error) {
+      console.error("Failed to add to cart", error);
+      toast.error("Failed to add to cart. Please try again.");
+    }
+  };
 
   // Function now uses router.push for navigation
   const handleFindProduct = () => {
@@ -634,10 +734,6 @@ export default function App() {
     } else if (modalState.tab === "my") {
       if (modalState.id && !isNaN(Number(modalState.id))) {
         deleteDesignVersion(Number(modalState.id));
-      } else {
-        setMyDesigns((prev: Product[]) =>
-          prev.filter((p: Product) => p.id !== modalState.id)
-        );
       }
     }
 
@@ -684,6 +780,30 @@ export default function App() {
     // { id: "saved", label: "SAVED DESIGNS", count: savedProducts.length },
     { id: "my", label: "MY DESIGNS", count: customProductsData?.results.reduce((acc: number, p: any) => acc + p.versions.length, 0) || 0 },
   ] as const;
+
+  if (!isAuthenticated) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[60vh] px-4 text-center">
+        <div className="bg-red-50 p-8 rounded-lg border-2 border-[#E8E3DC] shadow-sm max-w-md w-full">
+          <div className="h-20 w-20 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <svg className="h-10 w-10 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-4">Login Required</h2>
+          <p className="text-gray-600 mb-8 leading-relaxed">
+            Please login to view your creations, orders, and saved designs.
+          </p>
+          <button
+            onClick={() => router.push("/pages/login")}
+            className="w-full py-4 bg-[#D4AF37] text-white font-bold tracking-widest uppercase hover:bg-[#c9a632] transition-colors shadow-lg"
+          >
+            Login Now
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -761,8 +881,9 @@ export default function App() {
                       <CustomDesignCard
                         key={version.id}
                         version={version}
-                        productId={product.product}
-                        onDelete={(id, title, version) => openDeleteModal(id, title, "my", version)}
+                        _productId={product.product}
+                        onDelete={(id, title, v) => openDeleteModal(id, title, "my", v)}
+                        onAddToCart={handleAddToCart}
                       />
                     ))
                   )}

@@ -181,7 +181,15 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
                 >
                   {/* Product Image */}
                   <div className="relative w-24 h-32 shrink-0 bg-gray-50 overflow-hidden">
-                    {item.product?.images?.[0]?.image ? (
+                    {item.ai_design_info?.selected_image || (item.ai_design_info?.available_images && item.ai_design_info.available_images.length > 0) ? (
+                      <Image
+                        src={item.ai_design_info.selected_image || item.ai_design_info.available_images[0]}
+                        alt={item.product.name}
+                        fill
+                        className="object-cover"
+                        sizes="96px"
+                      />
+                    ) : item.product?.images?.[0]?.image ? (
                       <Image
                         src={item.product.images[0].image}
                         alt={item.product.name}
@@ -198,8 +206,13 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
                   <div className="flex-1 flex flex-col justify-between py-1">
                     <div>
                       <div className="flex justify-between items-start mb-1">
-                        <h3 className={`${cormorantItalic.className} text-xl text-[#1a1a1a] leading-tight`}>
+                        <h3 className={`${cormorantItalic.className} text-xl text-[#1a1a1a] leading-tight flex items-center gap-2`}>
                           {item.product.name}
+                          {item.ai_design_info && (
+                            <span className="text-[10px] bg-indigo-100 text-indigo-700 font-bold px-1.5 py-0.5 rounded-sm shrink-0">
+                              V{item.ai_design_info.version_number}
+                            </span>
+                          )}
                         </h3>
                         <button
                           onClick={() => handleRemove(item.id)}
@@ -209,6 +222,14 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
                           {loadingId === item.id ? <div className="animate-spin rounded-full h-4 w-4 border-2 border-gray-300 border-t-red-500"></div> : <Trash2 size={16} />}
                         </button>
                       </div>
+
+                      {item.ai_design_info && (
+                        <div className="mb-1">
+                          <span className="text-[9px] uppercase font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded">
+                            AI Designed
+                          </span>
+                        </div>
+                      )}
                       <p className={`${jostFont.className} text-xs text-gray-500 tracking-[1px] uppercase mb-2`}>
                         Price: ${item.product.discounted_price ?? parseFloat(item.product.price as unknown as string)}
                       </p>
