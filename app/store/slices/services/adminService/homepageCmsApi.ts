@@ -68,6 +68,7 @@ export interface IHomepageTechnologyResponse {
 
 // --- Injecting the API slice ---
 export const homepageCmsApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         // Feature (/content/homepage/feautur/)
         getHomepageFeature: builder.query<IHomepageFeatureResponse, void>({

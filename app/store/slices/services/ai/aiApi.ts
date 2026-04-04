@@ -46,6 +46,7 @@ export interface ISaveCustomProductVersionRequest {
 }
 
 export const aiApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getCustomProducts: builder.query<ICustomProductResponse, void>({
             query: () => ({

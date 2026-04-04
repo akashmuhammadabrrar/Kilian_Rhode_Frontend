@@ -29,6 +29,7 @@ export interface IDiscountCheckResponse {
 }
 
 export const discountApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         checkDiscountApplicability: builder.mutation<IDiscountCheckResponse, IDiscountCheckRequest>({
             query: (body) => ({

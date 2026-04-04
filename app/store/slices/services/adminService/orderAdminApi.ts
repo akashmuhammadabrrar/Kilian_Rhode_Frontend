@@ -40,6 +40,7 @@ export interface IOrderAdminDetail extends IOrderAdminItem {
 }
 
 export const orderAdminApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getOrders: builder.query<IOrderAdminResponse, { page?: number; search?: string; status?: string; design_type?: string }>({
             query: (params) => ({

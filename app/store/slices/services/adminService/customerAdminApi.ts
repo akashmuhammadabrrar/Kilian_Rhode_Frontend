@@ -21,6 +21,7 @@ export interface ICustomerAdminResponse {
 }
 
 export const customerAdminApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getCustomers: builder.query<ICustomerAdminResponse, { page?: number; search?: string; segment?: string; preferred_design?: string }>({
             query: (params) => ({

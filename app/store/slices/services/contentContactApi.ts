@@ -30,6 +30,7 @@ export interface ISocialMediaListResponse {
 }
 
 export const contentContactApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getContactInfo: builder.query<IContactInfoResponse, void>({
             query: () => "/content/contact/contact_information/",
