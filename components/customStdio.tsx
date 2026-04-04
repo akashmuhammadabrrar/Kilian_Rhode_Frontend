@@ -3,6 +3,7 @@
 import { useRef, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useGetProductsQuery } from "@/app/store/slices/services/product/productApi";
+import { useGetHeroQuery } from "@/app/store/slices/services/contentHomepageApi";
 import stdioImage from "../public/image/stdioImage.png";
 
 const animationStyles = (
@@ -47,6 +48,9 @@ export default function CustomDesignStudio() {
   const [isVisible, setIsVisible] = useState<boolean>(false);
   const router = useRouter();
   const { data: productsData } = useGetProductsQuery({});
+  
+  const { data: heroResponse, isLoading } = useGetHeroQuery();
+  const heroData = heroResponse?.data?.[0];
 
   const handleStartDesigning = () => {
     const defaultProduct = productsData?.results?.categories?.[0];
@@ -88,7 +92,7 @@ export default function CustomDesignStudio() {
     <section
       ref={sectionRef}
       className="relative bg-cover bg-center bg-no-repeat text-white flex items-center justify-center min-h-[400px]"
-      style={{ backgroundImage: `url(${stdioImage.src})` }}
+      style={{ backgroundImage: `url(${heroData?.hero_bgImage || stdioImage.src})` }}
     >
       {animationStyles}
 
@@ -115,7 +119,7 @@ export default function CustomDesignStudio() {
             "slide-up-delay-2"
           )}`}
         >
-          Create Your Own Style
+          {heroData?.hero_title ?? "Create Your Own Style"}
         </h1>
 
         <p
@@ -124,9 +128,13 @@ export default function CustomDesignStudio() {
           )}`}
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
-          Use our AI-powered design studio or manual text creator to bring your
-          vision to life. <br />
-          Professional 300 DPI quality guaranteed on every product.
+          {heroData?.hero_subtitle ?? (
+            <>
+              Use our AI-powered design studio or manual text creator to bring your
+              vision to life. <br />
+              Professional 300 DPI quality guaranteed on every product.
+            </>
+          )}
         </p>
 
         <button
@@ -136,7 +144,7 @@ export default function CustomDesignStudio() {
           )}`}
           style={{ fontFamily: "'Jost', sans-serif" }}
         >
-          START DESIGNING
+          {heroData?.button_text ?? "START DESIGNING"}
         </button>
       </div>
     </section>

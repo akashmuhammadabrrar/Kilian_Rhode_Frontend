@@ -7,6 +7,7 @@ import { useGetOrdersQuery, IOrder, useAddToCartMutation } from "@/app/store/sli
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import { toast } from "sonner";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // Placeholder image for standalone environment
 // const ICON_PLACEHOLDER_URL =
@@ -272,7 +273,7 @@ const ProductCard = ({ product, tabType, onDelete }: ProductCardProps) => {
 
         <div className="mt-4 pt-3 border-t border-[#E8E3DC] flex justify-between items-center">
           <p className="text-lg font-bold text-gray-500">Price:</p>
-          <p className="text-2xl text-indigo-600">€{product.price.toFixed(2)}</p>
+          <p className="text-2xl text-indigo-600">{formatPrice(product.price)}</p>
         </div>
 
         {onDelete && (isSaved || isMy) && (
@@ -399,7 +400,7 @@ const CustomDesignCard = ({
 
         <div className="mt-4 pt-3 border-t border-[#E8E3DC] flex justify-between items-center">
           <p className="text-lg font-bold text-gray-500">Design Cost:</p>
-          <p className="text-2xl text-indigo-600">€{(version.product.price)}</p>
+          <p className="text-2xl text-indigo-600">{formatPrice(version.product.price)}</p>
           {/* <p className="text-2xl text-indigo-600">€{parseFloat(version.design_cost).toFixed(2)}</p> */}
         </div>
 
@@ -530,7 +531,7 @@ const OrderCard = ({ order }: { order: IOrder }) => {
 
                 {item.ai_design_info && (
                   <p className="text-[10px] text-gray-400 mt-0.5 italic">
-                    AI Design Cost: €{item.ai_design_info.design_cost.toFixed(2)}
+                    AI Design Cost: {formatPrice(item.ai_design_info.design_cost)}
                   </p>
                 )}
 
@@ -554,7 +555,7 @@ const OrderCard = ({ order }: { order: IOrder }) => {
 
               <div className="flex justify-between items-center mt-2">
                 <span className="text-[11px] text-gray-600">Qty: {item.quantity}</span>
-                <span className="text-sm font-bold text-indigo-600">€{parseFloat(item.subtotal).toFixed(2)}</span>
+                <span className="text-sm font-bold text-indigo-600">{formatPrice(parseFloat(item.subtotal))}</span>
               </div>
             </div>
           </div>
@@ -572,9 +573,9 @@ const OrderCard = ({ order }: { order: IOrder }) => {
 
       <div className="p-5 bg-gray-50 border-t border-[#E8E3DC] flex justify-between items-center">
         <div className="flex-1">
-          <p className="text-[10px] text-gray-500">Shipping: €{order.shipping_cost.toFixed(2)}</p>
+          <p className="text-[10px] text-gray-500">Shipping: {formatPrice(order.shipping_cost)}</p>
           <p className="text-xs font-bold text-gray-900 mt-1">Total Due</p>
-          <p className="text-2xl font-bold text-[#a07d48]">€{order.total_cost.toFixed(2)}</p>
+          <p className="text-2xl font-bold text-[#a07d48]">{formatPrice(order.total_cost)}</p>
         </div>
         {order.status.toLowerCase() === 'pending' && (
           <button

@@ -13,6 +13,7 @@ import { ISavedProduct, useDeleteSavedProductMutation } from "@/app/store/slices
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import ToastMessage from "../ToastMessage";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -147,7 +148,7 @@ export default function BottomTop({ items }: BottomTopProps) {
                   <p
                     className={`${jostFont.className} text-[16px] font-medium mb-2`}
                   >
-                    €{product.discounted_price || product.price}
+                    {formatPrice(product.discounted_price || product.price)}
                   </p>
 
                   <div className="flex justify-center items-center space-x-1 mb-6">

@@ -1,16 +1,17 @@
 "use client";
 
-import React, { useState, useMemo, useCallback } from "react";
+import React, { useState, useMemo, useCallback, useEffect } from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
 import Image, { StaticImageData } from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useGetProductsQuery, ICategory, useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
+import { useGetProductsQuery, ICategory, useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import { motion, AnimatePresence } from "framer-motion";
 import Loader from "../../../components/Loader";
 import EmptyState from "../../../components/EmptyState";
+import CartActionModal from "@/components/CartActionModal";
 
 // Images (Ensure you have a checkmark icon or use an SVG/Unicode character)
 // import hoodi from "@/public/image/collections/imag1.jpg";
@@ -24,6 +25,23 @@ import EmptyState from "../../../components/EmptyState";
 
 import shop from "@/public/image/collections/shop.svg";
 import heart from "@/public/image/collections/heartIcon.svg";
+import { Heart } from "lucide-react";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
+
+// Inline Heart SVG button — fills when product is saved
+const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
+  <button
+    className="bg-[#DFA637] text-black hover:bg-[#c99532] p-2 shadow-sm transition"
+    onClick={onClick}
+    aria-label="Toggle save product"
+  >
+    {isSaved ? (
+      <Heart fill="red" stroke="red"/>
+    ) : (
+      <Heart fill="none" stroke="#1A1A1A"/>
+    )}
+  </button>
+);
 
 // ----------------------------------------------------------------------
 // Fonts (Unchanged)
@@ -64,6 +82,7 @@ export type Product = {
   priceValue: number;
   colors: string[];
   suitableAge: AgeGroupKey[] | string[];
+  is_user_saved?: boolean;
 };
 
 // Helper to extract numerical price
@@ -136,7 +155,7 @@ const ToastMessage = ({ message, type, onClose }: { message: string; type: 'succ
 
   return (
     <motion.div
-      className={`${jostFont.className} fixed top-24 right-4 ${bgColor} text-white px-6 py-4 rounded shadow-2xl z-[100] text-center font-medium flex items-center gap-3`}
+      className={`${jostFont.className} fixed top-24 right-4 ${bgColor} text-white px-6 py-4 rounded shadow-2xl z-100 text-center font-medium flex items-center gap-3`}
       initial={{ x: 100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: 100, opacity: 0 }}
@@ -158,9 +177,10 @@ type ProductCardProps = {
   handleAddToCart: (product: Product) => void;
   handleCustomizeRoute: (id: number) => void;
   onSaveProduct: (message: string, type: 'success' | 'info' | 'error') => void;
+  onOpenCartModal: (product: Product) => void;
 }
 
-const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrderNow, handleAddToCart, handleCustomizeRoute, onSaveProduct }) => {
+const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrderNow, handleAddToCart, handleCustomizeRoute, onSaveProduct, onOpenCartModal }) => {
   const {
     title,
     subtitle,
@@ -179,6 +199,14 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
   const iconButtonColor = "bg-[#DFA637] text-black hover:bg-[#c99532]";
 
   const [saveProduct] = useSaveProductMutation();
+  const [deleteSavedProduct] = useDeleteSavedProductMutation();
+
+  // Optimistic local saved state
+  const [isSaved, setIsSaved] = useState(product.is_user_saved ?? false);
+
+  useEffect(() => {
+    setIsSaved(product.is_user_saved ?? false);
+  }, [product.is_user_saved]);
 
   const handleAction = async (action: string) => {
     console.log(`${action} for Product ID: ${product.id}`);
@@ -190,15 +218,27 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
     } else if (action === "Customize") {
       handleCustomizeRoute(product.id);
     } else if (action === "Wishlist") {
+      // Optimistic flip
+      const wasSaved = isSaved;
+      setIsSaved(!wasSaved);
+
       try {
-        const response = await saveProduct({ product: product.id }).unwrap();
-        onSaveProduct(response.message || "Product saved successfully!", 'success');
+        if (wasSaved) {
+          const response = await deleteSavedProduct(product.id).unwrap();
+          onSaveProduct(response.message || "Product removed from saved!", 'info');
+        } else {
+          const response = await saveProduct({ product: product.id }).unwrap();
+          onSaveProduct(response.message || "Product saved successfully!", 'success');
+        }
       } catch (err: unknown) {
+        // Revert on failure
+        setIsSaved(wasSaved);
         const errorData = (err as { data?: { message?: string } })?.data;
-        if (errorData?.message === "Product already saved") {
+        if (!wasSaved && errorData?.message === "Product already saved") {
+          setIsSaved(true); // It's actually saved
           onSaveProduct("Product is already saved!", 'info');
         } else {
-          onSaveProduct("Unauthorized: Please login to save products.", 'error');
+          onSaveProduct("An error occurred while saving.", 'error');
         }
       }
     } else {
@@ -210,7 +250,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
     <div className="flex flex-col border-none">
       <div className="relative overflow-hidden">
         <div
-          className="w-full h-[400px] bg-cover bg-center flex items-center justify-center relative"
+          className="w-full h-100 bg-cover bg-center flex items-center justify-center relative"
           style={{
             backgroundImage: imageUrl ? `url(${imageUrl})` : 'none',
             backgroundColor: imageUrl ? (isDarkImage ? "#000" : "#FFF") : "#F3F4F6",
@@ -228,15 +268,13 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
           )}
 
           <div className="absolute top-3 right-3 flex space-x-2">
-            <button
-              className={`${iconButtonColor} p-2 shadow-sm transition`}
+            <HeartButton
+              isSaved={isSaved}
               onClick={() => handleAction("Wishlist")}
-            >
-              <Image src={heart} alt="Add to Wishlist" className="h-4 w-4" />
-            </button>
+            />
             <button
               className={`${iconButtonColor} p-2 shadow-sm transition`}
-              onClick={() => handleAction("Quick Shop")}
+              onClick={() => onOpenCartModal(product)}
             >
               <Image src={shop} alt="Quick Shop" className="h-4 w-4" />
             </button>
@@ -273,7 +311,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
         </p>
 
         <p className={`${cormorantNormal.className} text-lg font-bold mb-4`}>
-          {price}
+          {formatPrice(price)}
         </p>
 
         <div className="flex justify-center mb-6">
@@ -374,6 +412,8 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
   const subCategoryParam = searchParams.get("subcategory");
   const ageRangeParam = searchParams.get("age_range");
 
+  const [actionModalConfig, setActionModalConfig] = useState<{ isOpen: boolean; productId: number; productName: string } | null>(null);
+
   const [currentLimit, setCurrentLimit] = useState(10);
   const [selectedAgeGroupId, setSelectedAgeGroupId] = useState<number | "ALL">("ALL"); // Store ID
   const [selectedSubCategoryId, setSelectedSubCategoryId] = useState<number | null>(subCategoryParam ? parseInt(subCategoryParam) : null);
@@ -389,15 +429,6 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
       label: `${age.start}-${age.end}`
     }));
   }, [currentCategory]);
-
-  // Sync selected age group with URL param only on mount/change? 
-  // User says "when click specific age group fetch with that agegroup id".
-  // Note: searchParams for age_range might be present from URL.
-  // Ideally, valid selectedAgeGroupId should be from params if present.
-
-  // Update state from params if needed, or simply use params in query and use state for UI selection.
-  // Actually, keeping them in sync is best.
-  // For now, let's prioritize local interaction updating the query.
 
   // API Query
   const { data: productsData, isLoading } = useGetProductsQuery({
@@ -422,10 +453,11 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
       title: p.category?.title || "Product",
       subtitle: p.name,
       description: p.description,
-      price: `$${p.discounted_price || p.price}`,
+      price: (p.discounted_price || p.price).toString(),
       priceValue: p.discounted_price || parseFloat(p.price),
       colors: [p.color_code],
       suitableAge: p.age_range ? [`${p.age_range.start}-${p.age_range.end}`] : [],
+      is_user_saved: p.is_user_saved ?? false,
     }));
 
     // Client-side Sorting
@@ -529,6 +561,21 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
 
   return (
     <div className={`bg-white ${jostFont.className}`}>
+      <CartActionModal
+        isOpen={!!actionModalConfig?.isOpen}
+        onClose={() => setActionModalConfig(null)}
+        onCustomize={() => {
+          if (actionModalConfig?.productId) {
+            router.push(`/pages/my-creation/create-your-design?id=${actionModalConfig.productId}`);
+          }
+        }}
+        onAddToCart={() => {
+          if (actionModalConfig?.productId) {
+            const prod = productsToDisplay.find(p => p.id === actionModalConfig.productId);
+            if (prod) handleAddToCart(prod);
+          }
+        }}
+      />
       <AnimatePresence>
         {toast && (
           <ToastMessage message={toast.message} type={toast.type} onClose={handleCloseToast} />
@@ -690,6 +737,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
                 handleAddToCart={handleAddToCart}
                 handleCustomizeRoute={handleCustomizeRoute}
                 onSaveProduct={(msg, type) => setToast({ message: msg, type })}
+                onOpenCartModal={(product) => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.title })}
               />
             ))}
           </div>

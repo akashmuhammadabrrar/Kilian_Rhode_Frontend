@@ -172,7 +172,7 @@ const Header: NextPage = () => {
         {/* Logo */}
         <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
           <Image
-            className="w-[90px] md:w-[150px] lg:w-[172px]"
+            className="w-[90px] md:w-[130px] lg:w-[172px"
             width={200}
             height={59}
             sizes="(max-width: 768px) 90px, 200px"

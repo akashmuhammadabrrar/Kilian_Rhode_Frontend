@@ -23,6 +23,7 @@ import base from "@/public/image/shipping/Icon (6).svg";
 import rightIcon from "@/public/image/shipping/Icon (7).svg";
 import clock from "@/public/image/shipping/Icon (8).svg";
 import { toast } from "sonner";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 import {
   useCreatePaymentSessionMutation,
   useGetCartQuery,
@@ -430,7 +431,7 @@ const PaymentPage: React.FC = () => {
                     Processing...
                   </>
                 ) : (
-                  `Place Order - €${total.toFixed(2)}`
+                  `Place Order - ${formatPrice(total)}`
                 )}
               </button>
             </div>
@@ -438,7 +439,7 @@ const PaymentPage: React.FC = () => {
 
           {/* Right: Order Summary (No changes) */}
           <div
-            className={`${jostFont.className} w-full lg:w-[350px] bg-white rounded-xl p-6 border-2 border-[#E8E3DC] self-start`}
+            className={`${jostFont.className} w-full lg:w-87.5 bg-white rounded-xl p-6 border-2 border-[#E8E3DC] self-start`}
           >
             <h3 className="font-semibold text-gray-800 mb-6 text-lg">
               Order Summary
@@ -460,7 +461,7 @@ const PaymentPage: React.FC = () => {
                       </div>
 
                       <p className="text-xs text-gray-500">Qty: {item.quantity}</p>
-                      <p className="text-xs font-semibold text-[#a07d48]">€{parseFloat(item.order_product_price).toFixed(2)}</p>
+                      <p className="text-xs font-semibold text-[#a07d48]">{formatPrice(item.order_product_price)}</p>
                     </div>
                   </div>
                 ))
@@ -486,11 +487,11 @@ const PaymentPage: React.FC = () => {
             <div className="space-y-4 text-sm text-gray-600">
               <div className="flex justify-between">
                 <span>Subtotal ({orderDetails?.items?.length || 0} item{orderDetails?.items?.length !== 1 ? 's' : ''})</span>
-                <span className="text-gray-900 font-medium">€{subtotal.toFixed(2)}</span>
+                <span className="text-gray-900 font-medium">{formatPrice(subtotal)}</span>
               </div>
               <div className="flex justify-between">
                 <span>Shipping</span>
-                <span className="text-gray-900 font-medium">{shippingCost > 0 ? `€${shippingCost.toFixed(2)}` : 'Free'}</span>
+                <span className="text-gray-900 font-medium">{shippingCost > 0 ? formatPrice(shippingCost) : 'Free'}</span>
               </div>
             </div>
 
@@ -498,7 +499,7 @@ const PaymentPage: React.FC = () => {
 
             <div className="flex justify-between font-bold text-lg text-gray-800">
               <span>Total</span>
-              <span style={{ color: ACCENT_COLOR }}>€{total.toFixed(2)}</span>
+              <span style={{ color: ACCENT_COLOR }}>{formatPrice(total)}</span>
             </div>
 
             {/* Extra List */}

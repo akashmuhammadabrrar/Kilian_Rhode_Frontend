@@ -1,19 +1,19 @@
 "use client";
 import Image, { StaticImageData } from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
-import loveIcon from "@/public/image/shopIcon/loveIcon.svg";
 import shopIcon from "@/public/image/shopIcon/shopIcon.svg";
 import arrowIcon from "@/public/image/shopIcon/arrowIcon.svg";
 import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 
 import { useRouter } from "next/navigation";
-import { useSaveProductMutation } from "@/app/store/slices/services/product/productApi";
+import { useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import ToastMessage from "../ToastMessage";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import CartActionModal from "@/components/CartActionModal";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -44,6 +44,23 @@ const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
   </motion.button>
 );
 
+// Heart icon — filled when saved, outline when not
+const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
+  <motion.button
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity"
+    whileHover={{ scale: 1.1 }}
+    whileTap={{ scale: 0.9 }}
+    onClick={onClick}
+    aria-label="Save product"
+  >
+    {isSaved ? (
+      <Heart fill="red" stroke="red"/>
+    ) : (
+      <Heart fill="none" stroke="#1A1A1A"/>
+    )}
+  </motion.button>
+);
+
 const Loader = () => (
   <div className="flex flex-col items-center justify-center h-64 w-full">
     <div className="relative w-16 h-16">
@@ -57,13 +74,19 @@ const Loader = () => (
 );
 
 import { IProduct } from "@/app/store/slices/services/product/productApi";
+import { Heart } from "lucide-react";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
-export default function PopularWeek({ products, isLoading, currentPage, onPageChange, hasMore }: { products: IProduct[], isLoading: boolean, currentPage?: number, onPageChange?: (page: number) => void, hasMore?: boolean }) {
+export default function PopularWeek({ products, isLoading }: { products: IProduct[], isLoading: boolean }) {
   const router = useRouter();
-  console.log("popular week", products)
-  // const [likedProductId, setLikedProductId] = useState<number | null>(null);
 
   const isAuthenticated = useAppSelector(selectIsAuthenticated);
+
+  // State for Action Modal
+  const [actionModalConfig, setActionModalConfig] = useState<{ isOpen: boolean; productId: number; productName: string } | null>(null);
+
+  // Robust optimistic state: only stores overrides for products interacted with
+  const [localOverrides, setLocalOverrides] = useState<Record<number, boolean>>({});
 
   const handleOrderNow = async (productId: number) => {
     if (!isAuthenticated) {
@@ -98,22 +121,46 @@ export default function PopularWeek({ products, isLoading, currentPage, onPageCh
   };
 
   const [saveProduct] = useSaveProductMutation();
+  const [deleteSavedProduct] = useDeleteSavedProductMutation();
   const [addToCart] = useAddToCartMutation();
   const [toastMessage, setToastMessage] = useState<{ message: string, type: 'success' | 'info' | 'error' } | null>(null);
 
   const handleLikeProduct = async (productId: number, productName: string) => {
+    if (!isAuthenticated) {
+      setToastMessage({ message: "Please login to save products", type: 'error' });
+      setTimeout(() => setToastMessage(null), 3000);
+      return;
+    }
+
+    // Current actual state (local override or original server value)
+    const isSaved = localOverrides[productId] ?? products.find(p => p.id === productId)?.is_user_saved ?? false;
+
+    // Optimistic toggle
+    setLocalOverrides(prev => ({ ...prev, [productId]: !isSaved }));
+
     try {
-      await saveProduct({ product: productId }).unwrap();
-      setToastMessage({ message: `${productName} saved successfully!`, type: 'success' });
+      if (isSaved) {
+        await deleteSavedProduct(productId).unwrap();
+        setToastMessage({ message: `${productName} removed from saved products!`, type: 'info' });
+      } else {
+        await saveProduct({ product: productId }).unwrap();
+        setToastMessage({ message: `${productName} saved successfully!`, type: 'success' });
+      }
     } catch (err: unknown) {
-      if ((err as { data?: { message?: string } })?.data?.message === "Product already saved") {
+      // Revert on failure
+      setLocalOverrides(prev => {
+        const next = { ...prev };
+        delete next[productId]; // Revert to whatever was provided by server
+        return next;
+      });
+      if (!isSaved && (err as { data?: { message?: string } })?.data?.message === "Product already saved") {
+        setLocalOverrides(prev => ({ ...prev, [productId]: true })); // It's actually saved
         setToastMessage({ message: `${productName} is already saved!`, type: 'info' });
       } else {
-        setToastMessage({ message: "Please login to save products", type: 'error' });
+        setToastMessage({ message: "An error occurred", type: 'error' });
       }
     }
 
-    // Auto-dismiss logic is handled in the Toast component or here
     setTimeout(() => setToastMessage(null), 3000);
   };
 
@@ -123,29 +170,30 @@ export default function PopularWeek({ products, isLoading, currentPage, onPageCh
     return <Loader />;
   }
 
-  if (products.length === 0) {
+  // Only show the first 2 products
+  const displayProducts = products.slice(0, 2);
+
+  if (displayProducts.length === 0) {
     return null;
   }
 
-  const formatPrice = (value: string | number) => {
-    return new Intl.NumberFormat("de-DE", {
-      style: "currency",
-      currency: "EUR",
-    }).format(Number(value));
-  };
-  
-  const handleNext = () => {
-    if (hasMore && onPageChange && currentPage) onPageChange(currentPage + 1);
-  };
-
-  const handlePrevious = () => {
-    if (currentPage && currentPage > 1 && onPageChange) onPageChange(currentPage - 1);
-  };
-
-  const activeClasses = `${jostFont.className} sm:w-10 sm:h-10 flex items-center justify-center rounded-md border-[1.5] sm:text-[18px] transition-colors duration-150 border-[#D4AF37] bg-[#D4AF37] text-white`;
-
   return (
     <div className={` bg-[#FAFAFA] ${jostFont.className}`}>
+      <CartActionModal
+        isOpen={!!actionModalConfig?.isOpen}
+        onClose={() => setActionModalConfig(null)}
+        onCustomize={() => {
+          if (actionModalConfig?.productId) {
+            router.push(`/pages/my-creation/create-your-design?id=${actionModalConfig.productId}`);
+          }
+        }}
+        onAddToCart={() => {
+          if (actionModalConfig?.productId) {
+            handleAddToCart(actionModalConfig.productId);
+          }
+        }}
+      />
+      
       <main className=" max-w-8xl">
         {/* ... Title Section (unchanged) ... */}
         <motion.h1
@@ -158,9 +206,9 @@ export default function PopularWeek({ products, isLoading, currentPage, onPageCh
         </motion.h1>
         {/* ---------------------------------- */}
 
-        {/* Product Grid */}
+        {/* Product Grid — max 2 items */}
         <div className="flex flex-wrap justify-center md:justify-between">
-          {products.map((product, index) => (
+          {displayProducts.map((product, index) => (
             <motion.div
               key={product.id}
               className="group flex flex-col items-center w-full sm:w-[calc(50%-20px)]  md:max-w-none md:w-[calc(50%-20px)]"
@@ -186,15 +234,14 @@ export default function PopularWeek({ products, isLoading, currentPage, onPageCh
 
                 {/* Icons Overlay */}
                 <div className="absolute top-4 right-4 flex space-x-2">
-                  <IconToggleButton
-                    src={loveIcon}
-                    alt="Love Icon"
+                  <HeartButton
+                    isSaved={localOverrides[product.id] ?? product.is_user_saved ?? false}
                     onClick={() => handleLikeProduct(product.id, product.name)}
                   />
                   <IconToggleButton
                     src={shopIcon}
                     alt="Shop Icon"
-                    onClick={() => handleAddToCart(product.id)}
+                    onClick={() => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name })}
                   />
                 </div>
 
@@ -255,47 +302,6 @@ export default function PopularWeek({ products, isLoading, currentPage, onPageCh
           ))}
         </div>
       </main>
-
-      {/* Pagination Footer */}
-      {currentPage !== undefined && onPageChange !== undefined && (
-        <footer>
-          <div className="flex flex-col sm:flex-row items-center justify-center p-4 sm:p-6 space-y-4 sm:space-y-0">
-            <div className="flex space-x-1 sm:space-x-2 order-1 sm:order-2">
-              <motion.button
-                className="w-16 h-8 text-xs sm:w-20 sm:h-10 sm:text-[18px] flex items-center justify-center rounded-md border-[1.5px] transition-colors duration-150 border-[#D4AF37] bg-white text-[#D4AF37] hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handlePrevious}
-                disabled={currentPage === 1}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Prev
-              </motion.button>
-
-              <div className="flex space-x-1 sm:space-x-2">
-                {[currentPage].map((page) => (
-                  <motion.button
-                    key={page}
-                    className={`${activeClasses} w-8 h-8 text-sm`}
-                    aria-current="page"
-                  >
-                    {page}
-                  </motion.button>
-                ))}
-              </div>
-
-              <motion.button
-                className="w-16 h-8 text-xs sm:w-20 sm:h-10 sm:text-[18px] flex items-center justify-center rounded-md border-[1.5px] transition-colors duration-150 border-[#D4AF37] bg-white text-[#D4AF37] hover:bg-stone-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                onClick={handleNext}
-                disabled={!hasMore}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Next
-              </motion.button>
-            </div>
-          </div>
-        </footer>
-      )}
 
       <AnimatePresence>
         {toastMessage && (

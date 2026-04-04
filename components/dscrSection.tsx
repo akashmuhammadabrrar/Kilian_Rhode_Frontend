@@ -15,7 +15,7 @@ import colorIcon from "../public/image/myCreationIcon/colorStar.svg";
 import nonColorIcon from "../public/image/myCreationIcon/noncolorStar.svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
-import { useGetProductDetailsQuery, useGetProductReviewsQuery } from "@/app/store/slices/services/product/productApi";
+import { useGetProductReviewsQuery, IProduct } from "@/app/store/slices/services/product/productApi";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -70,16 +70,10 @@ const animationStyles = (
 
 // --- DATA STRUCTURE WITH ALL CONTENT (Unchanged) ---
 // --- COMPONENT ---
-export default function ProductTabs({ productId }: { productId?: number }) {
-  const { data: detailsData } = useGetProductDetailsQuery(productId ?? 0, {
-    skip: !productId,
-  });
-
+export default function ProductTabs({ productId, apiProduct }: { productId?: number, apiProduct?: IProduct }) {
   const { data: reviewsData, isLoading: reviewsLoading, error: reviewsError } = useGetProductReviewsQuery({ product_id: productId }, {
     skip: !productId
   });
-
-  const apiProduct = detailsData?.data;
 
   // Helper to flatten reviews from the API structure
   const allReviews = React.useMemo(() => {
@@ -504,7 +498,7 @@ export default function ProductTabs({ productId }: { productId?: number }) {
       py-3 md:py-4 md:px-21.5 ${jostFont.className
                 } tracking-[2.1] text-[14px] text-[#1a1a1a]
       text-sm font-medium uppercase 
-      relative z-10 transition-colors duration-200 flex-shrink-0 
+      relative z-10 transition-colors duration-200 shrink-0 
       w-full md:w-auto  border 
       
       // Active/Inactive States

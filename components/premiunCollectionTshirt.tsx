@@ -48,11 +48,12 @@ const cormorantNormal = Cormorant_Garamond({
   style: ["normal"],
 });
 
-import { useGetProductDetailsQuery, useGetProductReviewsQuery } from "@/app/store/slices/services/product/productApi";
+import { useGetProductReviewsQuery, IProduct } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // --- Interface Definitions ---
 interface Thumbnail {
@@ -100,16 +101,10 @@ const Loader = () => (
 );
 
 // --- Main Component ---
-export default function ProductPage({ productId }: { productId?: number }) {
-  const { data: detailsData, isLoading } = useGetProductDetailsQuery(productId ?? 0, {
-    skip: !productId,
-  });
-
+export default function ProductPage({ productId, apiProduct }: { productId?: number, apiProduct?: IProduct }) {
   const { data: reviewsData } = useGetProductReviewsQuery({ product_id: productId }, {
     skip: !productId
   });
-
-  const apiProduct = detailsData?.data;
 
   // Helper to calculate average rating
   const averageRating = React.useMemo(() => {
@@ -128,29 +123,6 @@ export default function ProductPage({ productId }: { productId?: number }) {
 
   const totalReviewCount = reviewsData?.total_review || 0;
 
-  // Fallback / Static product for when no ID is provided or API fails
-  // const staticProduct: ProductData = {
-  //   title: "Premium Cotton T-Shirt",
-  //   price: 29.99,
-  //   originalPrice: 38.99,
-  //   reviews: 127,
-  //   averageRating: 4.8,
-  //   description: "Luxurious 100% premium cotton with superior comfort",
-  //   sizes: ["XS", "S", "M", "L", "XL", "XXL"],
-  //   colors: [
-  //     { name: "White", hex: "#FFFFFF", selected: true },
-  //     { name: "Black", hex: "#000000" },
-  //     { name: "Dark Blue", hex: "#1F4E79" },
-  //     { name: "Grey", hex: "#A9A9A9" },
-  //   ],
-  //   mainImageSrc: mainTshirt,
-  //   thumbnails: [
-  //     { src: tshirt1, alt: "White T-Shirt Front" },
-  //     { src: tshirt2, alt: "Black T-Shirt View" },
-  //     { src: tshirt3, alt: "Red T-Shirt Style" },
-  //     { src: tshirt4, alt: "Outdoor T-Shirt Shot" },
-  //   ],
-  // };
 
   // Map API data if available
   // Map API data if available - with robust null checks
@@ -288,7 +260,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
     }
   }, [apiProduct]);
 
-  if (isLoading) return <Loader />;
+  // No internal loading state needed as it's handled by parent
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-white">
@@ -406,12 +378,12 @@ export default function ProductPage({ productId }: { productId?: number }) {
             <p
               className={`${jostFont.className} tracking-[0.5px] text-2xl sm:text-3xl text-[#1a1a1a]`}
             >
-              €{displayProduct.price.toFixed(2)}
+              {formatPrice(displayProduct.price)}
             </p>
             <p
               className={`${jostFont.className} tracking-[0.5px] ml-3 text-[14px] sm:text-lg line-through text-[#6a6a6a]`}
             >
-              €{displayProduct.originalPrice.toFixed(2)}
+              {formatPrice(displayProduct.originalPrice)}
             </p>
             <div
               className={`${jostFont.className} tracking-[0.5px] bg-[#d4af37] ml-4 text-black text-[12px] font-medium px-2 py-0.5`}
@@ -643,7 +615,7 @@ export default function ProductPage({ productId }: { productId?: number }) {
                 className={`${jostFont.className} tracking-[0.5px] text-[18px] text-lg ml-1 font-normal text-gray-900`}
               >
                 {" "}
-                €{(displayProduct.price * quantity).toFixed(2)}
+                {formatPrice(displayProduct.price * quantity)}
               </span>
             </div>
 

@@ -12,6 +12,7 @@ import { toast } from "sonner";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import { useGetWalletQuery } from "@/app/store/slices/services/wallet/walletApi";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 // --- Imported Components (Assumed to exist in your project structure) ---
 import LivePreviewModal from "@/components/previewModel";
@@ -364,7 +365,7 @@ const CombinedDesignPageFixed = () => {
                                         className="text-2xl md:text-3xl font-light text-gray-900"
                                         style={{ fontFamily: "'Jost', sans-serif" }}
                                     >
-                                        €{apiProduct.discounted_price || apiProduct.price}
+                                        {formatPrice((apiProduct.discounted_price || apiProduct.price))}
                                     </p>
                                 </div>
                             )}
@@ -376,7 +377,7 @@ const CombinedDesignPageFixed = () => {
                                 whileHover={{ scale: 1.02 }}
                                 transition={{ type: "spring", stiffness: 400, damping: 10 }}
                             >
-                                <div className="border-2 border-dashed border-gray-200 p-1 sm:p-2 max-w-sm w-full mx-auto relative h-[400px] flex items-center justify-center bg-gray-50 rounded-md overflow-hidden">
+                                <div className="border-2 border-dashed border-gray-200 p-1 sm:p-2 max-w-sm w-full mx-auto relative h-100 flex items-center justify-center bg-gray-50 rounded-md overflow-hidden">
                                     {selectedAiImage || apiProduct?.images?.[0]?.image ? (
                                         <Image
                                             src={selectedAiImage || (apiProduct?.images?.[0]?.image) || tshirtImage}
@@ -559,7 +560,7 @@ const CombinedDesignPageFixed = () => {
                                     crisp, stunning results. Your custom product will look amazing
                                     both on screen and in real life, guaranteed.
                                 </p>
-                                <hr className="h-[2px] w-full border-0 bg-linear-to-r from-transparent via-[rgba(212,175,55,0.8)] to-transparent rounded-full mb-1.5" />
+                                <hr className="h-0.5 w-full border-0 bg-linear-to-r from-transparent via-[rgba(212,175,55,0.8)] to-transparent rounded-full mb-1.5" />
                                 <div className="flex flex-wrap gap-x-4 text-xs">
                                     <p
                                         className={`${jostFont.className} text-[12px] text-[#6B6B6B] tracking-[0.5px] flex items-center`}
