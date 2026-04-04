@@ -16,6 +16,7 @@ export interface IAboutContentResponse {
 }
 
 export const cmsAboutApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getAboutContentSection: builder.query<IAboutContentResponse, void>({
             query: () => "/content/about/content_section/",

@@ -3,28 +3,31 @@ import { baseBackendApi } from "../baseBackendApi";
 export interface ILegalContent {
     id: number;
     title: string | null;
-    sub_title: string | null;
-    content: string | null;
+    file: string | null;
+    created_at?: string;
+    updated_at?: string;
 }
 
 export interface ILegalContentResponse {
-    success: boolean;
-    message: string;
-    data: ILegalContent | ILegalContent[];
+    count: number;
+    next: string | null;
+    previous: string | null;
+    results: ILegalContent[];
 }
 
 export const privecyLegalApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         // Get all legal content
         getLegalContent: builder.query<ILegalContentResponse, void>({
-            query: () => "/content/legal/",
+            query: () => "/document/policy/",
             providesTags: ["LegalContent"],
         }),
 
         // Create new legal content
-        createLegalContent: builder.mutation<ILegalContentResponse, FormData>({
+        createLegalContent: builder.mutation<ILegalContent, FormData>({
             query: (data) => ({
-                url: "/content/legal/",
+                url: "/document/policy/",
                 method: "POST",
                 body: data,
             }),
@@ -32,9 +35,9 @@ export const privecyLegalApi = baseBackendApi.injectEndpoints({
         }),
 
         // Update legal content
-        updateLegalContent: builder.mutation<ILegalContentResponse, { id: number; data: FormData }>({
+        updateLegalContent: builder.mutation<ILegalContent, { id: number; data: FormData }>({
             query: ({ id, data }) => ({
-                url: `/content/legal/${id}/`,
+                url: `/document/policy/${id}/`,
                 method: "PATCH",
                 body: data,
             }),
@@ -44,13 +47,12 @@ export const privecyLegalApi = baseBackendApi.injectEndpoints({
         // Delete legal content
         deleteLegalContent: builder.mutation<void, number>({
             query: (id) => ({
-                url: `/content/legal/${id}/`,
+                url: `/document/policy/${id}/`,
                 method: "DELETE",
             }),
             invalidatesTags: ["LegalContent"],
         }),
     }),
-    overrideExisting: false,
 });
 
 export const {

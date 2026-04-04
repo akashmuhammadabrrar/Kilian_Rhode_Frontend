@@ -34,6 +34,7 @@ export interface ITopUpResponse {
 }
 
 export const walletApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         getWallet: builder.query<IWalletResponse, void>({
             query: () => ({
