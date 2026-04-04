@@ -41,10 +41,10 @@ const ProductNotFound = () => (
   <div className="flex flex-col items-center justify-center h-[60vh] text-center px-4">
     <h2 className={`${cormorantItalic.className} text-4xl text-gray-900 mb-4`}>Product Not Found</h2>
     <p className={`${jostFont.className} text-gray-600 mb-8 max-w-md tracking-[0.5px]`}>
-      Sorry, we couldn't find the product you're looking for. It may have been removed or the link is incorrect.
+      Sorry, we couldn&apos;t find the product you&apos;re looking for. It may have been removed or the link is incorrect.
     </p>
-    <Link 
-      href="/pages/shop" 
+    <Link
+      href="/pages/shop"
       className={`${jostFont.className} px-8 py-3 bg-[#795548] text-white tracking-[2px] text-sm font-medium hover:bg-opacity-90 transition-all shadow-lg`}
     >
       BACK TO SHOP
