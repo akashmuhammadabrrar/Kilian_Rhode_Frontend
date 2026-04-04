@@ -155,17 +155,25 @@ const Header: NextPage = () => {
         <div className="flex items-center space-x-4">
           <button
             onClick={toggleMenu}
-            className="p-2 md:hidden text-[#1a1a1a] hover:text-[#795548] transition duration-200"
+            className="p-2 lg:hidden text-[#1a1a1a] hover:text-[#795548] transition duration-200"
             aria-label="Toggle navigation menu"
           >
             {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
           </button>
 
-          <nav className="hidden md:flex items-center space-x-6 lg:space-x-10">
-            <NavLink href="/" onClick={handleNavLinkClick}>HOME</NavLink>
-            <NavLink href="/pages/my-creation" onClick={handleNavLinkClick}>MY CREATION</NavLink>
-            <NavLink href="/pages/shop" onClick={handleNavLinkClick}>SHOP</NavLink>
-            <NavLink href="/pages/save-products" onClick={handleNavLinkClick}>SAVED PRODUCTS</NavLink>
+          <nav className="hidden lg:flex items-center lg:space-x-4 xl:space-x-10">
+            <div className="lg:text-[11px] xl:text-sm">
+              <NavLink href="/" onClick={handleNavLinkClick}>HOME</NavLink>
+            </div>
+            <div className="lg:text-[11px] xl:text-sm">
+              <NavLink href="/pages/my-creation" onClick={handleNavLinkClick}>MY CREATION</NavLink>
+            </div>
+            <div className="lg:text-[11px] xl:text-sm">
+              <NavLink href="/pages/shop" onClick={handleNavLinkClick}>SHOP</NavLink>
+            </div>
+            <div className="lg:text-[11px] xl:text-sm">
+              <NavLink href="/pages/save-products" onClick={handleNavLinkClick}>SAVED PRODUCTS</NavLink>
+            </div>
           </nav>
         </div>
 
@@ -183,9 +191,11 @@ const Header: NextPage = () => {
         </div>
 
         {/* Right Section Icons */}
-        <div className="flex items-center space-x-2 md:space-x-6 lg:space-x-10">
-          <div className="hidden md:flex space-x-6 lg:space-x-10">
-            <NavLink href="/pages/contact" onClick={handleNavLinkClick}>CONTACT</NavLink>
+        <div className="flex items-center space-x-2 lg:space-x-6 xl:space-x-10">
+          <div className="hidden lg:flex lg:space-x-4 xl:space-x-10">
+            <div className="lg:text-[11px] xl:text-sm">
+              <NavLink href="/pages/contact" onClick={handleNavLinkClick}>CONTACT</NavLink>
+            </div>
           </div>
 
           <div className="flex items-center space-x-2 md:space-x-3">
@@ -197,7 +207,7 @@ const Header: NextPage = () => {
       </div>
 
       {/* Mobile Menu */}
-      <div className={`md:hidden absolute w-full bg-white shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-screen opacity-100 border-t border-gray-100" : "max-h-0 opacity-0"}`}>
+      <div className={`lg:hidden absolute w-full bg-white shadow-xl transition-all duration-300 ease-in-out overflow-hidden ${isMenuOpen ? "max-h-screen opacity-100 border-t border-gray-100" : "max-h-0 opacity-0"}`}>
         <nav className="flex flex-col py-4 px-6 space-y-3">
           <NavLink href="/" onClick={handleNavLinkClick}>HOME</NavLink>
           <NavLink href="/pages/my-creation" onClick={handleNavLinkClick}>MY CREATION</NavLink>
