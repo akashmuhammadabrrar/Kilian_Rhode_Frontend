@@ -13,6 +13,7 @@ import {
   useDeleteCartItemMutation,
   ICartItem,
 } from "@/app/store/slices/services/order/orderApi";
+import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -231,7 +232,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
                         </div>
                       )}
                       <p className={`${jostFont.className} text-xs text-gray-500 tracking-[1px] uppercase mb-2`}>
-                        Price: ${item.product.discounted_price ?? parseFloat(item.product.price as unknown as string)}
+                        Price: {formatPrice(item.product.discounted_price ?? parseFloat(item.product.price as unknown as string))}
                       </p>
                     </div>
 
@@ -259,7 +260,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
 
                       {/* Subtotal */}
                       <p className={`${jostFont.className} text-[#1a1a1a] font-medium tracking-wide`}>
-                        ${((item.product.discounted_price ?? parseFloat(item.product.price as unknown as string)) * item.quantity).toFixed(2)}
+                        {formatPrice(((item.product.discounted_price ?? parseFloat(item.product.price as unknown as string)) * item.quantity))}
                       </p>
                     </div>
                   </div>
@@ -275,7 +276,7 @@ const ShoppingCart: React.FC<ShoppingCartProps> = ({ toggleCart }) => {
             <div className="flex justify-between items-center mb-4">
               <span className={`${jostFont.className} text-sm tracking-[1px] text-gray-500 uppercase`}>Subtotal</span>
               <span className={`${cormorantItalic.className} text-2xl text-[#1a1a1a] font-medium`}>
-                ${cartTotal.toFixed(2)}
+                {formatPrice(cartTotal)}
               </span>
             </div>
             <p className={`${jostFont.className} text-xs text-gray-400 mb-6 text-center`}>

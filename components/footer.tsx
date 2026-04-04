@@ -385,19 +385,20 @@ const Footer = () => {
         <div
           className={`${jostFont.className} text-[12px] tracking-[0.5px] leading-[16px] text-[#6A7282] flex flex-wrap justify-center items-center w-full space-x-2 pt-4 text-center`}
         >
-          <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0" />
+          <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0 mt-1" />
 
+          <span className="hidden md:block text-yellow-600">&#9632;</span>
           <span className="whitespace-nowrap">
             Gemini NanoBanana Integration
           </span>
-          <span className="hidden md:block text-[#d4af37]">&#9632;</span>
+          <span className="hidden md:block text-yellow-600">&#9632;</span>
 
           <span className="whitespace-nowrap">Professional 300 DPI Quality</span>
           <span className="hidden md:block text-yellow-600">&#9632;</span>
 
           <span className="whitespace-nowrap">GDPR-Compliant</span>
 
-          <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0" />
+          <hr className="hidden md:block bg-[#D4AF374D] h-[1px] w-[5%] border-0 mt-1" />
         </div>
       </div>
     </footer>

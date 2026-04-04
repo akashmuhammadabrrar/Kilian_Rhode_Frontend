@@ -59,6 +59,7 @@ export interface IProduct {
   is_active: boolean;
   is_best_seller: boolean;
   is_customize: boolean;
+  is_user_saved?: boolean;
   created_at: string;
   updated_at: string;
 }
