@@ -54,7 +54,7 @@ export const orderAdminApi = baseBackendApi.injectEndpoints({
             providesTags: (_result, _error, id) => [{ type: "Orders", id }],
         }),
     }),
-    overrideExisting: false,
+
 });
 
 export const {

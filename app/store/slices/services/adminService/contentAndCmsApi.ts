@@ -96,7 +96,7 @@ export const contentAndCmsApi = baseBackendApi.injectEndpoints({
             invalidatesTags: ["SocialMedia"],
         }),
     }),
-    overrideExisting: false,
+
 });
 
 export const {

@@ -33,7 +33,7 @@ interface Product {
 const Button = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex items-center px-6 cursor-pointer bg-[#8B6F47] text-white font-semibold rounded-xl hover:bg-[#A08169] transition duration-200 shadow-md"
+    className="flex items-center px-6 h-16 cursor-pointer bg-[#8B6F47] text-white font-semibold rounded-xl hover:bg-[#A08169] transition duration-200 shadow-md"
   >
     <Plus className="w-5 h-5 mr-2" />
     Add Product
