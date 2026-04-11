@@ -100,6 +100,7 @@ export interface IProductDetailsResponse {
 }
 
 export const productApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getProductCategories: builder.query<ICategoryResponse, void>({
       query: () => ({

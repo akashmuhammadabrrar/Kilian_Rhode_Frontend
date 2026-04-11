@@ -137,6 +137,7 @@ export interface IAddressBookResponse {
 }
 
 export const orderApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
     getCart: builder.query<ICartResponse, void>({
       query: () => ({

@@ -36,6 +36,7 @@ export interface ISocialMediaSingleResponse {
 }
 
 export const contentAndCmsApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         // --- Contact Information Endpoints ---
         getContactInfo: builder.query<IContactInfoResponse, void>({
