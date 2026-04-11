@@ -15,6 +15,7 @@ import {
   useGetContactInfoQuery,
   useGetSocialMediaQuery,
 } from "@/app/store/slices/services/contentContactApi";
+import { useGetDocumentPoliciesQuery } from "@/app/store/slices/services/documentPolicyApi";
 import { Phone, MessageCircle, Mail, MapPin } from "lucide-react";
 
 const jostFont = Jost({
@@ -76,6 +77,7 @@ const Footer = () => {
   // Fetch dynamic data
   const { data: contactData } = useGetContactInfoQuery();
   const { data: socialData } = useGetSocialMediaQuery();
+  const { data: policyData } = useGetDocumentPoliciesQuery();
 
   const contactInfo = contactData?.data?.[0];
   const socialLinks = socialData?.data || [];
@@ -221,33 +223,10 @@ const Footer = () => {
             </div>
           </div>
 
-          {/* Links Section */}
-          {/* <div className="grid grid-cols-1 gap-8 md:grid-cols-1 md:col-span-1">
-            {footerLinks.map((section, index) => (
-              <div key={index} className="space-y-4">
-                <h4
-                  className={`${jostFont.className} text-[14px] tracking-[0.5px] text-[#D1D5DC] leading-[20px] mb-3`}
-                ></h4>
-
-                <ul className="space-y-2">
-                  {section.links.map((link) => (
-                    <li key={link.name}>
-                      <Link
-                        href={link.href}
-                        className={`${jostFont.className} text-[14px] tracking-[0.5px] text-[#D1D5DC] leading-[20px] hover:text-white transition-colors`}
-                      >
-                        {link.name}
-                      </Link>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            ))}
-          </div> */}
         </div>
 
         {/* === 2. MIDDLE SECTION === */}
-        <div className="py-12 flex flex-col md:flex-row gap-8 justify-start">
+        <div className="py-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Email */}
           {contactInfo?.email && (
             <div className="flex-1 p-6 bg-[#1a1c1f] border-[2px] border-solid border-[rgba(255,255,255,0.1)] flex items-center space-x-4 max-w-full md:max-w-md">
@@ -341,11 +320,6 @@ const Footer = () => {
         {/* === 3. BOTTOM SECTION === */}
         <div className="border-t border-gray-800 pt-8 text-xs flex flex-col md:flex-row justify-between items-start md:items-center space-y-4 md:space-y-0">
           <div className="text-gray-500 space-y-2 w-full flex flex-col md:flex-row justify-between items-center text-center">
-            {/* <p
-              className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-[#99A1AF]`}
-            >
-              © 2025 Thundra. All rights reserved.
-            </p> */}
 
             <p
               className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-5 text-[#99A1AF]`}
@@ -354,29 +328,49 @@ const Footer = () => {
             </p>
 
             <div
-              className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-[#99A1AF] flex flex-wrap justify-center md:justify-end space-x-4`}
+              className={`${jostFont.className} text-[14px] tracking-[0.5px] leading-[20px] text-[#99A1AF] flex flex-wrap justify-center md:justify-end gap-x-4 gap-y-2`}
             >
-              <Link
-                href="/privacy"
-                className="hover:text-white transition-colors"
-              >
-                Privacy Policy
-              </Link>
-              <p>|</p>
-              <Link href="/terms" className="hover:text-white transition-colors">
-                Terms of Service
-              </Link>
-              <p>|</p>
-              <Link
-                href="/cookie"
-                className="hover:text-white transition-colors"
-              >
-                Cookie Policy
-              </Link>
-              <p>|</p>
-              <Link href="/gdpr" className="hover:text-white transition-colors">
-                GDPR Compliance
-              </Link>
+              {policyData?.results && policyData.results.length > 0 ? (
+                policyData.results.map((policy, index) => (
+                  <React.Fragment key={policy.id}>
+                    <Link
+                      href={policy.file}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-white transition-colors capitalize"
+                    >
+                      {policy.title.replace(/_/g, " ")}
+                    </Link>
+                    {index < (policyData.results?.length ?? 0) - 1 && (
+                      <p className="hidden sm:block">|</p>
+                    )}
+                  </React.Fragment>
+                ))
+              ) : (
+                <>
+                  <Link
+                    href="/privacy"
+                    className="hover:text-white transition-colors"
+                  >
+                    Privacy Policy
+                  </Link>
+                  <p className="hidden sm:block">|</p>
+                  <Link href="/terms" className="hover:text-white transition-colors">
+                    Terms of Service
+                  </Link>
+                  <p className="hidden sm:block">|</p>
+                  <Link
+                    href="/cookie"
+                    className="hover:text-white transition-colors"
+                  >
+                    Cookie Policy
+                  </Link>
+                  <p className="hidden sm:block">|</p>
+                  <Link href="/gdpr" className="hover:text-white transition-colors">
+                    GDPR Compliance
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -406,4 +400,3 @@ const Footer = () => {
 };
 
 export default Footer;
-
