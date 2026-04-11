@@ -42,7 +42,6 @@ export const customerAdminApi = baseBackendApi.injectEndpoints({
             invalidatesTags: ["Customers"],
         }),
     }),
-    overrideExisting: false,
 });
 
 export const {
