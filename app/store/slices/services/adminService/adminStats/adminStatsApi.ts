@@ -70,7 +70,6 @@ export const adminStatsApi = baseBackendApi.injectEndpoints({
             providesTags: ["Orders"], // dashboard related, can be anything stable
         }),
     }),
-    overrideExisting: false,
 });
 
 // hooks
