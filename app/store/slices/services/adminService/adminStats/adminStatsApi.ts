@@ -58,6 +58,7 @@ interface AdminStatsResponse {
 // inject endpoints to the base url
 
 export const adminStatsApi = baseBackendApi.injectEndpoints({
+  overrideExisting: true,
     endpoints: (builder) => ({
         // GET: /discount/analysis/usage-stats/
         getAdminDiscountUsageStats: builder.query<AdminDiscountUsageStats, void>({
