@@ -8,6 +8,7 @@ import {
   ArrowLeftIcon,
 } from "@heroicons/react/24/outline";
 import { ChevronDownIcon } from "@heroicons/react/20/solid";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 interface Product {
   id: number;
@@ -218,7 +219,7 @@ const TableRow: React.FC<TableRowProps> = ({ product, onView }) => {
       <td className="px-4 py-4 text-sm text-gray-600">{product.category}</td>
       <td className="px-4 py-4 text-sm text-gray-600">{product.ageGroup}</td>
       <td className="px-4 py-4 text-sm font-bold text-gray-900">
-        {product.price}
+        {formatCurrency(product.price)}
       </td>
       <td className="px-4 py-4 text-sm text-gray-900">
         <StockValue />
@@ -332,7 +333,7 @@ const ProductDetailsView: React.FC<{
             Price
           </span>
           <span className="text-2xl font-bold text-green-600">
-            {product.price}
+            {formatCurrency(product.price)}
           </span>
         </div>
         <div className="flex flex-col">

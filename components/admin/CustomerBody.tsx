@@ -11,6 +11,7 @@ import {
 // The imported custom icon (assuming Next.js or a similar setup where this path works)
 import orderIcon from "@/public/image/admin/products/orderIcon.svg";
 import Image from "next/image";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // --- Dummy OrderView Component (Placeholder) ---
 const OrderView = ({
@@ -343,7 +344,7 @@ const OrderTable = ({
               </td>
               {/* --- END UPDATED --- */}
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-medium">
-                <HighlightText text={order.totalSpent} highlight={searchTerm} />
+                <HighlightText text={formatCurrency(order.totalSpent)} highlight={searchTerm} />
               </td>
               <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                 <HighlightText

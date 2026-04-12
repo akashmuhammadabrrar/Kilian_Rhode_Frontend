@@ -14,6 +14,7 @@ import AnalysisTime from "./AnalysisTime";
 import AnalysisExport from "./AnalysisExport";
 
 import { useGetAdminDiscountUsageStatsQuery } from "@/app/store/slices/services/adminService/adminStats/adminStatsApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 type ChangeColor = "green" | "red";
 
@@ -82,7 +83,7 @@ const AnalyticsDashboard = () => {
       iconBgColor: "bg-green-100",
       iconTextColor: "text-green-500",
       title: "Total Revenue from Codes",
-      value: `€${meta?.financial?.total_revenue_from_discounted_orders ?? 0}`,
+      value: formatCurrency(meta?.financial?.total_revenue_from_discounted_orders ?? 0),
       change: "",
       changeColor: "green",
     },
@@ -91,7 +92,7 @@ const AnalyticsDashboard = () => {
       iconBgColor: "bg-blue-100",
       iconTextColor: "text-blue-500",
       title: "Average Discount Used",
-      value: `€${meta?.financial?.average_discounted_amount ?? 0}`,
+      value: formatCurrency(meta?.financial?.average_discounted_amount ?? 0),
       change: "",
       changeColor: "green",
     },

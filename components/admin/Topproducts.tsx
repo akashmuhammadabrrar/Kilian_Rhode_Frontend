@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export interface TopProduct {
   order_product_name: string;
@@ -34,7 +35,7 @@ export default function TopProducts({ products = [] }: TopProductsProps) {
               </div>
 
               <div className="text-right font-medium text-gray-800">
-                €{parseFloat(item.total_revenue).toLocaleString()}
+                {formatCurrency(item.total_revenue)}
               </div>
             </div>
           ))

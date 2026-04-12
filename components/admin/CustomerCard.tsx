@@ -1,6 +1,7 @@
 // components/TotalRevenueCard.tsx
 
 import React from "react";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // ---- Fix: Props Types ----
 type TotalRevenueCardProps = {
@@ -29,7 +30,7 @@ const TotalRevenueCard = ({ total, text }: TotalRevenueCardProps) => {
       </p>
       {/* Main Metric */}
       <div className="mt-2 mb-2">
-        <h2 className="text-[18px] font-medium text-[#1A1410]">€{total}</h2>
+        <h2 className="text-[18px] font-medium text-[#1A1410]">{formatCurrency(total)}</h2>
       </div>
     </div>
   );

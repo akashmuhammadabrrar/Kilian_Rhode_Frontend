@@ -1,5 +1,6 @@
 import React from "react";
 import { TrendingUp } from "lucide-react"; // Using TrendingUp icon for "Top Performing Series"
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // --- Sub-Component: SeriesCard ---
 type SeriesCardProps = {
@@ -23,7 +24,7 @@ const SeriesCard: React.FC<SeriesCardProps> = ({
     <div className="bg-white p-6 rounded-xl border-[1.2px] border-solid border-black/10 mb-4 last:mb-0">
       <div className="flex justify-between items-center mb-4">
         <h3 className="text-xl font-semibold text-gray-800">{seriesName}</h3>
-        <span className="text-xl font-bold text-green-600">{revenue}</span>
+        <span className="text-xl font-bold text-green-600">{formatCurrency(revenue)}</span>
       </div>
 
       <div className="grid grid-cols-3 gap-4 text-sm mb-4">

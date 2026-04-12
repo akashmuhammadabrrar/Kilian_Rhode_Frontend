@@ -5,6 +5,7 @@ import { Search, Eye, ChevronUp, ChevronDown } from "lucide-react";
 import OrderView from "./OrderView";
 import Footer from "./FooterAdmin";
 import { useGetOrdersQuery, IOrderAdminItem } from "@/app/store/slices/services/adminService/orderAdminApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // --- Custom Dropdown Component ---
 interface DropdownFilterProps {
@@ -232,7 +233,7 @@ const OrderTable = ({
             <td className="px-6 py-4 whitespace-nowrap text-[14px] font-medium text-[#1a1410]">
               <div className="flex flex-col">
                 <HighlightText
-                  text={order.customer_email.split('@')[0]}
+                  text={order.customer_name || order.customer_email.split('@')[0]}
                   highlight={searchTerm}
                 />
                 <span className="text-xs text-gray-400">
@@ -250,7 +251,7 @@ const OrderTable = ({
               <HighlightText text={order.design_type} highlight={searchTerm} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-800">
-              <HighlightText text={`€${order.amount}`} highlight={searchTerm} />
+              <HighlightText text={formatCurrency(order.amount)} highlight={searchTerm} />
             </td>
             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
               {new Date(order.date).toLocaleDateString()}
@@ -292,6 +293,17 @@ const OrderListScreen = ({
   setSelectedStatus,
   selectedDesignType,
   setSelectedDesignType,
+  orderIdFilter,
+  setOrderIdFilter,
+  dateFrom,
+  setDateFrom,
+  dateTo,
+  setDateTo,
+  sortByOption,
+  setSortByOption,
+  page,
+  setPage,
+  totalCount,
 }: {
   onViewChange: ViewChangeHandler;
   orderData: IOrderAdminItem[];
@@ -301,6 +313,17 @@ const OrderListScreen = ({
   setSelectedStatus: (val: string) => void;
   selectedDesignType: string;
   setSelectedDesignType: (val: string) => void;
+  orderIdFilter: string;
+  setOrderIdFilter: (val: string) => void;
+  dateFrom: string;
+  setDateFrom: (val: string) => void;
+  dateTo: string;
+  setDateTo: (val: string) => void;
+  sortByOption: string;
+  setSortByOption: (val: string) => void;
+  page: number;
+  setPage: (val: number) => void;
+  totalCount: number;
 }) => {
   const handleViewOrder = (id: number) => {
     onViewChange("viewOrder", id);
@@ -321,6 +344,14 @@ const OrderListScreen = ({
     "User Upload",
     "Letter/Number",
     "Customize"
+  ];
+
+  const sortOptions = [
+    "Default",
+    "Amount: High to Low",
+    "Amount: Low to High",
+    "Date: Newest",
+    "Date: Oldest"
   ];
   return (
     <div className="p-4 sm:p-8 w-full bg-gray-50">
@@ -362,6 +393,42 @@ const OrderListScreen = ({
             onSelect={setSelectedDesignType}
           />
         </div>
+
+        {/* Advanced Filters Row */}
+        <div className="flex flex-wrap items-center gap-4 mt-4 w-full border-t border-[#e8e3dc] pt-4">
+          <input
+            type="text"
+            placeholder="Filter by Order ID..."
+            value={orderIdFilter}
+            onChange={(e) => setOrderIdFilter(e.target.value)}
+            className="px-4 py-2 border border-[#e8e3dc] rounded-xl bg-neutral-100 text-gray-800 placeholder-gray-500 focus:outline-none transition min-w-[200px]"
+          />
+          <div className="flex items-center space-x-2">
+             <span className="text-sm text-gray-500 font-medium">Date:</span>
+            <input
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+              className="px-3 py-2 border border-[#e8e3dc] rounded-xl bg-neutral-100 text-gray-800 focus:outline-none text-sm"
+            />
+            <span className="text-gray-400">-</span>
+            <input
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+              className="px-3 py-2 border border-[#e8e3dc] rounded-xl bg-neutral-100 text-gray-800 focus:outline-none text-sm"
+            />
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="text-sm text-gray-500 font-medium whitespace-nowrap">Sort:</span>
+            <DropdownFilter
+              title="Default"
+              options={sortOptions}
+              selectedValue={sortByOption}
+              onSelect={setSortByOption}
+            />
+          </div>
+        </div>
       </div>
       {/* --- END: Search and Filters Section --- */}
 
@@ -374,6 +441,31 @@ const OrderListScreen = ({
             onViewOrder={handleViewOrder}
             searchTerm={searchTerm}
           />
+
+          {/* Pagination Component */}
+          {totalCount > 0 && (
+            <div className="flex items-center justify-between mt-4 px-4 bg-white p-4 rounded-xl border border-[#e8e3dc]">
+              <span className="text-sm text-gray-500">
+                Showing <span className="font-medium">{(page - 1) * 20 + 1}</span> to <span className="font-medium">{Math.min(page * 20, totalCount)}</span> of <span className="font-medium">{totalCount}</span> results
+              </span>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => setPage(page - 1)}
+                  disabled={page === 1}
+                  className={`px-4 py-2 border rounded-xl text-sm font-medium transition ${page === 1 ? "border-gray-200 text-gray-400 cursor-not-allowed" : "border-[#e8e3dc] text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setPage(page + 1)}
+                  disabled={page * 20 >= totalCount}
+                  className={`px-4 py-2 border rounded-xl text-sm font-medium transition ${page * 20 >= totalCount ? "border-gray-200 text-gray-400 cursor-not-allowed" : "border-[#e8e3dc] text-gray-700 hover:bg-gray-50"}`}
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -388,13 +480,37 @@ const App = () => {
   const [selectedStatus, setSelectedStatus] = useState("All Status");
   const [selectedDesignType, setSelectedDesignType] = useState("All Types");
 
+  const [orderIdFilter, setOrderIdFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+  const [sortByOption, setSortByOption] = useState("Default");
+  const [page, setPage] = useState(1);
+
+  // Reset page to 1 when any filter changes
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm, selectedStatus, selectedDesignType, orderIdFilter, dateFrom, dateTo, sortByOption]);
+
   const { data: ordersData } = useGetOrdersQuery({
     search: searchTerm || undefined,
-    status: selectedStatus === "All Status" ? undefined : selectedStatus,
-    design_type: selectedDesignType === "All Types" ? undefined : selectedDesignType
+    status: selectedStatus === "All Status" ? undefined : selectedStatus.toLowerCase().replace(" ", "_"),
+    type: selectedDesignType === "All Types" ? undefined :
+          selectedDesignType === "AI Generated" ? "ai" :
+          selectedDesignType === "Customize" ? "customize" :
+          selectedDesignType === "User Upload" ? "user_upload" :
+          selectedDesignType === "Letter/Number" ? "letter_number" : undefined,
+    order_uid: orderIdFilter || undefined,
+    date_from: dateFrom || undefined,
+    date_to: dateTo || undefined,
+    sort_by: sortByOption.includes("Amount") ? "amount" : sortByOption.includes("Date") ? "date" : undefined,
+    sort_order: sortByOption.includes("High to Low") || sortByOption.includes("Newest") ? "desc" : 
+                sortByOption.includes("Low to High") || sortByOption.includes("Oldest") ? "asc" : undefined,
+    page,
+    limit: 20,
   });
 
   const orders = ordersData?.results || [];
+  const totalCount = ordersData?.count || 0;
 
   const handleViewChange: ViewChangeHandler = (newView, id = 0) => {
     setCurrentOrderId(id);
@@ -413,6 +529,17 @@ const App = () => {
           setSelectedStatus={setSelectedStatus}
           selectedDesignType={selectedDesignType}
           setSelectedDesignType={setSelectedDesignType}
+          orderIdFilter={orderIdFilter}
+          setOrderIdFilter={setOrderIdFilter}
+          dateFrom={dateFrom}
+          setDateFrom={setDateFrom}
+          dateTo={dateTo}
+          setDateTo={setDateTo}
+          sortByOption={sortByOption}
+          setSortByOption={setSortByOption}
+          page={page}
+          setPage={setPage}
+          totalCount={totalCount}
         />
       )}
 

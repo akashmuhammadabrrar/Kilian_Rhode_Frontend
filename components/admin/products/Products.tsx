@@ -10,6 +10,7 @@ import { useGetAllProductsQuery } from "@/app/store/slices/services/adminService
 import AddNewProductScreen from "./createProducts/AddProductSection";
 import { toast } from "sonner";
 import { useDeleteProductMutation } from "@/app/store/slices/services/adminService/products/productsApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 
 /* ================= TYPES ================= */
@@ -262,7 +263,7 @@ const App = () => {
           name: p.name,
           category: categoryTitle,
           ageGroup: ageRangeLabel,
-          price: `€${p.price ?? p.price}`,
+          price: formatCurrency(p.price),
           stock: p.stock_quantity,
           sales: p.total_sold ?? 0,
           status: p.stock_quantity > 0 ? "Active" : "Out of Stock",
