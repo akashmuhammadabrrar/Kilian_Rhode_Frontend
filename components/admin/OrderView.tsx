@@ -19,9 +19,11 @@ import {
   Calendar,
 } from "lucide-react";
 import Image from "next/image";
-import { useGetOrderByIdQuery } from "@/app/store/slices/services/adminService/orderAdminApi";
+import { useGetOrderByIdQuery, useUpdateOrderStatusMutation } from "@/app/store/slices/services/adminService/orderAdminApi";
+import { toast } from "sonner";
 
 import productImage from "@/public/image/admin/products/productImage.jpg";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 type ViewType = "listOrder" | "add" | "viewOrder" | "edit";
 type ViewChangeHandler = (view: ViewType, id?: number) => void;
@@ -205,6 +207,20 @@ const App = ({
   productId: number;
 }) => {
   const { data: order, isLoading, error } = useGetOrderByIdQuery(productId);
+  const [updateOrderStatus, { isLoading: isUpdating }] = useUpdateOrderStatusMutation();
+
+  const handleUpdateStatus = async (status: string) => {
+    try {
+      const res = await updateOrderStatus({ id: productId, status }).unwrap();
+      if (res.success) {
+        toast.success(res.message || `Order status updated to ${status}`);
+      } else {
+        toast.error("Failed to update status");
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "An error occurred");
+    }
+  };
 
   if (isLoading) {
     return <div className="p-8 text-center text-gray-500 font-sans">Loading order details...</div>;
@@ -283,13 +299,29 @@ const App = ({
             />
           </div>
 
-          <div className="flex w-full lg:w-auto space-x-3 order-1 lg:order-2">
+          <div className="flex flex-col w-full lg:w-auto space-y-3 order-1 lg:order-2 mt-4 lg:mt-0">
             <button
               onClick={() => window.print()}
-              className="flex w-full lg:w-auto items-center justify-center px-4 py-2 bg-[linear-gradient(180deg,#8b6f47,#7a5f3a)] text-white font-semibold rounded-xl border border-[#E8E3DC] hover:opacity-90 transition "
+              className="flex w-full items-center justify-center px-4 py-2 bg-[linear-gradient(180deg,#8b6f47,#7a5f3a)] text-white font-semibold rounded-xl border border-[#E8E3DC] hover:opacity-90 transition"
             >
               <Printer className="w-4 h-4 mr-2 text-white" /> Print Order
             </button>
+            <div className="flex w-full space-x-3">
+              <button
+                onClick={() => handleUpdateStatus("shipped")}
+                disabled={isUpdating}
+                className="flex flex-1 items-center justify-center px-4 py-2 bg-[linear-gradient(180deg,#8b6f47,#7a5f3a)] text-white font-semibold rounded-xl border border-[#E8E3DC] hover:opacity-90 transition disabled:opacity-50"
+              >
+                Send to production
+              </button>
+              <button
+                onClick={() => handleUpdateStatus("cancelled")}
+                disabled={isUpdating}
+                className="flex flex-1 items-center justify-center px-4 py-2 bg-red-400 text-white font-semibold rounded-xl border border-red-400 hover:bg-red-500 transition disabled:opacity-50"
+              >
+                Reject
+              </button>
+            </div>
           </div>
         </div>
 
@@ -403,7 +435,7 @@ const App = ({
                 <SummaryStat
                   icon={<DollarSign />}
                   label="Total Amount"
-                  value={`€${order.amount}`}
+                  value={formatCurrency(order.amount)}
                   isTotal={true}
                 />
               </div>
@@ -462,16 +494,16 @@ const App = ({
                 <div className="space-y-3 grow">
                   <div className="flex justify-between text-base text-gray-700">
                     <span>Subtotal</span>
-                    <span className="font-medium">€{order.payment_details?.subtotal || order.amount}</span>
+                    <span className="font-medium">{formatCurrency(order.payment_details?.subtotal || order.amount)}</span>
                   </div>
                   <div className="flex justify-between text-base text-gray-700">
                     <span>Shipping</span>
-                    <span className="font-medium">€{order.payment_details?.shipping_cost || "0.00"}</span>
+                    <span className="font-medium">{formatCurrency(order.payment_details?.shipping_cost || "0.00")}</span>
                   </div>
                 </div>
                 <div className="flex justify-between items-center pt-3 mt-4">
                   <span className="text-xl font-semibold text-[#1a1410]">Total</span>
-                  <span className="text-xl font-semibold text-[#8b6f47]">€{order.amount}</span>
+                  <span className="text-xl font-semibold text-[#8b6f47]">{formatCurrency(order.amount)}</span>
                 </div>
               </Card>
 

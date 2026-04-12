@@ -2,6 +2,7 @@ import React from "react";
 import persentage from "@/public/image/admin/Settings/persentage.svg";
 import Image from "next/image";
 import PromotionBody from "@/components/admin/PromotionBody";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // ---------------------------
 // Types
@@ -67,7 +68,7 @@ const DashboardMetrics: React.FC = () => {
     },
     {
       id: 2,
-      value: "€2,847",
+      value: formatCurrency("2847"),
       label: "Discount Revenue",
       iconBg: "bg-green-50",
       icon: <Image src={persentage} height={20} width={20} alt="persentage" />,

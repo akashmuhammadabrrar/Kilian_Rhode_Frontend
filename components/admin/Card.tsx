@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import React from "react";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // ---- Fix: Props Types ----
 type TotalRevenueCardProps = {
@@ -23,7 +24,7 @@ const TotalRevenueCard = ({
   // --- New Logic: Conditionally display Euro sign ---
   // We check if the 'text' prop contains the word 'Revenue' (case-insensitive)
   const isRevenue = text.toLowerCase().includes("revenue");
-  const formattedTotal = isRevenue ? `€${total}` : total;
+  const formattedTotal = isRevenue ? formatCurrency(total) : total;
 
   return (
     <div

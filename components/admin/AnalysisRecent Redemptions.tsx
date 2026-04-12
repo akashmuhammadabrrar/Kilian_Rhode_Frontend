@@ -1,5 +1,6 @@
 import React from "react";
 import { CheckCircle } from "lucide-react"; // Using CheckCircle icon for "Recent Redemptions"
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // --- Sub-Component: RedemptionItem ---
 type RedemptionItemProps = {
@@ -20,12 +21,12 @@ const RedemptionItem: React.FC<RedemptionItemProps> = ({ code, email, savedAmoun
           <p className="text-gray-800 font-semibold">{code}</p>
           <p className="text-sm text-gray-600">{email}</p>
           <p className="text-xs text-green-600 font-medium">
-            Saved {savedAmount}
+            Saved {formatCurrency(savedAmount)}
           </p>
         </div>
       </div>
       <div className="text-right">
-        <p className="text-gray-800 font-semibold">{totalAmount}</p>
+        <p className="text-gray-800 font-semibold">{formatCurrency(totalAmount)}</p>
         <p className="text-sm text-gray-500">{timeAgo}</p>
       </div>
     </div>
