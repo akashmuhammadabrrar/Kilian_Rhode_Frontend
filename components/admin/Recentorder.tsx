@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 export interface RecentOrder {
   order_uid: string;
@@ -40,7 +41,7 @@ export default function RecentOrders({ orders = [] }: RecentOrdersProps) {
                   {order.status}
                 </div>
                 <p className="mt-2 font-medium text-gray-800">
-                  €{parseFloat(order.total_paid).toLocaleString()}
+                  {formatCurrency(order.total_paid)}
                 </p>
               </div>
             </div>
