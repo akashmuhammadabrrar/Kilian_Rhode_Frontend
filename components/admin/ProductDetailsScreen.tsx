@@ -17,6 +17,7 @@ import {
   useGetAllAgeRangesQuery,
 } from "@/app/store/slices/services/adminService/products/productMetadata";
 import { getColorValue, isLightColor } from "@/app/utils/colorUtils";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 const StatusBadge = ({ active }: { active: boolean }) => (
   <span
@@ -270,7 +271,7 @@ const ProductDetailScreen = ({
               <QuickStat
                 icon="€"
                 label="Price"
-                value={`€${p.discounted_price ?? p.price ?? "N/A"}`}
+                value={formatCurrency(p.discounted_price ?? p.price ?? 0)}
                 color="text-[#8B6F47]"
                 iconType="text"
               />
@@ -381,8 +382,8 @@ const ProductDetailScreen = ({
           <Card>
             <h2 className="text-lg font-semibold mb-4">Sales Performance</h2>
             <div className="grid grid-cols-3 divide-x divide-gray-200">
-              <SalesStat label="Total Revenue" value="€0" change="N/A" />
-              <SalesStat label="Avg. Order Value" value={`€${p.discounted_price ?? p.price ?? "N/A"}`} change="N/A" />
+              <SalesStat label="Total Revenue" value={formatCurrency(0)} change="N/A" />
+              <SalesStat label="Avg. Order Value" value={formatCurrency(p.discounted_price ?? p.price ?? 0)} change="N/A" />
               <SalesStat label="Return Rate" value="0%" change="N/A" />
             </div>
           </Card>

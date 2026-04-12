@@ -10,6 +10,7 @@ import { useGetAllProductsQuery } from "@/app/store/slices/services/adminService
 import AddNewProductScreen from "./createProducts/AddProductSection";
 import { toast } from "sonner";
 import { useDeleteProductMutation } from "@/app/store/slices/services/adminService/products/productsApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 
 /* ================= TYPES ================= */
@@ -33,7 +34,7 @@ interface Product {
 const Button = ({ onClick }: { onClick: () => void }) => (
   <button
     onClick={onClick}
-    className="flex items-center px-6 cursor-pointer bg-[#8B6F47] text-white font-semibold rounded-xl hover:bg-[#A08169] transition duration-200 shadow-md"
+    className="flex items-center px-6 h-16 cursor-pointer bg-[#8B6F47] text-white font-semibold rounded-xl hover:bg-[#A08169] transition duration-200 shadow-md"
   >
     <Plus className="w-5 h-5 mr-2" />
     Add Product
@@ -262,7 +263,7 @@ const App = () => {
           name: p.name,
           category: categoryTitle,
           ageGroup: ageRangeLabel,
-          price: `€${p.price ?? p.price}`,
+          price: formatCurrency(p.price),
           stock: p.stock_quantity,
           sales: p.total_sold ?? 0,
           status: p.stock_quantity > 0 ? "Active" : "Out of Stock",

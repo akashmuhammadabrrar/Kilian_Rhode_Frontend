@@ -160,6 +160,7 @@ export const homepageCmsApi = baseBackendApi.injectEndpoints({
             invalidatesTags: ["HomepageTechnology"],
         }),
     }),
+
 });
 
 export const {

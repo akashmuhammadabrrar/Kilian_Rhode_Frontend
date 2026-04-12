@@ -12,11 +12,11 @@ import dollerIcon from "@/public/image/admin/products/doller.svg";
 import increamentIcon from "@/public/image/admin/products/increamentArrow.svg";
 import stockIcon from "@/public/image/admin/products/stock.svg";
 
-// Components
 import FooterAdmin from "@/components/admin/FooterAdmin";
 import Title from "../../Title";
 import { ViewChangeHandler } from "../Products";
 import { toast } from "sonner";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // APIs
 import {
@@ -686,7 +686,7 @@ const EditProduct = ({
             <Card>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Quick Stats</h3>
               <div className="space-y-5">
-                <QuickStat icon={dollerIcon.src} label="Price" value={`€${productData.price}`} color="text-[#8B6F47]" iconType="image" />
+                <QuickStat icon={dollerIcon.src} label="Price" value={formatCurrency(productData.price)} color="text-[#8B6F47]" iconType="image" />
                 <div className="h-px bg-gray-100 w-11/12 mx-auto" />
                 <QuickStat icon={stockIcon.src} label="Stock" value={`${productData.stock} units`} color="text-[#f6921e]" iconType="image" />
                 <div className="h-px bg-gray-100 w-11/12 mx-auto" />
