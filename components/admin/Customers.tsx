@@ -12,6 +12,7 @@ import {
   useGetCustomersQuery,
   useDeleteCustomerMutation,
 } from "@/app/store/slices/services/adminService/customerAdminApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // --- Type Definitions ---
 type ViewType = "list" | "add" | "view";
@@ -150,7 +151,7 @@ const CustomerTable = ({
 
             <td className="px-6 py-4 text-sm font-medium text-gray-800">
               <HighlightText
-                text={typeof customer.totalSpent === 'number' ? `€${customer.totalSpent.toFixed(2)}` : customer.totalSpent}
+                text={formatCurrency(customer.totalSpent)}
                 highlight={searchTerm}
               />
             </td>

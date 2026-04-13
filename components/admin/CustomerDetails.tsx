@@ -2,6 +2,7 @@ import React from "react";
 import { ArrowLeftIcon, Loader2 } from "lucide-react";
 import Image from "next/image";
 import { useGetCustomerByIdQuery } from "@/app/store/slices/services/adminService/customerAdminApi";
+import { formatCurrency } from "@/utils/formatCurrency";
 
 // Assuming these paths are correct
 import starIcon from "@/public/image/admin/products/star.svg";
@@ -294,7 +295,7 @@ const CustomerDetailScreen = ({
 
                     <div>
                       <div className="text-[16px] text-[#1A1410] leading-none">
-                        €{Number(customer.total_spent).toFixed(2)}
+                        {formatCurrency(Number(customer.total_spent))}
                       </div>
                       <div className="text-[12px] text-[#6b6560]">
                         Total Spent
@@ -326,7 +327,7 @@ const CustomerDetailScreen = ({
                       Average Order Value
                     </span>
                     <span className="text-base font-semibold">
-                      €{customer.total_orders > 0 ? (Number(customer.total_spent) / customer.total_orders).toFixed(2) : '0.00'}
+                      {formatCurrency(customer.total_orders > 0 ? (Number(customer.total_spent) / customer.total_orders) : 0)}
                     </span>
                   </div>
                   <div className="flex justify-between items-center text-gray-700">
@@ -407,7 +408,7 @@ const CustomerDetailScreen = ({
                             Amount
                           </span>
                           <span className="text-base font-semibold text-gray-700">
-                            €{order.amount}
+                            {formatCurrency(order.amount)}
                           </span>
                         </div>
                       </div>

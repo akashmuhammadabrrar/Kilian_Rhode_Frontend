@@ -41,6 +41,7 @@ export const contentContactApi = baseBackendApi.injectEndpoints({
             providesTags: ["SocialMedia"],
         }),
     }),
+
 });
 
 export const {
