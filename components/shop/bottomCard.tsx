@@ -36,7 +36,7 @@ interface IconToggleButtonProps {
 
 const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
   <motion.button
-    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity z-10"
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity z-10 cursor-pointer"
     whileHover={{ scale: 1.1, rotate: 5 }}
     whileTap={{ scale: 0.9, rotate: -5 }}
     onClick={onClick}
@@ -49,7 +49,7 @@ const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
 // Heart icon — filled when saved, outline when not
 const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
   <motion.button
-    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity z-10"
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity z-10 cursor-pointer"
     whileHover={{ scale: 1.1, rotate: 5 }}
     whileTap={{ scale: 0.9, rotate: -5 }}
     onClick={onClick}
@@ -301,13 +301,19 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                   <IconToggleButton
                     src={shopIcon}
                     alt="Shop Icon"
-                    onClick={() => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name })}
+                    onClick={() => {
+                      if (product.ai_gen || product.ai_letter || product.ai_upload) {
+                        setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name });
+                      } else {
+                        handleAddToCart(product.id, product.name);
+                      }
+                    }}
                   />
                 </div>
 
                 <motion.button
                   onClick={() => handleCustomize(product.id)}
-                  className={`${jostFont.className} absolute bottom-[8%] w-[90%] left-1/2 -translate-x-1/2 h-12 border-2 border-[#ffffff] bg-white/10 text-white tracking-[2.1px] uppercase text-[14px] font-medium flex items-center justify-center`}
+                  className={`${jostFont.className} absolute bottom-[8%] w-[90%] left-1/2 -translate-x-1/2 h-12 border-2 border-[#ffffff] bg-white/10 text-white tracking-[2.1px] uppercase text-[14px] font-medium flex items-center justify-center cursor-pointer`}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.1 + 0.3, duration: 0.5 }}
@@ -319,7 +325,7 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                   }}
                   whileTap={{ scale: 0.97 }}
                 >
-                  CUSTOMIZE
+                  DETAILS
                   <Image
                     src={arrowIcon}
                     alt="Arrow Icon"
@@ -359,7 +365,7 @@ export default function BottomCard({ products, isLoading, currentPage, onPageCha
                   ))}
                 </div>
                 <motion.button
-                  className={`${jostFont.className} shadow text-[14px] w-3/4 h-12 mb-8 bg-[#D4AF37] text-black py-3 tracking-[2.1px] uppercase font-medium`}
+                  className={`${jostFont.className} shadow text-[14px] w-3/4 h-12 mb-8 bg-[#D4AF37] text-black py-3 tracking-[2.1px] uppercase font-medium cursor-pointer`}
                   whileHover={{
                     scale: 1.04,
                     backgroundColor: "#c2a25b",
