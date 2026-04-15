@@ -199,7 +199,8 @@ const CheckoutReview: React.FC = () => {
   }, [cartItems, selectedItems]);
 
   const selectedShippingOption = shippingOptions.find(o => o.id === selectedShipping);
-  const shippingCost = selectedShippingOption?.cost || 0;
+  const isFreeShippingEligible = subtotal >= 100;
+  const shippingCost = isFreeShippingEligible ? 0 : (selectedShippingOption?.cost || 0);
 
   const handleApplyDiscounts = async () => {
     try {
@@ -601,7 +602,16 @@ const CheckoutReview: React.FC = () => {
                         <p className="text-xs text-gray-500">{option.description}</p>
                       </div>
                     </div>
-                    <p className="font-bold text-gray-900 text-sm">{formatPrice(option.cost)}</p>
+                    <p className="font-bold text-gray-900 text-sm">
+                      {isFreeShippingEligible ? (
+                        <>
+                          <span className="line-through text-gray-400 mr-2">{formatPrice(option.cost)}</span>
+                          <span className="text-green-600 uppercase">Free</span>
+                        </>
+                      ) : (
+                        formatPrice(option.cost)
+                      )}
+                    </p>
                   </div>
                 ))
               )}
@@ -619,9 +629,13 @@ const CheckoutReview: React.FC = () => {
                 <span>Total Items ({totalQuantity})</span>
                 <span className="text-gray-900 font-medium">{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span className="text-gray-900 font-medium">{shippingCost > 0 ? formatPrice(shippingCost) : 'Free'}</span>
+              <div className="flex justify-between items-center">
+                <span>Shipping {isFreeShippingEligible && <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded ml-2">Free over €100</span>}</span>
+                <span className="text-gray-900 font-medium">
+                  {isFreeShippingEligible 
+                    ? <span className="text-green-600 uppercase font-bold">Free</span> 
+                    : (shippingCost > 0 ? formatPrice(shippingCost) : 'Free')}
+                </span>
               </div>
               {totalDiscount > 0 && (
                 <div className="flex justify-between text-green-600">
