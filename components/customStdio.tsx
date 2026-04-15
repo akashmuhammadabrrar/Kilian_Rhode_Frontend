@@ -53,9 +53,22 @@ export default function CustomDesignStudio() {
   const heroData = heroResponse?.data?.[0];
 
   const handleStartDesigning = () => {
-    const defaultProduct = productsData?.results?.categories?.[0];
-    if (defaultProduct) {
-      router.push(`/pages/my-creation/create-your-design?id=${defaultProduct.id}`);
+    const products = productsData?.results?.categories || [];
+    let targetProductId = null;
+
+    // Check from the last product
+    for (let i = products.length - 1; i >= 0; i--) {
+      const product = products[i];
+      if (product.ai_gen || product.ai_letter || product.ai_upload) {
+        targetProductId = product.id;
+        break;
+      }
+    }
+
+    if (targetProductId) {
+      router.push(`/pages/my-creation/create-your-design?id=${targetProductId}`);
+    } else if (products.length > 0) {
+      router.push(`/pages/my-creation/create-your-design?id=${products[products.length - 1].id}`);
     } else {
       router.push("/pages/my-creation/create-your-design");
     }

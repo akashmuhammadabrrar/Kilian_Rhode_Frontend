@@ -306,10 +306,14 @@ const PaymentPage: React.FC = () => {
   };
 
   const cartTotal = orderDetails?.product_total_amount || 0;
-  const shippingCost = orderDetails?.shipping_cost || 0;
-  const total = orderDetails?.total_cost || (cartTotal + shippingCost);
-
   const subtotal = cartTotal;
+  const isFreeShippingEligible = subtotal >= 100;
+  
+  const apiShippingCost = orderDetails?.shipping_cost || 0;
+  const shippingCost = isFreeShippingEligible ? 0 : apiShippingCost;
+  
+  const apiTotal = orderDetails?.total_cost || (cartTotal + apiShippingCost);
+  const total = Math.max(0, isFreeShippingEligible ? apiTotal - apiShippingCost : apiTotal);
 
   const ACTIVE_STEP_INDEX = 2;
 
@@ -489,9 +493,13 @@ const PaymentPage: React.FC = () => {
                 <span>Subtotal ({orderDetails?.items?.length || 0} item{orderDetails?.items?.length !== 1 ? 's' : ''})</span>
                 <span className="text-gray-900 font-medium">{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Shipping</span>
-                <span className="text-gray-900 font-medium">{shippingCost > 0 ? formatPrice(shippingCost) : 'Free'}</span>
+              <div className="flex justify-between items-center">
+                <span>Shipping {isFreeShippingEligible && <span className="text-xs text-green-600 bg-green-50 px-2 py-0.5 rounded ml-2">Free over €100</span>}</span>
+                <span className="text-gray-900 font-medium">
+                  {isFreeShippingEligible 
+                    ? <span className="text-green-600 uppercase font-bold">Free</span> 
+                    : (shippingCost > 0 ? formatPrice(shippingCost) : 'Free')}
+                </span>
               </div>
             </div>
 
