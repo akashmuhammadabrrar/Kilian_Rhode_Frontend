@@ -1,8 +1,9 @@
 "use client";
 
 import React, { useRef, useEffect, useState } from "react";
-
 import { Jost, Cormorant_Garamond } from "next/font/google";
+import { useSubscribeNewsletterMutation } from "@/app/store/slices/services/newsletterApi";
+import { toast } from "sonner";
 
 const jostFont = Jost({
   subsets: ["latin"],
@@ -64,6 +65,12 @@ const StayInspired = () => {
   const sectionRef = useRef<HTMLElement>(null);
   const [isVisible, setIsVisible] = useState<boolean>(false);
 
+  // Form states
+  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
+
+  const [subscribeNewsletter, { isLoading }] = useSubscribeNewsletterMutation();
+
   useEffect(() => {
     // Capture the current value of the ref
     const currentElement = sectionRef.current;
@@ -95,6 +102,33 @@ const StayInspired = () => {
     }
     // Dependency array is empty because we only want this to run once on mount
   }, []);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!email) {
+      toast.error("Please enter your email address.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("email", email);
+    if (name) {
+      formData.append("name", name);
+    }
+
+    try {
+      const response = await subscribeNewsletter(formData).unwrap();
+      if (response.success) {
+        toast.success(response.message || "Newsletter subscriber created successfully");
+        setEmail("");
+        setName("");
+      } else {
+        toast.error(response.message || "Failed to subscribe.");
+      }
+    } catch (error: any) {
+      toast.error(error?.data?.message || "An error occurred while subscribing.");
+    }
+  };
 
   // Conditional classes
   const leftClasses = isVisible
@@ -159,7 +193,7 @@ const StayInspired = () => {
         <div
           className={`flex-1 bg-[#E5D6C3] p-10 md:p-14 flex flex-col justify-center ${rightClasses}`}
         >
-          <form className="space-y-6 bg-white/5 border-2 border-white/10 p-4">
+          <form onSubmit={handleSubmit} className="space-y-6 bg-white/5 border-2 border-white/10 p-4">
             <div>
               <label
                 className="block text-[11px] uppercase tracking-[1px] text-gray-700 mb-2"
@@ -170,6 +204,9 @@ const StayInspired = () => {
               <input
                 type="email"
                 placeholder="you@example.com"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
                 className="w-full border-2  bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.2)] text-gray-800 text-sm px-3 py-4  outline-none transition-all"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               />
@@ -185,6 +222,8 @@ const StayInspired = () => {
               <input
                 type="text"
                 placeholder="Your name"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full border-2  bg-[rgba(255,255,255,0.1)] border-[rgba(255,255,255,0.2)] text-gray-800 text-sm px-3 py-4  outline-none transition-all"
                 style={{ fontFamily: "'Jost', sans-serif" }}
               />
@@ -192,10 +231,11 @@ const StayInspired = () => {
 
             <button
               type="submit"
-              className="w-full bg-[#795548] hover:bg-[#593125] text-white text-[11px] uppercase tracking-[2px] py-3  transition-all"
+              disabled={isLoading}
+              className="w-full bg-[#795548] hover:bg-[#593125] disabled:opacity-70 disabled:cursor-not-allowed text-white text-[11px] uppercase tracking-[2px] py-3  transition-all"
               style={{ fontFamily: "'Jost', sans-serif" }}
             >
-              Subscribe Now
+              {isLoading ? "Subscribing..." : "Subscribe Now"}
             </button>
             <p
               className={`${jostFont.className} tracking-[0.5px] text-[12px] text-[#6A7282] mt-5 leading-relaxed`}

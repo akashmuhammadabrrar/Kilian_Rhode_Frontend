@@ -294,12 +294,10 @@ const ProductCard = ({ product, tabType, onDelete }: ProductCardProps) => {
 
 const CustomDesignCard = ({
   version,
-  _productId,
   onDelete,
   onAddToCart
 }: {
   version: ICustomProductVersion,
-  _productId: number,
   onDelete?: (id: number, title: string, version: number) => void;
   onAddToCart?: (version: ICustomProductVersion) => void;
 }) => {
@@ -337,6 +335,7 @@ const CustomDesignCard = ({
       <div className="relative aspect-3/2 overflow-hidden group">
         {images.length > 0 ? (
           <>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={images[currentIdx]}
               className="w-full h-full object-cover transition-opacity duration-500"
@@ -666,9 +665,9 @@ export default function App() {
 
   const [savedProducts, setSavedProducts] =
     useState<Product[]>(DUMMY_SAVED_DESIGNS);
-  const [_orderedProducts] = useState<Product[]>(DUMMY_ORDERED_PRODUCTS);
-  const [_myDesigns] =
-    useState<Product[]>(DUMMY_MY_DESIGNS);
+  // const [_orderedProducts] = useState<Product[]>(DUMMY_ORDERED_PRODUCTS);
+  // const [_myDesigns] =
+  //  useState<Product[]>(DUMMY_MY_DESIGNS);
 
   const [modalState, setModalState] = useState<{
     isOpen: boolean;
@@ -881,7 +880,6 @@ export default function App() {
                       <CustomDesignCard
                         key={version.id}
                         version={version}
-                        _productId={product.product}
                         onDelete={(id, title, v) => openDeleteModal(id, title, "my", v)}
                         onAddToCart={handleAddToCart}
                       />

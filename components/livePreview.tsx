@@ -70,7 +70,6 @@ const CombinedDesignPageFixed = () => {
     // State to manage the active design mode: always 'ai' now
     const [designMode] = useState("ai");
     const [selectedAiImage, setSelectedAiImage] = useState<string | null>(null);
-    const [_selectedAiFile, setSelectedAiFile] = useState<File | Blob | null>(null);
     const [aiGeneratedImages, setAiGeneratedImages] = useState<{
         generated_design_url: string;
         mockup_url: string;
@@ -87,11 +86,6 @@ const CombinedDesignPageFixed = () => {
             }
             if (selectedAiImage === null) {
                 setSelectedAiImage(apiProduct.images[0].image);
-                // Fetch and set as blob for AI generation
-                fetch(apiProduct.images[0].image)
-                    .then(res => res.blob())
-                    .then(blob => setSelectedAiFile(blob))
-                    .catch(err => console.error("Error fetching default image blob:", err));
             }
         }
     }, [apiProduct, selectedProductImageId, selectedAiImage]);
@@ -127,15 +121,6 @@ const CombinedDesignPageFixed = () => {
         setSelectedAiImage(imageSrc);
         if (imageId) {
             setSelectedProductImageId(imageId);
-        }
-        console.log("Selected Image for AI:", imageSrc, "ID:", imageId);
-
-        try {
-            const response = await fetch(imageSrc);
-            const blob = await response.blob();
-            setSelectedAiFile(blob);
-        } catch (error) {
-            console.error("Error converting image to blob:", error);
         }
     };
 
@@ -295,36 +280,10 @@ const CombinedDesignPageFixed = () => {
     };
 
 
-    const _designTools = [
-        { src: tIcon, label: "Text" },
-        { src: colorIcon, label: "Colors" },
-        { src: layerIcon, label: "Layers" },
-        { src: reloadIcon, label: "Rotate" },
-        { src: scaleIcon, label: "Scale" },
-        { src: alineIcon, label: "Align" },
-        { src: imageIcon, label: "Images" },
-        { src: specialIcon, label: "AI Tools" },
-    ];
-
     const fadeInVariants: Variants = {
         hidden: { opacity: 0, y: 20 },
         visible: { opacity: 1, y: 0, transition: { duration: 0.6 } },
     };
-
-    const _toolsStagger: Variants = {
-        hidden: { opacity: 1 },
-        visible: { opacity: 1, transition: { staggerChildren: 0.1 } },
-    };
-
-    const _buttonHover: TargetAndTransition = {
-        scale: 1.05,
-        transition: { type: "spring", stiffness: 400, damping: 10 },
-    };
-
-    // Define active and inactive button styles
-    const _activeModeStyle =
-        "bg-gradient-to-r from-red-800 to-red-900 text-white shadow-md";
-    const _inactiveModeStyle = "text-gray-600 hover:bg-gray-200";
 
     return (
         <div className=" bg-gray-50 font-sans text-gray-800 p-4 sm:p-8">

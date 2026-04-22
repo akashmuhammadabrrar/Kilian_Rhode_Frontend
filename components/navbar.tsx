@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import type { NextPage } from "next";
 import Image from "next/image";
-import { Menu, X, Search as SearchIcon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 

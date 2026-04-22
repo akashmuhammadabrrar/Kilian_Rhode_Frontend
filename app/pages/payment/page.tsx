@@ -5,7 +5,7 @@ import Navbar from "@/components/navbar";
 import Footer from "@/components/footer";
 import React, { useState } from "react"; // 👈 Import useState
 import Image from "next/image";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Jost, Cormorant_Garamond } from "next/font/google";
 
 import {
@@ -149,6 +149,7 @@ const Step: React.FC<StepProps> = ({ index, label, currentStepIndex = 2 }) => {
 // Success Modal Component (No changes)
 // ----------------------------------------------------------------------
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const _SuccessModal: React.FC<{
   router: ReturnType<typeof useRouter>;
   onClose: () => void; // Function to close the modal
@@ -157,7 +158,7 @@ const _SuccessModal: React.FC<{
   const orderId = "ORD-20251123-1001";
   const subtotal = "€24.99";
   const shipping = "€5.99";
-  const tax = "€4.75";
+  // const tax = "€4.75";
   const totalAmount = TOTAL_AMOUNT; // Use the constant
 
   // ⬅️ UPDATED HANDLER: Simulates the receipt download by creating a file blob
@@ -262,7 +263,7 @@ const PaymentPage: React.FC = () => {
   const router = useRouter();
   const [selectedPayment, setSelectedPayment] = useState<string>("stripe");
   const [createPaymentSession, { isLoading: isCreatingSession }] = useCreatePaymentSessionMutation();
-  const { data: cartData, isLoading: cartLoading } = useGetCartQuery();
+  const { isLoading: cartLoading } = useGetCartQuery();
 
   const [orderId, setOrderId] = useState<number | null>(null);
   const { data: orderDetails, isLoading: orderLoading } = useGetOrderDetailsQuery(orderId as number, {

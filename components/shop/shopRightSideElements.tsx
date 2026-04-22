@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import HeaderElement from "@/components/shop/headerElements";
 import PropularWeek from "./propularWeek";
-import BottomCard from "./bottomCard";
+
 import { useGetProductsQuery, IProductQueryParams } from "@/app/store/slices/services/product/productApi";
 import EmptyState from "../EmptyState";
 
@@ -43,13 +43,6 @@ const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) =>
         hasMore={hasMore}
       />
 
-      {/* <BottomCard 
-        products={products.slice(2)}
-          isLoading={isLoading}
-          currentPage={currentPage}
-          onPageChange={handlePageChange}
-          hasMore={hasMore}
-        /> */}
     </div>
   );
 };

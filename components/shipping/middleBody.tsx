@@ -16,10 +16,6 @@ import userIcon from "@/public/image/shipping/Icon (1).svg";
 import mailIcon from "@/public/image/shipping/Icon (2).svg";
 import phone from "@/public/image/shipping/Icon (3).svg";
 import location from "@/public/image/shipping/Icon (4).svg";
-import track from "@/public/image/shipping/Icon (5).svg";
-import base from "@/public/image/shipping/Icon (6).svg";
-import rightIcon from "@/public/image/shipping/Icon (7).svg";
-import clock from "@/public/image/shipping/Icon (8).svg";
 import whiteRightIcon from "@/public/image/shipping/Icon.svg";
 import leftArrow from "@/public/image/shipping/Icon (9).svg";
 import { toast } from "sonner";
@@ -45,16 +41,6 @@ const cormorantItalic = Cormorant_Garamond({
 
 const ACCENT_COLOR = "#8b6f47";
 
-// ---------------- Types ----------------
-
-interface ShippingMethodProps {
-  title: string;
-  desc: string;
-  price: string;
-  isSelected: boolean;
-  onClick: () => void;
-}
-
 interface StepProps {
   index: number;
   label: string;
@@ -71,30 +57,6 @@ interface InputFieldProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
-
-// ---------------- Shipping Method Component ---------------- (No changes)
-
-const _ShippingMethod: React.FC<ShippingMethodProps> = ({
-  title,
-  desc,
-  price,
-  isSelected,
-  onClick,
-}) => (
-  <div
-    onClick={onClick}
-    className={`flex items-center justify-between border-2 rounded-xl p-3 cursor-pointer transition duration-200 ease-in-out ${isSelected
-      ? "border-2 border-transparent ring-2 ring-offset-1 ring-offset-[#fdfbf9] ring-[#a07d48] bg-[#fdfbf9]"
-      : "border-gray-200 hover:border-[#a07d48]/50"
-      }`}
-  >
-    <div>
-      <p className="font-medium text-gray-800 text-sm">{title}</p>
-      <p className="text-xs text-gray-500">{desc}</p>
-    </div>
-    <p className="font-semibold text-gray-800 text-sm">{price}</p>
-  </div>
-);
 
 // ---------------- Step Component ---------------- (No changes)
 
