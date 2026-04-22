@@ -18,26 +18,26 @@ import {
   CreditCard,
   Calendar,
 } from "lucide-react";
-import Image from "next/image";
+// import Image from "next/image";
 import { useGetOrderByIdQuery, useUpdateOrderStatusMutation } from "@/app/store/slices/services/adminService/orderAdminApi";
 import { toast } from "sonner";
 
-import productImage from "@/public/image/admin/products/productImage.jpg";
+// import productImage from "@/public/image/admin/products/productImage.jpg";
 import { formatCurrency } from "@/utils/formatCurrency";
 
 type ViewType = "listOrder" | "add" | "viewOrder" | "edit";
 type ViewChangeHandler = (view: ViewType, id?: number) => void;
 
-interface Product {
-  id: number;
-  name: string;
-  typeGenerate: string;
-  imageSize: string;
-  price: string;
-  stock: number;
-  sales: number;
-  status: "Active" | "Out of Stock";
-}
+// interface Product {
+//   id: number;
+//   name: string;
+//   typeGenerate: string;
+//   imageSize: string;
+//   price: string;
+//   stock: number;
+//   sales: number;
+//   status: "Active" | "Out of Stock";
+// }
 
 interface TimelineStepProps {
   status: "complete" | "current" | "pending";

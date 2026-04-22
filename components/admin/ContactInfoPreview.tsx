@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React from "react";
 import { Mail, Phone, MessageSquare, MapPin, Clock, Loader2, Globe } from "lucide-react";
 

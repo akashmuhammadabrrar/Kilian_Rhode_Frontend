@@ -10,7 +10,6 @@ import Footer from "./FooterAdmin";
 import AddNewProductScreen from "./products/createProducts/AddProductSection";
 import {
   useGetCustomersQuery,
-  useDeleteCustomerMutation,
 } from "@/app/store/slices/services/adminService/customerAdminApi";
 import { formatCurrency } from "@/utils/formatCurrency";
 

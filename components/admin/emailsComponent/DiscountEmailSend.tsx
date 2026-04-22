@@ -30,11 +30,11 @@ const SendDiscountCodes = () => {
 
   // API Hooks
   // Using getAllDiscountCodes to get details (amount, prefix)
-  const { isLoading: _isLoadingCodes } = useGetAllDiscountCodesQuery();
+  useGetAllDiscountCodesQuery();
   // Using getAllDiscountSeries to get actual series (user clarified we should use series)
-  const { data: discountSeriesData, isLoading: _isLoadingSeries } = useGetAllDiscountSeriesQuery();
+  const { data: discountSeriesData } = useGetAllDiscountSeriesQuery();
   // Using getAdminDiscountUsageStats to get Series IDs and Names (for other stats if needed)
-  const { data: _usageStats, isLoading: _isLoadingUsage } = useGetAdminDiscountUsageStatsQuery();
+  useGetAdminDiscountUsageStatsQuery();
 
 
 
@@ -309,7 +309,7 @@ const SendDiscountCodes = () => {
             Discount Code Series
           </h3>
           <div className="relative">
-            {_isLoadingUsage ? (
+            {discountSeriesData === undefined ? (
               <p className="text-sm text-gray-500">Loading series...</p>
             ) : (
               <select

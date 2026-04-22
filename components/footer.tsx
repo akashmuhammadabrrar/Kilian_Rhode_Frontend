@@ -57,18 +57,18 @@ const animationStyles = (
 
 // -------------------------------------------------------------
 
-const footerLinks = [
-  {
-    links: [
-      { name: "All Products", href: "/pages/shop" },
-      { name: "Collections", href: "/pages/collections" },
-      { name: "Men's Collection", href: "/pages/collection" },
-      { name: "Women's Collection", href: "/pages/woman-collections" },
-      { name: "Children Collection", href: "/pages/children-collections" },
-      { name: "Contact Us", href: "/pages/contact" },
-    ],
-  },
-];
+// const footerLinks = [
+//   {
+//     links: [
+//       { name: "All Products", href: "/pages/shop" },
+//       { name: "Collections", href: "/pages/collections" },
+//       { name: "Men's Collection", href: "/pages/collection" },
+//       { name: "Women's Collection", href: "/pages/woman-collections" },
+//       { name: "Children Collection", href: "/pages/children-collections" },
+//       { name: "Contact Us", href: "/pages/contact" },
+//     ],
+//   },
+// ];
 
 const Footer = () => {
   const footerRef = useRef<HTMLElement>(null);

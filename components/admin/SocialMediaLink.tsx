@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import React, { useState, useRef } from "react";
 import toast, { Toaster } from "react-hot-toast";
 import { Globe, Plus, Trash2, Loader2, Link, Save, Edit2 } from "lucide-react";

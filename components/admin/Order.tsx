@@ -103,17 +103,17 @@ type OrderStatus = "Processing" | "Completed" | "Shipped" | "Quality Check";
 // Match the types from the image's "All Types" dropdown
 type OrderDesignType = "AI Generated" | "User Upload" | "Letter/Number";
 
-interface Order {
-  id: number;
-  orderId: string;
-  customerName: string;
-  customerEmail: string;
-  product: string;
-  designType: OrderDesignType; // Updated type
-  amount: string;
-  date: string;
-  status: OrderStatus; // Updated type
-}
+// interface Order {
+//   id: number;
+//   orderId: string;
+//   customerName: string;
+//   customerEmail: string;
+//   product: string;
+//   designType: OrderDesignType; // Updated type
+//   amount: string;
+//   date: string;
+//   status: OrderStatus; // Updated type
+// }
 
 
 

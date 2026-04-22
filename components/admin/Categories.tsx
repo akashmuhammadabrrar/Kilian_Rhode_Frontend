@@ -98,7 +98,7 @@ const FilterItem: React.FC<FilterItemProps> = ({
       description={description || `Filter item for ${label}`}
       isChecked={isChecked}
       onDelete={onDelete}
-      onChange={(_e) => {
+      onChange={() => {
         if (onChange) onChange();
       }}
     />
@@ -301,6 +301,7 @@ const FileUploader = ({ file, onChange, onClear, label }: { file: File | null; o
     <div className="relative group">
       {file ? (
         <div className="relative h-32 rounded-xl overflow-hidden border border-gray-200">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={URL.createObjectURL(file)} alt="Preview" className="w-full h-full object-cover" />
           <button
             onClick={(e) => { e.preventDefault(); onClear(); }}
@@ -419,7 +420,7 @@ const FilterPage: React.FC = () => {
         }
       }).unwrap();
       toast.success(`${cat.title} ${newActiveState ? "activated" : "deactivated"}`);
-    } catch (_err) {
+    } catch {
       toast.error("Failed to update status");
     }
   };
