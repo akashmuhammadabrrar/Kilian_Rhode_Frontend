@@ -42,7 +42,7 @@ const CouponCodeManager = () => {
         month: 'short',
         day: 'numeric',
       }).format(date);
-    } catch (_e) {
+    } catch {
       return dateString;
     }
   };

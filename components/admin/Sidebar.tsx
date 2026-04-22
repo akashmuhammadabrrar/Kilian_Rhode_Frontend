@@ -250,6 +250,7 @@ import {
   X,
   LogOut,
   Loader2,
+  Mail,
 } from "lucide-react";
 import Image, { StaticImageData } from "next/image";
 import Link from "next/link";
@@ -283,6 +284,8 @@ const navItems: {
     { name: "Discount Codes", href: "/admin/discounts", icon: discountCardIcon },
     { name: "Design Quality", href: "/admin/design", icon: Sparkles },
     { name: "Content & CMS", href: "/admin/cms", icon: FileText },
+    { name: "Contact Messages", href: "/admin/contact-messages", icon: Mail },
+    { name: "Send Newsletter", href: "/admin/send-newsletter", icon: Mail },
     { name: "Settings", href: "/admin/settings", icon: Settings },
   ];
 

@@ -23,7 +23,6 @@ interface AiDesignGenerateProps {
 }
 
 const AiDesignGenerate: React.FC<AiDesignGenerateProps> = ({
-  onPreviewClick: _onPreviewClick,
   onGenerate,
   isGenerating = false,
 }) => {

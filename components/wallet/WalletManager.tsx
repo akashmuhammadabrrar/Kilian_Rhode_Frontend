@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React from "react";
 import { useGetWalletQuery } from "@/app/store/slices/services/wallet/walletApi";
-import TopUpModal from "./TopUpModal";
+
 import { Jost } from "next/font/google";
 import { motion } from "framer-motion";
 import { useAppSelector } from "@/app/store/hooks";
@@ -19,7 +19,7 @@ interface WalletManagerProps {
     openTopUpModal: () => void;
 }
 
-const WalletManager: React.FC<WalletManagerProps> = ({ productId, openTopUpModal }) => {
+const WalletManager: React.FC<WalletManagerProps> = ({ openTopUpModal }) => {
     const { data: walletData, isLoading } = useGetWalletQuery();
     const isAuthenticated = useAppSelector(selectIsAuthenticated);
 
