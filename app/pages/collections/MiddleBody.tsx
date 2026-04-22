@@ -31,7 +31,7 @@ import { formatPrice } from "@/app/utils/shared/priceFormat";
 // Inline Heart SVG button — fills when product is saved
 const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
   <button
-    className="bg-[#DFA637] text-black hover:bg-[#c99532] p-2 shadow-sm transition"
+    className="bg-[#DFA637] text-black hover:bg-[#c99532] p-2 shadow-sm transition cursor-pointer"
     onClick={onClick}
     aria-label="Toggle save product"
   >
@@ -83,6 +83,9 @@ export type Product = {
   colors: string[];
   suitableAge: AgeGroupKey[] | string[];
   is_user_saved?: boolean;
+  ai_gen?: boolean;
+  ai_letter?: boolean;
+  ai_upload?: boolean;
 };
 
 // Helper to extract numerical price
@@ -273,8 +276,14 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
               onClick={() => handleAction("Wishlist")}
             />
             <button
-              className={`${iconButtonColor} p-2 shadow-sm transition`}
-              onClick={() => onOpenCartModal(product)}
+              className={`${iconButtonColor} p-2 shadow-sm transition cursor-pointer`}
+              onClick={() => {
+                if (product.ai_gen || product.ai_letter || product.ai_upload) {
+                  onOpenCartModal(product);
+                } else {
+                  handleAction("Quick Shop");
+                }
+              }}
             >
               <Image src={shop} alt="Quick Shop" className="h-4 w-4" />
             </button>
@@ -282,10 +291,10 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
 
           <div className="absolute bottom-0 w-full px-8 mb-4">
             <button
-              className={`${cormorantNormal.className} w-full py-3 text-sm font-semibold tracking-widest flex justify-center items-center border border-white text-white bg-black/50 hover:bg-black/80 transition`}
+              className={`${cormorantNormal.className} w-full py-3 text-sm font-semibold tracking-widest flex justify-center items-center border border-white text-white bg-black/50 hover:bg-black/80 transition cursor-pointer`}
               onClick={() => handleAction("Customize")} // 👈 Calls handleAction -> handleCustomizeRoute()
             >
-              CUSTOMIZE →
+              DETAILS →
             </button>
           </div>
         </div>
@@ -321,7 +330,7 @@ const ProductCard: React.FC<ProductCardProps> = React.memo(({ product, handleOrd
         </div>
 
         <button
-          className={`${jostFont.className} w-4/5 py-3 bg-[#DFA637] text-black font-semibold text-sm hover:bg-yellow-700 transition tracking-widest uppercase`}
+          className={`${jostFont.className} w-4/5 py-3 bg-[#DFA637] text-black font-semibold text-sm hover:bg-yellow-700 transition tracking-widest uppercase cursor-pointer`}
           onClick={() => handleAction("Order Now")} // 👈 Calls handleAction -> handleOrderNow()
         >
           ORDER NOW
@@ -458,6 +467,9 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
       colors: [p.color_code],
       suitableAge: p.age_range ? [`${p.age_range.start}-${p.age_range.end}`] : [],
       is_user_saved: p.is_user_saved ?? false,
+      ai_gen: p.ai_gen ?? false,
+      ai_letter: p.ai_letter ?? false,
+      ai_upload: p.ai_upload ?? false,
     }));
 
     // Client-side Sorting
@@ -687,7 +699,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
 
           {/* COLORS (Unchanged) */}
           <div className="w-full sm:w-1/4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-3 tracking-wider">
+            {/* <h3 className="text-sm font-semibold text-gray-700 mb-3 tracking-wider">
               COLORS
             </h3>
             <div className="flex space-x-2">
@@ -704,7 +716,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
                     title={color.name}
                     onClick={() => handleColorSelect(color.hex)}
                   >
-                    {/* Checkmark icon on selection */}
+                    // Checkmark icon on selection
                     {isSelected && (
                       <svg
                         className={`h-4 w-4 ${color.hex === "#FFFFFF" || color.hex === "#DFA637" ? 'text-black' : 'text-white'}`}
@@ -718,7 +730,7 @@ export default function ShopPage({ currentCategory }: MiddleBodyProps) {
                   </div>
                 );
               })}
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

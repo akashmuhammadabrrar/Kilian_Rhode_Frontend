@@ -35,7 +35,7 @@ interface IconToggleButtonProps {
 
 const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
   <motion.button
-    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity"
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity cursor-pointer"
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
     onClick={onClick}
@@ -47,7 +47,7 @@ const IconToggleButton = ({ src, alt, onClick }: IconToggleButtonProps) => (
 // Heart icon — filled when saved, outline when not
 const HeartButton = ({ isSaved, onClick }: { isSaved: boolean; onClick: () => void }) => (
   <motion.button
-    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity"
+    className="bg-[#D4AF37] p-2 shadow-md text-gray-700 hover:opacity-80 transition-opacity cursor-pointer"
     whileHover={{ scale: 1.1 }}
     whileTap={{ scale: 0.9 }}
     onClick={onClick}
@@ -102,14 +102,14 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
     }
   };
 
-  const handleAddToCart = async (productId: number) => {
+  const handleAddToCart = async (productId: number, productName: string) => {
     if (!isAuthenticated) {
-      setToastMessage({ message: "Please login to add to cart", type: "error" });
+      setToastMessage({ message: `Please login to add ${productName} to cart`, type: "error" });
       return;
     }
     try {
       await addToCart({ product: productId, quantity: 1 }).unwrap();
-      setToastMessage({ message: "Added to cart!", type: "success" });
+      setToastMessage({ message: `${productName} added to cart!`, type: "success" });
     } catch (error) {
       console.error("Failed to add to cart", error);
       setToastMessage({ message: "Failed to add to cart", type: "error" });
@@ -188,8 +188,8 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
           }
         }}
         onAddToCart={() => {
-          if (actionModalConfig?.productId) {
-            handleAddToCart(actionModalConfig.productId);
+          if (actionModalConfig?.productId && actionModalConfig?.productName) {
+            handleAddToCart(actionModalConfig.productId, actionModalConfig.productName);
           }
         }}
       />
@@ -241,16 +241,22 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
                   <IconToggleButton
                     src={shopIcon}
                     alt="Shop Icon"
-                    onClick={() => setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name })}
+                    onClick={() => {
+                      if (product.ai_gen || product.ai_letter || product.ai_upload) {
+                        setActionModalConfig({ isOpen: true, productId: product.id, productName: product.name });
+                      } else {
+                        handleAddToCart(product.id, product.name);
+                      }
+                    }}
                   />
                 </div>
 
                 {/* CUSTOMIZE Button */}
                 <motion.button
                   onClick={() => handleCustomize(product.id)}
-                  className={`${jostFont.className} absolute bottom-[8%] w-9/10 right-[5%] h-12 border-2 border-[#ffffff] bg-white/10 text-white tracking-[2.1px] uppercase text-[14px] font-medium transition-colors duration-300 flex items-center justify-center`}
+                  className={`${jostFont.className} absolute bottom-[8%] w-9/10 right-[5%] h-12 border-2 border-[#ffffff] bg-white/10 text-white tracking-[2.1px] uppercase text-[14px] font-medium transition-colors duration-300 flex items-center justify-center cursor-pointer`}
                 >
-                  CUSTOMIZE
+                  DETAILS
                   <Image
                     src={arrowIcon}
                     alt="Arrow Icon"
@@ -290,7 +296,7 @@ export default function PopularWeek({ products, isLoading }: { products: IProduc
 
                 {/* ORDER NOW Button */}
                 <motion.button
-                  className={`${jostFont.className} shadow text-[14px] w-full h-12 mb-8 bg-[#D4AF37] text-black py-3 tracking-[2.1px] uppercase font-medium hover:bg-[#c2a25b] transition-colors duration-300`}
+                  className={`${jostFont.className} shadow text-[14px] w-full h-12 mb-8 bg-[#D4AF37] text-black py-3 tracking-[2.1px] uppercase font-medium hover:bg-[#c2a25b] transition-colors duration-300 cursor-pointer`}
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
                   onClick={() => handleOrderNow(product.id)}

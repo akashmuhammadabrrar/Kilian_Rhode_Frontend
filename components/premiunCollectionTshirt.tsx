@@ -149,7 +149,7 @@ export default function ProductPage({ productId, apiProduct }: { productId?: num
           selected: true
         }
       ],
-    mainImageSrc: apiProduct?.images?.[0]?.image || mainTshirt,
+    mainImageSrc: apiProduct?.images?.[0]?.image || "",
     thumbnails: (apiProduct?.images && apiProduct.images.length > 0)
       ? apiProduct.images.map(img => ({ src: img.image, alt: apiProduct?.name || "Product Image" }))
       : [],
@@ -240,7 +240,7 @@ export default function ProductPage({ productId, apiProduct }: { productId?: num
   useEffect(() => {
     if (apiProduct) {
       setMainImage({
-        src: apiProduct?.images?.[0]?.image || mainTshirt,
+        src: apiProduct?.images?.[0]?.image || "",
         alt: apiProduct?.name || "Product Image"
       });
       setSelectedSize(apiProduct?.cloth_size?.[0] || "");
@@ -280,13 +280,19 @@ export default function ProductPage({ productId, apiProduct }: { productId?: num
             }
 
             {/* Main Product Image */}
-            <Image
-              src={mainImage.src}
-              alt={mainImage.alt}
-              fill
-              className="object-cover w-full h-full transition-opacity duration-500 ease-in-out"
-              key={mainImageIndex}
-            />
+            {mainImage.src ? (
+              <Image
+                src={mainImage.src}
+                alt={mainImage.alt}
+                fill
+                className="object-cover w-full h-full transition-opacity duration-500 ease-in-out"
+                key={mainImageIndex}
+              />
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center text-gray-400 font-medium text-lg">
+                No image found
+              </div>
+            )}
             {/* Image Counter */}
             <div
               className={`${jostFont.className} w-9.5 text-[12px] absolute bottom-2 right-2 text-white bg-[rgba(0,0,0,0.8)] px-5 py-1 text-center flex items-center justify-center `}
@@ -402,74 +408,76 @@ export default function ProductPage({ productId, apiProduct }: { productId?: num
           <hr className="h-px border-t border-[#e5e5e5] w-full my-6" />
 
           {/* AI Customization Block */}
-          <div
-            className="mt-6 p-4 border border-gray-200 transition duration-500 ease-in-out hover:shadow-sm"
-            style={{
-              backgroundImage:
-                "linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05) 50%, rgba(0, 0, 0, 0))",
-              borderColor: "#E7E5E4",
-            }}
-          >
-            <div className="flex items-center">
-              <div className="h-10 w-10 mr-3 bg-[#D4AF37] text-[#1a1a1a] flex items-center justify-center shrink-0">
-                <Image
-                  src={specialStarBlackIcon}
-                  alt="Zap Icon"
-                  className="h-5 w-5"
-                />
-              </div>
-              <h3
-                className={`${cormorantNormal.className} tracking-[0.5px] text-[20px] "`}
-              >
-                AI-Powered Customization
-              </h3>
-            </div>
-            <p
-              className={`${jostFont.className} tracking-[0.5px] text-[13px] ml-13 mt-2  text-[#6b6b6b]`}
+          {(apiProduct?.ai_gen || apiProduct?.ai_letter || apiProduct?.ai_upload) && (
+            <div
+              className="mt-6 p-4 border border-gray-200 transition duration-500 ease-in-out hover:shadow-sm"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg, rgba(212, 175, 55, 0.1), rgba(212, 175, 55, 0.05) 50%, rgba(0, 0, 0, 0))",
+                borderColor: "#E7E5E4",
+              }}
             >
-              Create stunning designs with Adobe Firefly AI or use our manual
-              text creator. All designs are rendered in professional 300 DPI
-              quality for perfect prints.
-            </p>
-            <div className="flex flex-wrap mt-4 ml-13 text-xs font-medium text-[#1a1a1a] gap-2">
-              <span
-                className={`${jostFont.className} tracking-[0.5px] font-medium flex items-center text-[#1A1A1A] px-3 py-1 border transition duration-300 hover:bg-gray-50`}
-                style={{ borderColor: "#E7E5E4" }}
+              <div className="flex items-center">
+                <div className="h-10 w-10 mr-3 bg-[#D4AF37] text-[#1a1a1a] flex items-center justify-center shrink-0">
+                  <Image
+                    src={specialStarBlackIcon}
+                    alt="Zap Icon"
+                    className="h-5 w-5"
+                  />
+                </div>
+                <h3
+                  className={`${cormorantNormal.className} tracking-[0.5px] text-[20px] "`}
+                >
+                  AI-Powered Customization
+                </h3>
+              </div>
+              <p
+                className={`${jostFont.className} tracking-[0.5px] text-[13px] ml-13 mt-2  text-[#6b6b6b]`}
               >
-                <CustomIcon
-                  src={drowIcon}
-                  alt="Draw Icon"
-                  className="h-3 w-3 mr-1"
-                  style={{ filter: "grayscale(100%) opacity(0.7)" }}
-                />
-                Adobe Firefly AI
-              </span>
-              <span
-                className={`${jostFont.className} tracking-[0.5px] text-[#1A1A1A]  font-medium flex items-center px-3 py-1 border transition duration-300 hover:bg-gray-50`}
-                style={{ borderColor: "#E7E5E4" }}
-              >
-                <CustomIcon
-                  src={thanderIcon}
-                  alt="Thunder Icon"
-                  className="h-3 w-3 mr-1"
-                  style={{ filter: "grayscale(100%) opacity(0.7)" }}
-                />
-                300 DPI Quality
-              </span>
-              <span
-                className={`${jostFont.className} tracking-[0.5px] text-[#1A1A1A] font-medium flex items-center px-3 py-1 border rounded-md transition duration-300 hover:bg-gray-50`}
-                style={{ borderColor: "#E7E5E4" }}
-              >
-                <CustomIcon
-                  src={rightIcon}
-                  alt="Right Icon"
-                  className="h-3 w-3 mr-1 "
-                  style={{ filter: "grayscale(100%) opacity(0.7)" }}
-                />
-                Instant Preview
-              </span>
+                Create stunning designs with Adobe Firefly AI or use our manual
+                text creator. All designs are rendered in professional 300 DPI
+                quality for perfect prints.
+              </p>
+              <div className="flex flex-wrap mt-4 ml-13 text-xs font-medium text-[#1a1a1a] gap-2">
+                <span
+                  className={`${jostFont.className} tracking-[0.5px] font-medium flex items-center text-[#1A1A1A] px-3 py-1 border transition duration-300 hover:bg-gray-50`}
+                  style={{ borderColor: "#E7E5E4" }}
+                >
+                  <CustomIcon
+                    src={drowIcon}
+                    alt="Draw Icon"
+                    className="h-3 w-3 mr-1"
+                    style={{ filter: "grayscale(100%) opacity(0.7)" }}
+                  />
+                  Adobe Firefly AI
+                </span>
+                <span
+                  className={`${jostFont.className} tracking-[0.5px] text-[#1A1A1A]  font-medium flex items-center px-3 py-1 border transition duration-300 hover:bg-gray-50`}
+                  style={{ borderColor: "#E7E5E4" }}
+                >
+                  <CustomIcon
+                    src={thanderIcon}
+                    alt="Thunder Icon"
+                    className="h-3 w-3 mr-1"
+                    style={{ filter: "grayscale(100%) opacity(0.7)" }}
+                  />
+                  300 DPI Quality
+                </span>
+                <span
+                  className={`${jostFont.className} tracking-[0.5px] text-[#1A1A1A] font-medium flex items-center px-3 py-1 border rounded-md transition duration-300 hover:bg-gray-50`}
+                  style={{ borderColor: "#E7E5E4" }}
+                >
+                  <CustomIcon
+                    src={rightIcon}
+                    alt="Right Icon"
+                    className="h-3 w-3 mr-1 "
+                    style={{ filter: "grayscale(100%) opacity(0.7)" }}
+                  />
+                  Instant Preview
+                </span>
+              </div>
             </div>
-          </div>
+          )}
 
           {/* --- Size Selector --- */}
           <div className="mt-8">
@@ -622,23 +630,25 @@ export default function ProductPage({ productId, apiProduct }: { productId?: num
             {/* --- Other Buttons --- */}
 
             {/* CUSTOMIZE NOW WITH AI Button */}
-            <button
-              onClick={handleCustomizeWithAi}
-              className={`flex items-center justify-center space-x-2 w-full py-3 mt-6 text-white shadow-lg transition-transform transform hover:scale-[1.01] hover:bg-opacity-90 duration-300 cursor-pointer`}
-              style={{ backgroundColor: CUSTOM_BROWN }}
-            >
-              <CustomIcon
-                src={specialStar}
-                alt="AI Icon"
-                className="h-4 w-5"
-                style={{ filter: "invert(1)" }}
-              />
-              <span
-                className={`${jostFont.className} tracking-[2.1px] font-medium text-sm`}
+            {(apiProduct?.ai_gen || apiProduct?.ai_letter || apiProduct?.ai_upload) && (
+              <button
+                onClick={handleCustomizeWithAi}
+                className={`flex items-center justify-center space-x-2 w-full py-3 mt-6 text-white shadow-lg transition-transform transform hover:scale-[1.01] hover:bg-opacity-90 duration-300 cursor-pointer`}
+                style={{ backgroundColor: CUSTOM_BROWN }}
               >
-                CUSTOMIZE NOW WITH AI
-              </span>
-            </button>
+                <CustomIcon
+                  src={specialStar}
+                  alt="AI Icon"
+                  className="h-4 w-5"
+                  style={{ filter: "invert(1)" }}
+                />
+                <span
+                  className={`${jostFont.className} tracking-[2.1px] font-medium text-sm`}
+                >
+                  CUSTOMIZE NOW WITH AI
+                </span>
+              </button>
+            )}
 
             {/* ADD TO CART Button */}
             <button
