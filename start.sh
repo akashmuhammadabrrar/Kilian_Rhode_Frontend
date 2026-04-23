@@ -11,7 +11,7 @@ echo "Checking container status..."
 docker compose ps
 
 echo ""
-echo "Application running at http://localhost:3000"
+echo "Application running at http://localhost:3002"
 echo ""
 echo "Useful commands:"
 echo "  docker compose logs -f    # View logs"
