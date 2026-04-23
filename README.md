@@ -13,6 +13,11 @@ pnpm dev
 # or
 bun dev
 ```
+------------------------- 
+Overview regarding this project:
+* This is a modern ecommercial project build on next js 
+* Here we used Ai for customize you own design and buy it.
+
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
