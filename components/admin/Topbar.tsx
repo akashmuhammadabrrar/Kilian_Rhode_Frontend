@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
-import { Search, Bell, Menu } from "lucide-react";
-import NotificationsPanel from "./Notification"; // Renamed for clarity
+import React, { /* useState, useRef, useEffect */ } from "react";
+import { Search, /* Bell, */ Menu } from "lucide-react";
+// import NotificationsPanel from "./Notification"; // Renamed for clarity
 
 // Define props interface
 interface TopbarProps {
@@ -10,7 +10,7 @@ interface TopbarProps {
 }
 
 const Topbar: React.FC<TopbarProps> = ({ toggleSidebar }) => {
-  const [showNotifications, setShowNotifications] = useState(false);
+  /* const [showNotifications, setShowNotifications] = useState(false);
   const notificationRef = useRef<HTMLDivElement>(null);
 
   const toggleNotifications = () => {
@@ -31,7 +31,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar }) => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [notificationRef]);
+  }, [notificationRef]); */
 
   return (
     <header className="sticky top-0 flex items-center justify-between bg-white border-b border-gray-200 px-4 sm:px-8 py-3 sm:py-4 shadow-sm z-40">
@@ -60,7 +60,7 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar }) => {
 
       {/* Right side: Notifications + Profile */}
       <div className="flex items-center space-x-5">
-        <div className="relative" ref={notificationRef}>
+        {/* <div className="relative" ref={notificationRef}>
           <button
             onClick={toggleNotifications}
             className="p-1 rounded-full hover:bg-gray-100 transition focus:outline-none "
@@ -77,10 +77,10 @@ const Topbar: React.FC<TopbarProps> = ({ toggleSidebar }) => {
             isOpen={showNotifications}
             onClose={() => setShowNotifications(false)}
           />
-        </div>
+        </div> */}
 
         <div className="flex items-center space-x-2 sm:space-x-3 cursor-pointer p-1 rounded-lg hover:bg-gray-100 transition">
-          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#8B6F47] text-white font-semibold text-base flex-shrink-0">
+          <div className="flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-full bg-[#8B6F47] text-white font-semibold text-base shrink-0">
             AD
           </div>
           <div className="hidden sm:block text-left">
