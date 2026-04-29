@@ -43,7 +43,7 @@ export const contentAndCmsApi = baseBackendApi.injectEndpoints({
             query: () => "/content/contact/contact_information/",
             providesTags: ["ContactInfo"],
         }),
-        createContactInfo: builder.mutation<IContactInfoResponse, Partial<IContactInfo>>({
+        createContactInfo: builder.mutation<IContactInfoResponse, FormData>({
             query: (data) => ({
                 url: "/content/contact/contact_information/",
                 method: "POST",
@@ -51,11 +51,11 @@ export const contentAndCmsApi = baseBackendApi.injectEndpoints({
             }),
             invalidatesTags: ["ContactInfo"],
         }),
-        updateContactInfo: builder.mutation<IContactInfoResponse, Partial<IContactInfo> & { id: number }>({
-            query: ({ id, ...patch }) => ({
+        updateContactInfo: builder.mutation<IContactInfoResponse, { id: number; data: FormData }>({
+            query: ({ id, data }) => ({
                 url: `/content/contact/contact_information/${id}/`,
                 method: "PATCH",
-                body: patch,
+                body: data,
             }),
             invalidatesTags: ["ContactInfo"],
         }),

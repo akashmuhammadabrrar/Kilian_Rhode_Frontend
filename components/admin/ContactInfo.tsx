@@ -44,19 +44,19 @@ const ContactInfoForm = () => {
   const handleSaveContactInfo = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const payload = {
-      email: formData.email,
-      phone_number: formData.phone_number ? Number(formData.phone_number.replace(/\D/g, "")) : 0,
-      whatsappNumber: formData.whatsappNumber ? Number(formData.whatsappNumber.replace(/\D/g, "")) : 0,
-      businessAddress: formData.businessAddress,
-    };
+    const formDataToSubmit = new FormData();
+    formDataToSubmit.append("email", formData.email);
+    // Convert numbers to string for FormData append
+    formDataToSubmit.append("phone_number", formData.phone_number ? String(formData.phone_number.replace(/\D/g, "")) : "0");
+    formDataToSubmit.append("whatsappNumber", formData.whatsappNumber ? String(formData.whatsappNumber.replace(/\D/g, "")) : "0");
+    formDataToSubmit.append("businessAddress", formData.businessAddress || "");
 
     try {
       if (formData.id) {
-        await updateContactInfo({ id: formData.id, ...payload }).unwrap();
+        await updateContactInfo({ id: formData.id, data: formDataToSubmit }).unwrap();
         toast.success("Contact Information Updated Successfully!", { position: "bottom-center" });
       } else {
-        const res = await createContactInfo(payload).unwrap();
+        const res = await createContactInfo(formDataToSubmit).unwrap();
         if (res?.data?.id) {
           setFormData((prev) => ({ ...prev, id: res.data.id }));
         }
