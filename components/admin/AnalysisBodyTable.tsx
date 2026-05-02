@@ -47,6 +47,12 @@ const CouponCodeManager = () => {
     }
   };
 
+  const getRedeemedEmail = (redeemed_by: string | { email: string; used_at: string } | null) => {
+    if (!redeemed_by) return "";
+    if (typeof redeemed_by === "object") return redeemed_by.email;
+    return redeemed_by;
+  };
+
   // Filtered Codes
   const filteredCodes = allCodes.filter((code: DiscountCodeItem) => {
     const normalizedStatus = getNormalizedStatus(code.status);
@@ -55,7 +61,7 @@ const CouponCodeManager = () => {
     const searchFilter =
       code.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
       code.series_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      (code.redeemed_by && code.redeemed_by.toLowerCase().includes(searchTerm.toLowerCase()));
+      (getRedeemedEmail(code.redeemed_by).toLowerCase().includes(searchTerm.toLowerCase()));
 
     return statusFilter && searchFilter;
   });
@@ -143,7 +149,7 @@ const CouponCodeManager = () => {
         cleanString(item.series_name),
         cleanString(item.status),
         cleanString(item.discount),
-        cleanString(item.redeemed_by || "N/A"),
+        cleanString(getRedeemedEmail(item.redeemed_by) || "N/A"),
         cleanString(item.expiry),
       ];
       csvRows.push(row.join(","));
@@ -322,7 +328,7 @@ const CouponCodeManager = () => {
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 font-semibold">{item.discount}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                         {item.redeemed_by ? (
-                          <p className="text-gray-800 font-medium">{highlightText(item.redeemed_by)}</p>
+                          <p className="text-gray-800 font-medium">{highlightText(getRedeemedEmail(item.redeemed_by))}</p>
                         ) : (
                           <span className="text-gray-400">—</span>
                         )}
@@ -377,7 +383,7 @@ const CouponCodeManager = () => {
               </p>
               <p className="flex justify-between items-center border-b border-gray-100 pb-2"><strong className="text-gray-600">Discount:</strong> <span className="text-gray-800 font-semibold">{selectedCode.discount}</span></p>
               <p className="flex justify-between items-center border-b border-gray-100 pb-2">
-                <strong className="text-gray-600">Redeemed By:</strong> {selectedCode.redeemed_by ? <a href={`mailto:${selectedCode.redeemed_by}`} className="text-blue-600 hover:underline">{selectedCode.redeemed_by}</a> : <span className="text-gray-400">N/A</span>}
+                <strong className="text-gray-600">Redeemed By:</strong> {selectedCode.redeemed_by ? <a href={`mailto:${getRedeemedEmail(selectedCode.redeemed_by)}`} className="text-blue-600 hover:underline">{getRedeemedEmail(selectedCode.redeemed_by)}</a> : <span className="text-gray-400">N/A</span>}
               </p>
               <p className="flex justify-between items-center pt-2"><strong className="text-gray-600">Expiry:</strong> <span className="text-gray-800">{formatDate(selectedCode.expiry)}</span></p>
             </div>

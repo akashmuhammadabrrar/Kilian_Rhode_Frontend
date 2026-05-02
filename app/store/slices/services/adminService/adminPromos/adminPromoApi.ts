@@ -101,7 +101,7 @@ export interface DiscountCodeItem {
     code_prefix: string;
     status: string;
     discount: string;
-    redeemed_by: string | null;
+    redeemed_by: string | { email: string; used_at: string } | null;
     expiry: string;
 }
 
