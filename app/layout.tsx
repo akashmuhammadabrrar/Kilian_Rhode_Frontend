@@ -1,10 +1,11 @@
 // app/layout.tsx
 import { ReactNode } from "react";
-import ReduxProvider from "./ReduxProvider"; 
+import ReduxProvider from "./ReduxProvider";
 import { Geist, Geist_Mono, Cormorant_Garamond } from "next/font/google";
 import "./globals.css";
+import CookieBanner from "./utils/CookieBanner";
 
-const cormorant_garamond = Cormorant_Garamond({ weight: ["400","500","600","700"], subsets: ["latin"], variable: "--font-cormorant-garamond" });
+const cormorant_garamond = Cormorant_Garamond({ weight: ["400", "500", "600", "700"], subsets: ["latin"], variable: "--font-cormorant-garamond" });
 const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({ variable: "--font-geist-mono", subsets: ["latin"] });
 
@@ -18,7 +19,10 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html lang="en">
       <body className={`bg-[#FAFAFA] ${geistSans.variable} ${geistMono.variable} ${cormorant_garamond.variable} antialiased`}>
         {/* Wrap children with client-only ReduxProvider */}
-        <ReduxProvider>{children}</ReduxProvider>
+        <ReduxProvider>
+          {children}
+          <CookieBanner />
+        </ReduxProvider>
       </body>
     </html>
   );

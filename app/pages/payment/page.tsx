@@ -50,6 +50,7 @@ interface PaymentOptionProps {
   label: string;
   value: string;
   selected: string;
+  disabled?: boolean;
   setSelected: (value: string) => void;
 }
 
@@ -62,25 +63,28 @@ interface StepProps {
 // Payment Option Component (No changes)
 const PaymentOption: React.FC<
   PaymentOptionProps & { children?: React.ReactNode }
-> = ({ label, value, selected, setSelected, children }) => {
+> = ({ label, value, selected, setSelected, disabled, children }) => {
   const isSelected = value === selected;
 
   return (
     <div
-      onClick={() => setSelected(value)}
-      className={`border rounded-xl p-4 cursor-pointer transition-all duration-200 ${isSelected
-        ? "border-transparent ring-2 ring-offset-1 ring-[#a07d48] bg-[#fdfbf9] shadow-sm"
-        : "border-gray-200 hover:border-[#a07d48]/50"
+      onClick={() => !disabled && setSelected(value)}
+      className={`border rounded-xl p-4 transition-all duration-200 ${disabled
+        ? "bg-gray-50 border-gray-200 cursor-not-allowed opacity-60"
+        : isSelected
+          ? "border-transparent ring-2 ring-offset-1 ring-[#a07d48] bg-[#fdfbf9] shadow-sm cursor-pointer"
+          : "border-gray-200 hover:border-[#a07d48]/50 cursor-pointer"
         }`}
     >
-      <label className="flex items-center text-base font-medium text-gray-800 cursor-pointer">
+      <label className={`flex items-center text-base font-medium transition-colors ${disabled ? "text-gray-400" : "text-gray-800"} ${!disabled && "cursor-pointer"}`}>
         <input
           type="radio"
           name="paymentMethod"
           value={value}
+          disabled={disabled}
           checked={isSelected}
-          onChange={() => setSelected(value)}
-          className="h-4 w-4 text-[#a07d48] border-gray-400 focus:ring-[#a07d48] checked:bg-[#a07d48] mr-3"
+          onChange={() => !disabled && setSelected(value)}
+          className={`h-4 w-4 mr-3 ${disabled ? "accent-gray-300" : "text-[#a07d48] border-gray-400 focus:ring-[#a07d48] checked:bg-[#a07d48]"}`}
         />
         {label}
       </label>
@@ -378,6 +382,7 @@ const PaymentPage: React.FC = () => {
               <PaymentOption
                 label="PayPal (Coming Soon)"
                 value="paypal"
+                disabled={true}
                 selected={selectedPayment}
                 setSelected={setSelectedPayment}
               />
