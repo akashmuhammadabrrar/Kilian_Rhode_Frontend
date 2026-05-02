@@ -18,7 +18,6 @@ interface TopUpModalProps {
 
 const TopUpModal: React.FC<TopUpModalProps> = ({ isOpen, onClose, productId }) => {
     const [amount, setAmount] = useState<number>(10);
-    const [currency, setCurrency] = useState<string>("eur");
     const [paymentMethod, setPaymentMethod] = useState<"stripe" | "paypal">("stripe");
     const [topUp, { isLoading }] = useTopUpMutation();
 
@@ -28,7 +27,7 @@ const TopUpModal: React.FC<TopUpModalProps> = ({ isOpen, onClose, productId }) =
         try {
             const res = await topUp({
                 amount,
-                currency,
+                currency: "usd",
                 payment_method: paymentMethod,
                 success_url: `${window.location.origin}/pages/payment/success?type=topup${productId ? `&id=${productId}` : ""}`,
                 cancel_url: `${window.location.origin}/pages/payment/cancel?type=topup${productId ? `&id=${productId}` : ""}`,
@@ -64,7 +63,7 @@ const TopUpModal: React.FC<TopUpModalProps> = ({ isOpen, onClose, productId }) =
                         <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Amount</label>
                         <div className="relative">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 font-medium">
-                                {currency === 'EUR' ? '€' : '$'}
+                                $
                             </span>
                             <input
                                 type="number"
@@ -73,25 +72,6 @@ const TopUpModal: React.FC<TopUpModalProps> = ({ isOpen, onClose, productId }) =
                                 className="w-full pl-8 pr-4 py-3 border border-gray-200 rounded-md focus:ring-2 focus:ring-red-800 focus:border-transparent outline-none transition-all text-lg font-medium"
                                 min="1"
                             />
-                        </div>
-                    </div>
-
-                    {/* Currency Selection */}
-                    <div className="space-y-2">
-                        <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">Currency</label>
-                        <div className="grid grid-cols-2 gap-3">
-                            {['eur', 'usd'].map((curr) => (
-                                <button
-                                    key={curr}
-                                    onClick={() => setCurrency(curr)}
-                                    className={`py-2 border rounded-md transition-all uppercase ${currency === curr
-                                        ? 'bg-red-800 text-white border-red-800 shadow-md'
-                                        : 'border-gray-200 text-gray-600 hover:border-red-800'
-                                        }`}
-                                >
-                                    {curr}
-                                </button>
-                            ))}
                         </div>
                     </div>
 
