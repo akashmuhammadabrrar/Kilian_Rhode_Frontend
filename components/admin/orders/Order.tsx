@@ -3,7 +3,7 @@ import { Search, Eye, ChevronUp, ChevronDown } from "lucide-react";
 
 // Assuming OrderView is a placeholder component for viewing order details
 import OrderView from "./OrderView";
-import Footer from "./FooterAdmin";
+import Footer from "../FooterAdmin";
 import { useGetOrdersQuery, IOrderAdminItem } from "@/app/store/slices/services/adminService/orderAdminApi";
 import { formatCurrency } from "@/utils/formatCurrency";
 

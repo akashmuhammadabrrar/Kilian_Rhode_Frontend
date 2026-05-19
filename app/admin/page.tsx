@@ -5,7 +5,7 @@
 // import DashboardContent from "@/components/admin/DashboardContent";
 // import Topbar from "@/components/admin/Topbar";
 // import Products from "@/components/admin/Products";
-// import Order from "@/components/admin/Order";
+// import Order from "@/components/admin/orders/Order";
 // import Customers from "@/components/admin/customers/Customers";
 // import DesinQuality from "@/components/admin/DesignQuality";
 // import Settings from "@/components/admin/settings/Settings";

@@ -7,7 +7,7 @@ import dollerIcon from "@/public/image/admin/dashboard/doller.svg";
 import shopIcon from "@/public/image/admin/dashboard/shop.svg";
 import userIcon from "@/public/image/admin/dashboard/userIcon.svg";
 import aiIcon from "@/public/image/admin/dashboard/ai.svg";
-import RecentOrders from "./Recentorder";
+import RecentOrders from "./orders/Recentorder";
 import TopProducts from "./products/Topproducts";
 import FooterAdmin from "./FooterAdmin";
 import Title from "./Title";
