@@ -8,7 +8,7 @@ import shopIcon from "@/public/image/admin/dashboard/shop.svg";
 import userIcon from "@/public/image/admin/dashboard/userIcon.svg";
 import aiIcon from "@/public/image/admin/dashboard/ai.svg";
 import RecentOrders from "./Recentorder";
-import TopProducts from "./Topproducts";
+import TopProducts from "./products/Topproducts";
 import FooterAdmin from "./FooterAdmin";
 import Title from "./Title";
 import { useGetDashboardDataQuery } from "@/app/store/slices/services/adminService/adminDashboardApi";

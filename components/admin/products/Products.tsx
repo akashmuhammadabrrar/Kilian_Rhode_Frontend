@@ -2,7 +2,7 @@
 import React, { useEffect, useState } from "react";
 import { Plus, Eye, Edit, Trash2 } from "lucide-react";
 
-import ProductDetailScreen from "@/components/admin/ProductDetailsScreen";
+import ProductDetailScreen from "@/components/admin/products/ProductDetailsScreen";
 import EditProduct from "@/components/admin/products/updateProduct/EditProduct";
 import Footer from "@/components/admin/FooterAdmin";
 import Title from "@/components/admin/Title";

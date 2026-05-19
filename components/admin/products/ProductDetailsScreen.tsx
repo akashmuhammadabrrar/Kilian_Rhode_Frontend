@@ -7,7 +7,7 @@ import productImage from "@/public/image/admin/products/productImage.jpg";
 import calanderIcon from "@/public/image/admin/products/calanderIcon.svg";
 import crossIcon from "@/public/image/admin/products/crossIcon.svg";
 import { useGetSingleProductQuery } from "@/app/store/slices/services/adminService/products/productsApi";
-import { ViewChangeHandler } from "./products/Products";
+import { ViewChangeHandler } from "./Products";
 import { ProductImage } from "@/app/utils/types/productTypes";
 import Card from "@/app/utils/shared/Card";
 import {
