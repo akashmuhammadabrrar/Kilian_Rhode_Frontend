@@ -13,7 +13,7 @@ import DiscountEmailSend from "./DiscountEmailSend";
 import DiscountAutomation from "../DiscountAutomation";
 import CreateDiscountCard from "../CreateDiscountCard";
 import DiscountAnalysis from "../DiscountAnalysis";
-import AnalysisBodyTable from "../AnalysisBodyTable";
+import AnalysisBodyTable from "../analysis/AnalysisBodyTable";
 import { useGetAdminDiscountUsageStatsQuery } from "@/app/store/slices/services/adminService/adminStats/adminStatsApi";
 import EmailTemplateTab from "./EmailTemplateTab";
 
