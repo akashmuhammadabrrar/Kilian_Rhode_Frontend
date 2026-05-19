@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import HeaderText from "./headetText";
-import loveIcon from "../public/image/loveIcon.svg";
+import HeaderText from "@/components/shared/headetText";
+import loveIcon from "../../public/image/loveIcon.svg";
 import Image from "next/image";
-import ladyIcon from "../public/image/ladyImage.png";
-import thanderIcon from '../public/image/thanderIcon.svg';
+import ladyIcon from "../../public/image/ladyImage.png";
+import thanderIcon from '../../public/image/thanderIcon.svg';
 import { ArrowRight } from "lucide-react";
 
 const FutureProduct = () => {

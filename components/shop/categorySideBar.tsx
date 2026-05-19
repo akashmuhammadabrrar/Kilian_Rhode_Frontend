@@ -6,7 +6,7 @@ import { Inter } from "next/font/google";
 
 import { useGetProductCategoriesQuery } from "@/app/store/slices/services/product/productApi";
 import Image from "next/image";
-import Loader from "../Loader";
+import Loader from "@/components/shared/Loader";
 
 const inter = Inter({ subsets: ["latin"] });
 

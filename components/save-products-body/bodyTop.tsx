@@ -7,7 +7,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
-import ToastMessage from "../ToastMessage";
+import ToastMessage from "@/components/shared/ToastMessage";
 
 import { Jost } from "next/font/google";
 

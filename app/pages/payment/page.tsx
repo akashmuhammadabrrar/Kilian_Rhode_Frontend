@@ -1,8 +1,8 @@
 // PaymentPage.js (or .tsx)
 
 "use client"; // Required for Next.js client components
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 import React, { useState } from "react"; // 👈 Import useState
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";

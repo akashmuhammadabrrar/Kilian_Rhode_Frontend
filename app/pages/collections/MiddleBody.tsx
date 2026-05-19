@@ -9,9 +9,9 @@ import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
 import { motion, AnimatePresence } from "framer-motion";
-import Loader from "../../../components/Loader";
-import EmptyState from "../../../components/EmptyState";
-import CartActionModal from "@/components/CartActionModal";
+import Loader from "@/components/shared/Loader";
+import EmptyState from "@/components/shared/EmptyState";
+import CartActionModal from "@/components/cart/CartActionModal";
 
 // Images (Ensure you have a checkmark icon or use an SVG/Unicode character)
 // import hoodi from "@/public/image/collections/imag1.jpg";

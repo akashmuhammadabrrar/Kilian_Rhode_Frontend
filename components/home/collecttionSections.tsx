@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import TitleText from "./titleText";
-import Card from "./Card";
-import Loader from "./Loader";
-import { useGetProductCategoriesQuery } from "../app/store/slices/services/product/productApi";
+import TitleText from "@/components/shared/titleText";
+import Card from "@/components/shared/Card";
+import Loader from "@/components/shared/Loader";
+import { useGetProductCategoriesQuery } from "@/app/store/slices/services/product/productApi";
 
 const CollectionSections = () => {
   const { data, isLoading } = useGetProductCategoriesQuery();

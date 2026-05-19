@@ -13,7 +13,7 @@ import arrowIcon from "@/public/image/shopIcon/arrowIcon.svg";
 import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
-import CartActionModal from "@/components/CartActionModal";
+import CartActionModal from "@/components/cart/CartActionModal";
 
 import nextButtonImage from "@/public/image/shopIcon/nextArrow.svg";
 // -----------------------

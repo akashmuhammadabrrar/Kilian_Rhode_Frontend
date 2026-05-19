@@ -4,9 +4,9 @@ import React from "react";
 import { motion, Variants, Transition } from "framer-motion";
 import Image from "next/image";
 
-import specialStartIcon from "../public/image/createYourDesign/specialStarIcon.svg";
-import iIcon from "../public/image/createYourDesign/iIcon.svg"; // For Real-time Preview
-import bachIcon from "../public/image/createYourDesign/bachIcon.svg"; // For Adobe Firefly AI
+import specialStartIcon from "../../public/image/createYourDesign/specialStarIcon.svg";
+import iIcon from "../../public/image/createYourDesign/iIcon.svg"; // For Real-time Preview
+import bachIcon from "../../public/image/createYourDesign/bachIcon.svg"; // For Adobe Firefly AI
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
 

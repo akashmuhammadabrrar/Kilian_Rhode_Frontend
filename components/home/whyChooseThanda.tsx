@@ -3,9 +3,9 @@
 import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 
-import rightIcon from "../public/image/whyChooseThanderIcon/rightIcon.svg";
-import dengerIcon from "../public/image/whyChooseThanderIcon/dengerIcon.svg";
-import crossIcon from "../public/image/whyChooseThanderIcon/crossIcon.svg";
+import rightIcon from "../../public/image/whyChooseThanderIcon/rightIcon.svg";
+import dengerIcon from "../../public/image/whyChooseThanderIcon/dengerIcon.svg";
+import crossIcon from "../../public/image/whyChooseThanderIcon/crossIcon.svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
 

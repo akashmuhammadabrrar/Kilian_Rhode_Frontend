@@ -10,10 +10,10 @@ import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 import { useRouter } from "next/navigation";
 import { useSaveProductMutation, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAddToCartMutation } from "@/app/store/slices/services/order/orderApi";
-import ToastMessage from "../ToastMessage";
+import ToastMessage from "@/components/shared/ToastMessage";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
-import CartActionModal from "@/components/CartActionModal";
+import CartActionModal from "@/components/cart/CartActionModal";
 
 const jostFont = Jost({
   subsets: ["latin"],

@@ -5,8 +5,8 @@ import React from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { CheckCircle, ArrowRight, ShoppingBag, LayoutDashboard } from "lucide-react";
 import { Jost, Cormorant_Garamond } from "next/font/google";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
 const jostFont = Jost({ subsets: ["latin"], weight: ["400", "500", "600"] });
 const cormorantItalic = Cormorant_Garamond({ subsets: ["latin"], weight: ["400", "500", "600", "700"], style: ["italic"] });
