@@ -7,4 +7,8 @@ temp_interactive_push.bat
 .env.*
 build_local.log
 build_output.txt
+build_output_v2.txt
+build_output_v3.txt
+build_output_v4.txt
+build_output.log
 
