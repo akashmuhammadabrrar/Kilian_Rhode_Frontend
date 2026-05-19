@@ -1,10 +1,10 @@
 // components/TabNavigation.tsx
 import { useState } from "react";
 // Import your components for each tab
-import GeneralSettings from "@/components/admin/GeneralSettings";
+import GeneralSettings from "@/components/admin/settings/GeneralSettings";
 import Categories from "@/components/admin/Categories";
 import Promotion from "@/components/admin/Promotions";
-import EmailSetting from "@/components/admin/EmailSetting";
+import EmailSetting from "@/components/admin/settings/EmailSetting";
 
 // --- Type Definitions ---
 type TabId = "general" | "categories" | "promotions" | "email";

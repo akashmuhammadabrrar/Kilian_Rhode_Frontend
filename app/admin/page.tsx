@@ -8,7 +8,7 @@
 // import Order from "@/components/admin/Order";
 // import Customers from "@/components/admin/Customers";
 // import DesinQuality from "@/components/admin/DesignQuality";
-// import Settings from "@/components/admin/Settings";
+// import Settings from "@/components/admin/settings/Settings";
 // import CMS from "@/components/admin/CMS";
 // import Discount from "@/components/admin/Discount";
 

@@ -1,8 +1,8 @@
 import React from "react";
 import Title from "./Title";
 import InfoBox from "./InfoBox";
-import AISettingsForm from "./AiSettingForm";
-import QualitySettingsForm from "./QualitySettingsForm";
+import AISettingsForm from "./settings/AiSettingForm";
+import QualitySettingsForm from "./settings/QualitySettingsForm";
 import DesignQualityCard from "./DesignQualityCard";
 import Footer from "./FooterAdmin";
 

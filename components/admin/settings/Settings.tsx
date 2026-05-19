@@ -1,6 +1,6 @@
 import React from "react";
 import Title from "./Title";
-import SettingsBody from "@/components/admin/SettingsBody";
+import SettingsBody from "@/components/admin/settings/SettingsBody";
 import Footer from "./FooterAdmin";
 
 const App = () => {
