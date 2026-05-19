@@ -2,13 +2,13 @@
 
 import React from "react";
 import { useSearchParams } from "next/navigation";
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 import TopHeader from "./TopHeader";
 import MiddleBody from "./MiddleBody";
-import CustomDesignStudio from "../../../components/customSignStdio";
+import CustomDesignStudio from "@/components/customizer/customSignStdio";
 import { useGetProductCategoriesQuery } from "@/app/store/slices/services/product/productApi";
-import Loader from "../../../components/Loader";
+import Loader from "@/components/shared/Loader";
 
 const Page = () => {
   const searchParams = useSearchParams();

@@ -12,7 +12,7 @@ import colorStarIcon from "@/public/image/shopIcon/colorStar.svg";
 import { ISavedProduct, useDeleteSavedProductMutation } from "@/app/store/slices/services/product/productApi";
 import { useAppSelector } from "@/app/store/hooks";
 import { selectIsAuthenticated } from "@/app/store/slices/authSlice";
-import ToastMessage from "../ToastMessage";
+import ToastMessage from "@/components/shared/ToastMessage";
 import { formatPrice } from "@/app/utils/shared/priceFormat";
 
 const jostFont = Jost({

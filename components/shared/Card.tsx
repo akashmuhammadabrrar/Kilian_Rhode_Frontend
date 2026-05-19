@@ -4,8 +4,8 @@ import { Users } from "lucide-react";
 import Image from "next/image";
 import ExploreButton from "./button1"; // Assuming button1 is the path to your ExploreButton component
 
-import trendingIcon from "../public/image/cardIcon/Icon-2.svg"; // Adjust path as needed
-import exploreIcon from "../public/image/cardIcon/Icon.svg"; // Adjust path as needed
+import trendingIcon from "../../public/image/cardIcon/Icon-2.svg"; // Adjust path as needed
+import exploreIcon from "../../public/image/cardIcon/Icon.svg"; // Adjust path as needed
 import styles from "./textstyle.module.css"; // Adjust path as needed
 
 // Define the CSS Keyframe Animation for slide-up

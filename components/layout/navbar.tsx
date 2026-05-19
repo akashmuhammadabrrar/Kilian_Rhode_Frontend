@@ -6,11 +6,11 @@ import { Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import thanderIcon from "../public/image/logo.png";
-// import searchIcon from "../public/image/Icon-2.svg";
-import userIcon from "../public/image/Icon-1.svg";
-import cartIcon from "../public/image/Icon.svg";
-import EmptyCart from "./shoppingCard";
+import thanderIcon from "../../public/image/logo.png";
+// import searchIcon from "../../public/image/Icon-2.svg";
+import userIcon from "../../public/image/Icon-1.svg";
+import cartIcon from "../../public/image/Icon.svg";
+import EmptyCart from "@/components/cart/shoppingCard";
 
 import { useSelector, useDispatch } from "react-redux";
 import { selectAuth, logout as logoutAction } from "@/app/store/slices/authSlice";

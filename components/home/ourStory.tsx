@@ -4,8 +4,8 @@ import React, { useRef, useEffect, useState } from "react";
 import Image from "next/image";
 
 // Replace with your actual paths
-import storyImage from "../public/image/ourStoryImages/ourStoryImage1.jpg";
-// import arrowIcon from "../public/image/cardIcon/Icon.svg";
+import storyImage from "../../public/image/ourStoryImages/ourStoryImage1.jpg";
+// import arrowIcon from "../../public/image/cardIcon/Icon.svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
 

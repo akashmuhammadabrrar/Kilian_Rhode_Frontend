@@ -3,7 +3,7 @@ import HeaderElement from "@/components/shop/headerElements";
 import PropularWeek from "./propularWeek";
 import BottomCard from "./bottomCard";
 import { useGetProductsQuery, IProductQueryParams } from "@/app/store/slices/services/product/productApi";
-import EmptyState from "../EmptyState";
+import EmptyState from "@/components/shared/EmptyState";
 
 const ShopRightSideElements = ({ filters }: { filters: IProductQueryParams }) => {
   const [currentPage, setCurrentPage] = useState(1);

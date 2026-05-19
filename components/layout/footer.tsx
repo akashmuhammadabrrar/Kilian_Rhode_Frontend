@@ -5,10 +5,10 @@ import Link from "next/link";
 import Image from "next/image";
 
 // Local SVG Image Imports
-import fbIcon from "../public/image/footerIcon/fb.svg";
-import youTubeIcon from "../public/image/footerIcon/Icon (6).svg";
-import xIcon from "../public/image/footerIcon/xIcon.svg";
-import instagramIcon from "../public/image/footerIcon/Icon (4).svg";
+import fbIcon from "../../public/image/footerIcon/fb.svg";
+import youTubeIcon from "../../public/image/footerIcon/Icon (6).svg";
+import xIcon from "../../public/image/footerIcon/xIcon.svg";
+import instagramIcon from "../../public/image/footerIcon/Icon (4).svg";
 
 import { Jost, Cormorant_Garamond } from "next/font/google";
 import {

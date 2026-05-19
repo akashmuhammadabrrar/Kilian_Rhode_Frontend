@@ -1,7 +1,7 @@
 import React from "react";
 
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 import Header from "@/components/shop/header";
 import MiddleBody from "@/components/shop/middleBody";
 

@@ -1,12 +1,12 @@
 import React from "react";
-import Navbar from "@/components/navbar";
-import CollecttionSections from "@/components/collecttionSections";
-import CustomDesignStudio from "@/components/customStdio";
-import WhyChooseTundra from "@/components/whyChooseThanda";
-import OurStory from "@/components/ourStory";
-import StayInspiredSection from "@/components/stayInspiredSection";
-import Footer from "@/components/footer";
-import FeaturesSection from "@/components/featureSection";
+import Navbar from "@/components/layout/navbar";
+import CollecttionSections from "@/components/home/collecttionSections";
+import CustomDesignStudio from "@/components/customizer/customStdio";
+import WhyChooseTundra from "@/components/home/whyChooseThanda";
+import OurStory from "@/components/home/ourStory";
+import StayInspiredSection from "@/components/home/stayInspiredSection";
+import Footer from "@/components/layout/footer";
+import FeaturesSection from "@/components/home/featureSection";
 const page = () => {
   return (
     <>

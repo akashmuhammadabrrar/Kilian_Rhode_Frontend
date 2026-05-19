@@ -7,7 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
 // T-Shirt image path (apnar main file theke neya)
-import tshirtImage from "../public/image/livePreview/tshirt.jpg";
+import tshirtImage from "../../public/image/livePreview/tshirt.jpg";
 
 // Type for the different views
 type ProductView = "Front" | "Back" | "Side";

@@ -14,13 +14,13 @@ const cormorantItalic = Cormorant_Garamond({
   style: ["italic"],
 });
 
-import Navbar from "@/components/navbar";
-import Footer from "@/components/footer";
+import Navbar from "@/components/layout/navbar";
+import Footer from "@/components/layout/footer";
 
-import PremiunCollectionTshirt from "@/components/premiunCollectionTshirt";
-import DSCRsection from "@/components/dscrSection";
-import MayAlsoLike from "@/components/mayAlsoLike";
-import CustomDesignStudio from "@/components/customSignStdio";
+import PremiunCollectionTshirt from "@/components/home/premiunCollectionTshirt";
+import DSCRsection from "@/components/product/dscrSection";
+import MayAlsoLike from "@/components/product/mayAlsoLike";
+import CustomDesignStudio from "@/components/customizer/customSignStdio";
 
 import { useGetProductDetailsQuery } from "@/app/store/slices/services/product/productApi";
 import Link from "next/link";
