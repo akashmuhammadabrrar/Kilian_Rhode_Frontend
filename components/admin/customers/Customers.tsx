@@ -6,8 +6,8 @@ import CustomerDetails from "./CustomerDetails";
 // NOTE: Ensure the path to your icon is correct in your project structure
 import orderIcon from "@/public/image/admin/products/orderIcon.svg";
 import Image from "next/image";
-import Footer from "./FooterAdmin";
-import AddNewProductScreen from "./products/createProducts/AddProductSection";
+import Footer from "../FooterAdmin";
+import AddNewProductScreen from "../products/createProducts/AddProductSection";
 import {
   useGetCustomersQuery,
 } from "@/app/store/slices/services/adminService/customerAdminApi";
