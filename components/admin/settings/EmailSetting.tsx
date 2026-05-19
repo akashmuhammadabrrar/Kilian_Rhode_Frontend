@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useState } from "react";
 import emailIcon from "@/public/image/admin/Settings/email.svg";
-import EmailStatisticsCard from "./EmailStatus";
+import EmailStatisticsCard from "../EmailStatus";
 
 type FormState = {
   campaignName: string;
