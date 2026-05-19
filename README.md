@@ -121,7 +121,7 @@ npm run dev
 # or
 bun dev
 ```
-Navigate to [http://localhost:3000](http://localhost:3000) in your web browser.
+Navigate to [https://thundra.de/](https://thundra.de/) to view the live site, or use [http://localhost:3000](http://localhost:3000) in your web browser for local development.
 
 ### Production Optimization & Serving
 Compile and optimize the bundle for production deployment:
