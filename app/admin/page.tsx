@@ -10,7 +10,7 @@
 // import DesinQuality from "@/components/admin/DesignQuality";
 // import Settings from "@/components/admin/settings/Settings";
 // import CMS from "@/components/admin/cms/CMS";
-// import Discount from "@/components/admin/Discount";
+// import Discount from "@/components/admin/discounts/Discount";
 
 
 // // --- Main Layout ---

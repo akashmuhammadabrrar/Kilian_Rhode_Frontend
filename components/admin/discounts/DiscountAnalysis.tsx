@@ -7,11 +7,11 @@ import IncreamentIcon from "@/public/image/admin/Discount/increament.svg";
 import DecreamentIcon from "@/public/image/admin/Discount/decrement.svg";
 import Image from "next/image";
 
-import AnaliseTopPerformance from "./analysis/AnaliseTopPerformance";
-import AnalysisRecent from "./analysis/AnalysisRecent Redemptions";
-import AnalysisEmailPerformance from "./analysis/AnalysisEmailPerformance";
-import AnalysisTime from "./analysis/AnalysisTime";
-import AnalysisExport from "./analysis/AnalysisExport";
+import AnaliseTopPerformance from "../analysis/AnaliseTopPerformance";
+import AnalysisRecent from "../analysis/AnalysisRecent Redemptions";
+import AnalysisEmailPerformance from "../analysis/AnalysisEmailPerformance";
+import AnalysisTime from "../analysis/AnalysisTime";
+import AnalysisExport from "../analysis/AnalysisExport";
 
 import { useGetAdminDiscountUsageStatsQuery } from "@/app/store/slices/services/adminService/adminStats/adminStatsApi";
 import { formatCurrency } from "@/utils/formatCurrency";

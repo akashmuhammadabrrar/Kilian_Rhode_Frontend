@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 import ManualDiscountForm from "./ManualDiscount";
-import CsvDiscountForm from "./emailsComponent/CsvDiscount";
+import CsvDiscountForm from "../emailsComponent/CsvDiscount";
 
 // --- Tab Navigation Data (Primary Tabs) ---
 const tabs = ["Manage Codes", "Email Sending", "Automation", "Analytics"];

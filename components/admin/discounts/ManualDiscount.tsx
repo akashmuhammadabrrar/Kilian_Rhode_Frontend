@@ -10,7 +10,7 @@ import calander from "@/public/image/admin/Discount/calanderIcon.svg";
 import discount from "@/public/image/admin/Discount/discountIcon.svg";
 import dropdownArrow from "@/public/image/admin/Discount/droupdown.svg";
 import rightRounded from "@/public/image/admin/Discount/rightRounded.svg";
-import DiscountTitle from "@/components/admin/DiscountTitle";
+import DiscountTitle from "@/components/admin/discounts/DiscountTitle";
 
 import { useGetAllCategoriesQuery } from "@/app/store/slices/services/adminService/products/productMetadata";
 import { useGetAllProductsQuery } from "@/app/store/slices/services/adminService/products/productsApi";
