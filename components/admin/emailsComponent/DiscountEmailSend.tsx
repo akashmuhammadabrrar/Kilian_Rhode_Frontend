@@ -1,6 +1,6 @@
 // components/admin/emailsComponent/DiscountEmailSend.tsx
 import { Send, UploadIcon, Users2Icon } from "lucide-react";
-import DiscountEmailPreview from "@/components/admin/DiscountEmailPreview";
+import DiscountEmailPreview from "@/components/admin/discounts/DiscountEmailPreview";
 import React, { useState, useEffect } from "react";
 import { useGetAllDiscountCodesQuery, useGetAllDiscountSeriesQuery, DiscountSeriesItem } from "@/app/store/slices/services/adminService/adminPromos/adminPromoApi";
 import { useGetAdminDiscountUsageStatsQuery } from "@/app/store/slices/services/adminService/adminStats/adminStatsApi";

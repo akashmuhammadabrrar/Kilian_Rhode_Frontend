@@ -1,5 +1,5 @@
 "use client"
-import DesignQuality from '@/components/admin/DesignQuality'
+import DesignQuality from '@/components/admin/design/DesignQuality'
 function page() {
   return (
     <div>

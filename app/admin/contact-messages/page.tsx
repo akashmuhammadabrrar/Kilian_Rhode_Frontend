@@ -1,5 +1,5 @@
 import React from "react";
-import ContactMessages from "@/components/admin/ContactMessages";
+import ContactMessages from "@/components/admin/cms/ContactMessages";
 
 export const metadata = {
   title: "Contact Messages - Admin Dashboard",

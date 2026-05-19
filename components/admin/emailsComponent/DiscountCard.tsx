@@ -7,13 +7,13 @@ import RawClockIcon from "@/public/image/admin/Discount/clockIcon.svg";
 import RawCrossIcon from "@/public/image/admin/Discount/crossIcon.svg";
 import RawRightIcon from "@/public/image/admin/Discount/rightIcon.svg";
 
-import ManualDiscount from "../ManualDiscount";
+import ManualDiscount from "../discounts/ManualDiscount";
 import CsvDiscount from "./CsvDiscount";
 import DiscountEmailSend from "./DiscountEmailSend";
-import DiscountAutomation from "../DiscountAutomation";
-import CreateDiscountCard from "../CreateDiscountCard";
-import DiscountAnalysis from "../DiscountAnalysis";
-import AnalysisBodyTable from "../AnalysisBodyTable";
+import DiscountAutomation from "../discounts/DiscountAutomation";
+import CreateDiscountCard from "../discounts/CreateDiscountCard";
+import DiscountAnalysis from "../discounts/DiscountAnalysis";
+import AnalysisBodyTable from "../analysis/AnalysisBodyTable";
 import { useGetAdminDiscountUsageStatsQuery } from "@/app/store/slices/services/adminService/adminStats/adminStatsApi";
 import EmailTemplateTab from "./EmailTemplateTab";
 

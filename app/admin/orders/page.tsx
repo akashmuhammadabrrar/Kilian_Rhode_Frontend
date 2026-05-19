@@ -1,7 +1,7 @@
 "use client"
 
 
-import Order from '@/components/admin/Order'
+import Order from '@/components/admin/orders/Order'
 function page() {
   return (
     <div>
