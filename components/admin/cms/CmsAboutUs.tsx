@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import toast, { Toaster } from "react-hot-toast";
-import CmsAboutUsBeginning from "@/components/admin/CmsAboutUsBeginnig";
+import CmsAboutUsBeginning from "@/components/admin/cms/CmsAboutUsBeginnig";
 import {
   useGetAboutContentSectionQuery,
   useUpdateAboutContentSectionMutation,

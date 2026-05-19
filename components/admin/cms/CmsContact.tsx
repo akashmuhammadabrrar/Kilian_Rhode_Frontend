@@ -1,7 +1,7 @@
 import React from "react";
-import ContactInfoForm from "./ContactInfo";
-import SocialMediaLinksForm from "./SocialMediaLink";
-import ContactCard from "./ContactInfoPreview";
+import ContactInfoForm from "../ContactInfo";
+import SocialMediaLinksForm from "../SocialMediaLink";
+import ContactCard from "../ContactInfoPreview";
 
 const CmsContact = () => {
   return (

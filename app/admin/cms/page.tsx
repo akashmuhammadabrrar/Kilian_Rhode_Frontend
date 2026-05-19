@@ -1,6 +1,6 @@
 "use client"
 
-import CMS from '@/components/admin/CMS'
+import CMS from '@/components/admin/cms/CMS'
 import React from 'react'
 
 function page() {

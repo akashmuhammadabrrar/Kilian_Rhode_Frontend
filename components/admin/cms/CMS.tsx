@@ -1,6 +1,6 @@
-import Footer from "./FooterAdmin";
-import Title from "./Title";
-import CMStabCounter from "@/components/admin/CMStabCounter";
+import Footer from "../FooterAdmin";
+import Title from "../Title";
+import CMStabCounter from "@/components/admin/cms/CMStabCounter";
 
 // --- Main App Component ---
 const App = () => {
