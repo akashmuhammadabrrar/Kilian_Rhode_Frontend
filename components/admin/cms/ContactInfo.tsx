@@ -5,7 +5,7 @@ import {
   useGetContactInfoQuery,
   useCreateContactInfoMutation,
   useUpdateContactInfoMutation,
-} from "../../app/store/slices/services/adminService/contentAndCmsApi";
+} from "../../../app/store/slices/services/adminService/contentAndCmsApi";
 
 const ContactInfoForm = () => {
   const { data: contactRes, isLoading: isFetching } = useGetContactInfoQuery();

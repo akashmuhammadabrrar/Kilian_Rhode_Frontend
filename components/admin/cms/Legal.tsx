@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import LegalCard from "@/components/admin/LegalCard";
+import LegalCard from "./LegalCard";
 import { Loader2, Eye, Trash2, Edit } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import {
@@ -8,7 +8,7 @@ import {
   useUpdateLegalContentMutation,
   useDeleteLegalContentMutation,
   ILegalContent
-} from "../../app/store/slices/services/adminService/privecyLegalApi";
+} from "../../../app/store/slices/services/adminService/privecyLegalApi";
 
 const formatTitle = (title: string) => {
   return title.split("_").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");

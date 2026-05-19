@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { DocumentTextIcon, TrashIcon, ArrowDownTrayIcon } from "@heroicons/react/24/outline";
 import { Loader2, UploadCloud } from "lucide-react";
 import toast from "react-hot-toast";
-import { ILegalContent } from "../../app/store/slices/services/adminService/privecyLegalApi";
+import { ILegalContent } from "../../../app/store/slices/services/adminService/privecyLegalApi";
 
 const POLICY_OPTIONS = [
   "privacy_policy",

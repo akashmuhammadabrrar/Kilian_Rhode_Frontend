@@ -1,10 +1,10 @@
 import React from "react";
-import Title from "./Title";
+import Title from "../Title";
 import InfoBox from "./InfoBox";
-import AISettingsForm from "./settings/AiSettingForm";
-import QualitySettingsForm from "./settings/QualitySettingsForm";
+import AISettingsForm from "../settings/AiSettingForm";
+import QualitySettingsForm from "../settings/QualitySettingsForm";
 import DesignQualityCard from "./DesignQualityCard";
-import Footer from "./FooterAdmin";
+import Footer from "../FooterAdmin";
 
 // --- Main App Component ---
 const App = () => {

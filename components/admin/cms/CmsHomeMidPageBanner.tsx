@@ -11,7 +11,7 @@ import {
   useCreateHomepagePromotionMutation,
   useUpdateHomepagePromotionMutation,
   useDeleteHomepagePromotionMutation,
-} from "../../app/store/slices/services/adminService/homepageCmsApi";
+} from "../../../app/store/slices/services/adminService/homepageCmsApi";
 
 const CmsHomeMidPageBanner = () => {
   const { data: promoRes, isLoading: isFetching } = useGetHomepagePromotionQuery();

@@ -9,7 +9,7 @@ import {
   useCreateHomepageSaveFeatureMutation,
   useUpdateHomepageSaveFeatureMutation,
   useDeleteHomepageSaveFeatureMutation,
-} from "../../app/store/slices/services/adminService/homepageCmsApi";
+} from "../../../app/store/slices/services/adminService/homepageCmsApi";
 
 const CmsHomeFeatureIcon = () => {
   const { data: featureRes, isLoading: isFetching } = useGetHomepageSaveFeatureQuery();

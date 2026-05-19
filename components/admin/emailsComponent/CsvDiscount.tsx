@@ -3,7 +3,7 @@ import React from "react";
 // Import statements...
 
 import DiscountTitle from "@/components/admin/discounts/DiscountTitle";
-import CsvBody from "../CsvBody";
+import CsvBody from "./CsvBody";
 
 const CsvDiscountForm: React.FC = () => {
   return (

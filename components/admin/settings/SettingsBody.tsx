@@ -3,7 +3,7 @@ import { useState } from "react";
 // Import your components for each tab
 import GeneralSettings from "@/components/admin/settings/GeneralSettings";
 import Categories from "@/components/admin/products/Categories";
-import Promotion from "@/components/admin/Promotions";
+import Promotion from "@/components/admin/settings/Promotions";
 import EmailSetting from "@/components/admin/settings/EmailSetting";
 
 // --- Type Definitions ---

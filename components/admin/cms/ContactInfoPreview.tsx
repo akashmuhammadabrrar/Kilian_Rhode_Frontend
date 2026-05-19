@@ -5,7 +5,7 @@ import { Mail, Phone, MessageSquare, MapPin, Clock, Loader2, Globe } from "lucid
 import {
   useGetContactInfoQuery,
   useGetSocialMediaQuery,
-} from "../../app/store/slices/services/adminService/contentAndCmsApi";
+} from "../../../app/store/slices/services/adminService/contentAndCmsApi";
 
 // Icon mapping
 const ContactIcons = {

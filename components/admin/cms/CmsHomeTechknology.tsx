@@ -8,7 +8,7 @@ import {
   useCreateHomepageTechnologyMutation,
   useUpdateHomepageTechnologyMutation,
   useDeleteHomepageTechnologyMutation,
-} from "../../app/store/slices/services/adminService/homepageCmsApi";
+} from "../../../app/store/slices/services/adminService/homepageCmsApi";
 
 const CmsHomeTechknology = () => {
   const { data: techRes, isLoading: isFetching } = useGetHomepageTechnologyQuery();

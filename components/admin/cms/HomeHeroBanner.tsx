@@ -12,7 +12,7 @@ import {
   useCreateHomepageHeroMutation,
   useUpdateHomepageHeroMutation,
   useDeleteHomepageHeroMutation,
-} from "../../app/store/slices/services/adminService/homepageCmsApi";
+} from "../../../app/store/slices/services/adminService/homepageCmsApi";
 
 
 const HomeHeroBanner: React.FC = () => {

@@ -8,7 +8,7 @@ import {
   useCreateHomepageFeatureMutation,
   useUpdateHomepageFeatureMutation,
   useDeleteHomepageFeatureMutation,
-} from "../../app/store/slices/services/adminService/homepageCmsApi";
+} from "../../../app/store/slices/services/adminService/homepageCmsApi";
 
 const CmsHomeProductSystem = () => {
   const { data: featureRes, isLoading: isFetching } = useGetHomepageFeatureQuery();

@@ -8,7 +8,7 @@ import {
   useCreateSocialMediaMutation,
   useUpdateSocialMediaMutation,
   useDeleteSocialMediaMutation,
-} from "../../app/store/slices/services/adminService/contentAndCmsApi";
+} from "../../../app/store/slices/services/adminService/contentAndCmsApi";
 
 // --- SocialMediaLinksForm Component ---
 const SocialMediaLinksForm: React.FC = () => {

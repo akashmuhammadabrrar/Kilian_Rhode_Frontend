@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Mail, Home, Shield, File } from "lucide-react";
 import CmsContact from "./CmsContact";
-import Legal from "../Legal";
+import Legal from "./Legal";
 import CmsHome from "./CmsHome";
 import CmsAboutUs from "./CmsAboutUs";
 

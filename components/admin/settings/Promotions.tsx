@@ -1,7 +1,7 @@
 import React from "react";
 import persentage from "@/public/image/admin/Settings/persentage.svg";
 import Image from "next/image";
-import PromotionBody from "@/components/admin/PromotionBody";
+import PromotionBody from "./PromotionBody";
 import { formatCurrency } from "@/utils/formatCurrency";
 
 // ---------------------------
