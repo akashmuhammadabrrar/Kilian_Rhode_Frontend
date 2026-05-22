@@ -1,8 +1,6 @@
 node_modules/
 .next/
 
-.env
-.env.*
 build_local.log
 build_output.txt
 build_output_v2.txt
@@ -10,3 +8,7 @@ build_output_v3.txt
 build_output_v4.txt
 build_output.log
 
+branch_structure.json
+temp_auto_push.bat
+temp_interactive_push.bat
+config.bat
